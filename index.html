@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aidan Aniciete — Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080b14; --surface: #0e1525; --border: rgba(100,120,200,0.12);
+      --ocean: #1e3a8a; --purple: #6b3fa0; --accent: #7c6cfc; --soft: #a78bfa;
+      --text: #e8eaf6; --muted: #8892b0; --dim: #4a5568;
+      --font-display: 'Syne','Arial Black',sans-serif;
+      --font-body: 'DM Sans','Helvetica Neue',Arial,sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    .mesh { position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse 60% 50% at 10% 20%,rgba(30,58,138,.3) 0%,transparent 70%),
+                  radial-gradient(ellipse 50% 60% at 90% 80%,rgba(107,63,160,.25) 0%,transparent 70%),
+                  radial-gradient(ellipse 40% 40% at 50% 50%,rgba(124,108,252,.08) 0%,transparent 70%); }
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 3rem; background: rgba(8,11,20,.8); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; letter-spacing: .05em; color: var(--text); }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: .875rem; font-weight: 500; letter-spacing: .04em; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    main { position: relative; z-index: 1; }
+    section { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
+    #hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; max-width: 1000px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+    .hero-eyebrow { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem; }
+    .hero-name { font-family: var(--font-display); font-size: clamp(3rem,8vw,6.5rem); font-weight: 800; line-height: .95; letter-spacing: -.02em; margin-bottom: 1.5rem; }
+    .hero-name .line2 { display: block; background: linear-gradient(135deg,#3b5fc0 0%,var(--accent) 50%,var(--soft) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-desc { font-size: 1.05rem; color: var(--muted); max-width: 540px; line-height: 1.75; margin-bottom: 2.5rem; font-weight: 300; }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 5rem; }
+    .btn { display: inline-flex; align-items: center; gap: .5rem; padding: .75rem 1.75rem; border-radius: 6px; font-size: .875rem; font-weight: 500; text-decoration: none; transition: all .2s; cursor: pointer; border: none; font-family: var(--font-body); }
+    .btn-primary { background: linear-gradient(135deg,var(--ocean),var(--purple)); color: #fff; box-shadow: 0 0 24px rgba(124,108,252,.3); }
+    .btn-primary:hover { box-shadow: 0 0 36px rgba(124,108,252,.5); transform: translateY(-2px); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: rgba(124,108,252,.4); }
+    .hero-stats { display: flex; gap: 3rem; flex-wrap: wrap; padding-top: 3rem; border-top: 1px solid var(--border); }
+    .stat-num { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--text); }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: .78rem; color: var(--muted); margin-top: .2rem; letter-spacing: .04em; }
+    .section-wrap { padding: 6rem 0; }
+    .section-label { font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: .75rem; }
+    .section-title { font-family: var(--font-display); font-size: clamp(1.75rem,4vw,2.75rem); font-weight: 800; margin-bottom: 3rem; letter-spacing: -.02em; }
+    .exp-list { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    /* Event portfolio drawer */
+    .ep-trigger { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1.25rem; padding: .5rem 1rem; border-radius: 6px; background: rgba(124,108,252,.12); border: 1px solid rgba(124,108,252,.25); color: var(--soft); font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .2s; letter-spacing: .04em; }
+    .ep-trigger:hover { background: rgba(124,108,252,.22); border-color: rgba(124,108,252,.5); color: #fff; }
+    .ep-trigger .ep-arrow { transition: transform .3s; }
+    .ep-trigger.open .ep-arrow { transform: rotate(90deg); }
+    .ep-drawer { display: none; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+    .ep-drawer.open { display: block; }
+    .ep-hero { width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; aspect-ratio: 16/9; }
+    .ep-hero img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+    .ep-events { display: flex; flex-direction: column; gap: .75rem; }
+    .ep-event { background: rgba(30,58,138,.15); border: 1px solid rgba(124,108,252,.15); border-radius: 8px; padding: .9rem 1.1rem; display: flex; align-items: flex-start; gap: .85rem; }
+    .ep-event-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: .35rem; }
+    .ep-event { cursor: pointer; transition: border-color .2s; }
+    .ep-event:hover { border-color: rgba(124,108,252,.35); }
+    .ep-event-expand { display: none; margin-top: 1rem; border-top: 1px solid rgba(124,108,252,.12); padding-top: 1rem; }
+    .ep-event-expand.open { display: block; }
+    .ep-event-photo { width: 100%; border-radius: 8px; overflow: hidden; aspect-ratio: 16/9; margin-bottom: .75rem; }
+    .ep-event-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+    .ep-event-photo.portrait { aspect-ratio: 3/4; max-width: 320px; }
+    .ep-event-toggle { font-size: .7rem; color: var(--accent); margin-left: auto; padding-left: 1rem; flex-shrink: 0; transition: transform .2s; }
+    .ep-event.expanded .ep-event-toggle { transform: rotate(180deg); }
+    .ep-event-title { font-family: var(--font-display); font-size: .88rem; font-weight: 700; color: var(--text); margin-bottom: .2rem; }
+    .ep-event-meta { font-size: .75rem; color: var(--muted); }
+    .exp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; position: relative; overflow: hidden; transition: border-color .3s,transform .3s; }
+    .exp-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: linear-gradient(180deg,var(--ocean),var(--purple)); }
+    .exp-card:hover { border-color: rgba(124,108,252,.35); transform: translateX(4px); }
+    .exp-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: .5rem; }
+    .exp-role { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; }
+    .exp-date { font-size: .75rem; color: var(--muted); background: rgba(124,108,252,.1); padding: .25rem .75rem; border-radius: 20px; border: 1px solid rgba(124,108,252,.2); white-space: nowrap; flex-shrink: 0; }
+    .exp-company { font-size: .875rem; color: var(--accent); margin-bottom: 1rem; font-weight: 500; }
+    .exp-bullets { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .exp-bullets li { font-size: .875rem; color: var(--muted); line-height: 1.65; padding-left: 1.1rem; position: relative; }
+    .exp-bullets li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); font-size: .7rem; top: .25rem; }
+    .exp-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+    .tag { font-size: .7rem; padding: .25rem .65rem; border-radius: 4px; background: rgba(30,58,138,.3); color: var(--soft); border: 1px solid rgba(124,108,252,.15); letter-spacing: .04em; }
+    .edu-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1.5rem; }
+    .edu-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; position: relative; overflow: hidden; transition: border-color .3s; }
+    .edu-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,var(--ocean),var(--purple),transparent); }
+    .edu-card:hover { border-color: rgba(124,108,252,.3); }
+    .edu-icon { font-size: 1.75rem; margin-bottom: 1rem; }
+    .edu-school { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: .35rem; }
+    .edu-degree { font-size: .85rem; color: var(--accent); margin-bottom: .5rem; }
+    .edu-year { font-size: .78rem; color: var(--dim); }
+    .cert-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.25rem; max-width: 480px; transition: border-color .3s; margin-top: 2rem; }
+    .cert-card:hover { border-color: rgba(124,108,252,.3); }
+    .cert-icon { font-size: 1.75rem; flex-shrink: 0; }
+    .cert-name { font-family: var(--font-display); font-size: .95rem; font-weight: 700; margin-bottom: .2rem; }
+    .cert-issuer { font-size: .8rem; color: var(--accent); }
+    .cert-date { font-size: .75rem; color: var(--dim); margin-top: .2rem; }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 1.25rem; }
+    .skill-group { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+    .skill-group-title { font-family: var(--font-display); font-weight: 700; color: var(--soft); margin-bottom: 1rem; letter-spacing: .06em; text-transform: uppercase; font-size: .72rem; }
+    .skill-item { display: flex; align-items: center; gap: .6rem; margin-bottom: .65rem; font-size: .875rem; color: var(--muted); }
+    .skill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+    /* ── Interests ── */
+    .interests-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(155px,1fr)); gap: 1rem; }
+    .ic { background: var(--surface); border: 1px solid rgba(124,108,252,.18); border-radius: 12px; padding: 1.5rem; text-align: center; transition: all .25s; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+    .ic:hover { border-color: rgba(124,108,252,.55); transform: translateY(-4px); box-shadow: 0 12px 36px rgba(124,108,252,.18); background: rgba(124,108,252,.06); }
+    .ic.open { text-align: left; grid-column: 1/-1; border-color: rgba(124,108,252,.45); box-shadow: 0 0 40px rgba(124,108,252,.15); transform: none; cursor: default; }
+    .ic-icon { font-size: 1.75rem; margin-bottom: .65rem; display: block; }
+    .ic-label { font-size: .82rem; color: var(--muted); font-weight: 500; }
+    .ic-hint { font-size: .62rem; color: rgba(124,108,252,.6); margin-top: .4rem; letter-spacing: .04em; transition: color .25s; }
+    .ic:not(.open):hover .ic-hint { color: rgba(167,139,250,.95); }
+    .ic-body { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); animation: fadeUp .35s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+    .ic-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: .75rem; }
+    .ic-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: .6rem; }
+    .ic-badge { font-size: .68rem; padding: .28rem .7rem; border-radius: 20px; background: rgba(124,108,252,.1); border: 1px solid rgba(124,108,252,.25); color: var(--soft); white-space: nowrap; }
+    .ic-video-wrap { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; width: 100%; margin-bottom: 1.25rem; border: 1px solid rgba(124,108,252,.2); }
+    .ic-video-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
+    .ic-photo-wrap { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; width: 100%; margin-bottom: 1.25rem; cursor: pointer; border: 1px solid rgba(124,108,252,.2); }
+    .ic-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .2s; }
+    .ic-photo-wrap:hover img { opacity: .85; }
+    .ic-photo-count { position: absolute; bottom: .6rem; right: .75rem; background: rgba(0,0,0,.6); color: rgba(255,255,255,.8); font-size: .7rem; padding: .25rem .6rem; border-radius: 20px; letter-spacing: .04em; backdrop-filter: blur(4px); }
+
+    /* Lightbox */
+    #lb { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.92); align-items: center; justify-content: center; }
+    #lb.active { display: flex; }
+    #lb-img { max-width: 90vw; max-height: 85vh; border-radius: 10px; object-fit: contain; box-shadow: 0 0 60px rgba(0,0,0,.8); }
+    #lb-caption { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.6); font-size: .8rem; letter-spacing: .06em; white-space: nowrap; }
+    #lb-close { position: absolute; top: 1.25rem; right: 1.5rem; font-size: 1.75rem; color: rgba(255,255,255,.6); cursor: pointer; line-height: 1; transition: color .2s; }
+    #lb-close:hover { color: #fff; }
+    #lb-prev, #lb-next { position: absolute; top: 50%; transform: translateY(-50%); font-size: 2rem; color: rgba(255,255,255,.5); cursor: pointer; padding: 1rem; transition: color .2s; user-select: none; }
+    #lb-prev:hover, #lb-next:hover { color: #fff; }
+    #lb-prev { left: 1rem; }
+    #lb-next { right: 1rem; }
+    #lb-counter { position: absolute; top: 1.25rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.4); font-size: .75rem; letter-spacing: .1em; }
+    .ic-video { border-radius: 8px; aspect-ratio: 16/9; background: linear-gradient(135deg,rgba(30,58,138,.35),rgba(107,63,160,.25)); border: 1px dashed rgba(124,108,252,.3); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--dim); font-size: .68rem; gap: .3rem; margin-bottom: 1.25rem; }
+    .ic-desc { font-size: .875rem; color: var(--muted); line-height: 1.75; margin-bottom: 1.25rem; max-width: 640px; }
+    .ic-lbl { font-family: var(--font-display); font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--soft); margin-bottom: .5rem; }
+    .ic-tags { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+    .ic-tag { font-size: .7rem; padding: .25rem .65rem; border-radius: 4px; background: rgba(30,58,138,.3); color: var(--soft); border: 1px solid rgba(124,108,252,.15); font-family: var(--font-display); font-weight: 700; }
+    .ic-bucket { font-size: .82rem; color: var(--accent); margin-bottom: 1.1rem; line-height: 1.5; }
+    .ic-countries { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.1rem; }
+    .ic-country { font-size: .75rem; padding: .3rem .7rem; border-radius: 20px; background: rgba(30,58,138,.2); color: var(--muted); border: 1px solid var(--border); }
+    .ic-strava { display: inline-flex; align-items: center; gap: .4rem; font-size: .78rem; color: #fc4c02; text-decoration: none; background: rgba(252,76,2,.08); border: 1px solid rgba(252,76,2,.2); padding: .35rem .75rem; border-radius: 6px; margin-bottom: 1.1rem; transition: all .2s; font-weight: 500; }
+    .ic-strava:hover { background: rgba(252,76,2,.15); }
+    .ic-sub { border: 1px solid rgba(100,120,200,.1); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; background: rgba(255,255,255,.02); }
+    .ic-sub-title { font-family: var(--font-display); font-size: .9rem; font-weight: 800; margin-bottom: .75rem; }
+    .ic-holdings { display: flex; flex-direction: column; gap: .6rem; margin-bottom: .5rem; }
+    .ic-group { background: rgba(30,58,138,0.15); border: 1px solid rgba(124,108,252,0.15); border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+
+    /* Net worth chart */
+    .ic-chart-wrap { margin-bottom: 1rem; }
+    .ic-chart-canvas { width: 100%; height: 160px; display: block; }
+    .ic-chart-labels { display: flex; justify-content: space-between; margin-top: .35rem; }
+    .ic-chart-label { font-size: .6rem; color: var(--dim); letter-spacing: .04em; }
+    .ic-chart-summary { display: flex; gap: 1.5rem; margin-top: .75rem; flex-wrap: wrap; }
+    .ic-chart-stat { }
+    .ic-chart-stat-val { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; color: var(--text); }
+    .ic-chart-stat-lbl { font-size: .65rem; color: var(--dim); margin-top: .1rem; letter-spacing: .05em; text-transform: uppercase; }
+    .ic-holding { background: rgba(255,255,255,.02); border: 1px solid rgba(100,120,200,.1); border-radius: 8px; padding: .75rem 1rem; }
+    .ic-holding-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: .3rem; }
+    .ic-ticker { font-family: var(--font-display); font-size: .85rem; font-weight: 800; color: var(--text); letter-spacing: .05em; }
+    .ic-gain { font-family: var(--font-display); font-size: .82rem; font-weight: 700; }
+    .ic-gain.pos { color: #4ade80; }
+    .ic-gain.neg { color: #f87171; }
+    .ic-thesis { font-size: .75rem; color: var(--muted); line-height: 1.5; }
+    .ic-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); flex-wrap: wrap; gap: .75rem; }
+    .ic-collapse { font-size: .72rem; color: var(--dim); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--font-body); transition: color .2s; margin-left: auto; }
+    .ic-collapse:hover { color: var(--muted); }
+    .ic-deeplink { display: inline-flex; align-items: center; gap: .4rem; margin: 1rem 0 .5rem; padding: .6rem 1.25rem; border-radius: 6px; background: linear-gradient(135deg, var(--ocean), var(--purple)); color: #fff; font-size: .8rem; font-weight: 600; text-decoration: none; transition: box-shadow .2s, transform .2s; font-family: var(--font-body); }
+    .ic-deeplink:hover { box-shadow: 0 0 20px rgba(124,108,252,.4); transform: translateY(-1px); }
+
+    .contact-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 3rem; text-align: center; position: relative; overflow: hidden; }
+    .contact-wrap::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 60% at 50% 0%,rgba(124,108,252,.08),transparent); pointer-events:none; }
+    .contact-title { font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: .75rem; }
+    .contact-sub { color: var(--muted); margin-bottom: 1.5rem; font-size: .95rem; }
+    .contact-detail { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem; }
+    .contact-item { font-size: .875rem; color: var(--muted); display: flex; align-items: center; gap: .4rem; }
+    .contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+    footer { position: relative; z-index: 1; text-align: center; padding: 2rem; color: var(--dim); font-size: .78rem; letter-spacing: .05em; }
+    .reveal { opacity: 1; transform: none; }
+    .reveal.hidden { opacity: 0; transform: translateY(24px); transition: opacity .6s ease,transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .cursor-glow { position: fixed; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle,rgba(124,108,252,.07) 0%,transparent 70%); pointer-events: none; z-index: 0; transform: translate(-50%,-50%); transition: left .1s ease,top .1s ease; }
+    @media(max-width:768px){
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      #hero { padding: 5rem 1.5rem 3rem; }
+      section { padding: 0 1.5rem; }
+      .hero-stats { gap: 1.5rem; }
+      .contact-wrap { padding: 2rem 1.5rem; }
+      .exp-header { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="mesh"></div>
+<div class="cursor-glow" id="glow"></div>
+
+<nav>
+  <div class="nav-logo">AA<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#interests">Interests</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://linkedin.com/in/aidaniciete" target="_blank">LinkedIn</a></li>
+</nav>
+
+<main>
+  <div id="hero">
+    <p class="hero-eyebrow">San Jose, CA · Accounting Information Systems</p>
+    <h1 class="hero-name">
+      Aidan Aniciete
+      <span class="line2">Systematic. Driven. Forward.</span>
+    </h1>
+    <p class="hero-desc">I joined Maritz's events team at 19, embedded on-site at Google's corporate campus coordinating tech talks and corporate events for up to 200 attendees. A year ago I moved into the Google Bay View Event Center — now supporting events at the 200 to 3,000 person scale. Transitioning into Accounting Information Systems, bringing real operational discipline, a systems-oriented mindset, and the kind of structured thinking that AIS is built on.</p>
+    <div class="hero-cta">
+      <a href="#experience" class="btn btn-primary">View Experience</a>
+      <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">4<span>+</span></div><div class="stat-label">Years Professional Experience</div></div>
+      <div><div class="stat-num">3</div><div class="stat-label">Companies &amp; Industries</div></div>
+      <div><div class="stat-num">AIS</div><div class="stat-label">Career Direction · In Progress</div></div>
+    </div>
+  </div>
+
+  <section id="experience">
+    <div class="section-wrap">
+      <p class="section-label reveal">Professional Experience</p>
+      <h2 class="section-title reveal">Where I've Made an Impact</h2>
+      <div class="exp-list">
+        <div class="exp-card reveal">
+          <div class="exp-header"><div class="exp-role">Event Service Specialist</div><div class="exp-date">Nov 2022 – Present</div></div>
+          <div class="exp-company">Maritz @ Google · Mountain View, CA</div>
+          <ul class="exp-bullets">
+            <li>Managed all on-site logistics for corporate events — transportation, registration, catering, and VIP handling — ensuring exceptional attendee engagement and measurable outcomes.</li>
+            <li>Served as primary client point of contact, providing expert day-of guidance and maintaining proactive communication to ensure client satisfaction.</li>
+            <li>Applied real-time problem-solving to anticipate and resolve on-site challenges, consistently exceeding expectations at one of the world's leading tech campuses.</li>
+            <li>Conducted regular audits and maintenance of internal event spaces to ensure facilities met corporate quality standards.</li>
+            <li>Managed team resource documents and supported administrative projects as assigned by manager.</li>
+          </ul>
+          <div class="exp-tags"><span class="tag">Enterprise Events</span><span class="tag">Client Relations</span><span class="tag">VIP Handling</span><span class="tag">Logistics</span><span class="tag">Google Campus</span></div>
+
+          <div class="ep-trigger" id="epTrigger">📁 View Event Portfolio <span class="ep-arrow">›</span></div>
+          <div class="ep-drawer" id="epDrawer">
+            <div class="ep-events">
+
+              <div class="ep-event" id="epEvent0">
+                <div class="ep-event-dot"></div>
+                <div style="flex:1">
+                  <div class="ep-event-title">Google Marketing Live 2025</div>
+                  <div class="ep-event-meta">Supported · Maritz @ Google Event Center · Bay View, Mountain View CA</div>
+                  <div class="ep-event-meta" style="margin-top:.25rem;color:var(--soft);">775 attended · 420 expected — <span style="color:#4ade80;">+84% over capacity</span></div>
+                  <div class="ep-event-expand" id="epExpand0">
+                    <div class="ep-event-photo">
+                      <img src="assets/images/gml-2025.jpg" alt="Google Marketing Live 2025">
+                    </div>
+                  </div>
+                </div>
+                <div class="ep-event-toggle">▾</div>
+              </div>
+
+              <div class="ep-event" id="epEvent1">
+                <div class="ep-event-dot"></div>
+                <div style="flex:1">
+                  <div class="ep-event-title">Research@ Google</div>
+                  <div class="ep-event-meta">Lead ESS · Maritz @ Google Event Center · Bay View, Mountain View CA</div>
+                  <div class="ep-event-meta" style="margin-top:.25rem;color:var(--soft);">175 attended · 300 expected</div>
+                  <div class="ep-event-expand" id="epExpand1">
+                    <div class="ep-event-meta" style="color:var(--dim);font-style:italic;">Photo coming soon</div>
+                  </div>
+                </div>
+                <div class="ep-event-toggle">▾</div>
+              </div>
+
+              <div class="ep-event" id="epEvent2">
+                <div class="ep-event-dot"></div>
+                <div style="flex:1">
+                  <div class="ep-event-title">ACLS 2025</div>
+                  <div class="ep-event-meta">Lead ESS · Maritz @ Google Event Center · Bay View, Mountain View CA</div>
+                  <div class="ep-event-meta" style="margin-top:.25rem;color:var(--soft);">383 attended · 432 expected</div>
+                  <div class="ep-event-expand" id="epExpand2">
+                    <div class="ep-event-photo">
+                      <img src="assets/images/acls-team.jpg" alt="ACLS 2025 team">
+                    </div>
+                  </div>
+                </div>
+                <div class="ep-event-toggle">▾</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="exp-card reveal">
+          <div class="exp-header"><div class="exp-role">Stylist</div><div class="exp-date">Aug 2022 – Dec 2024</div></div>
+          <div class="exp-company">Club Monaco · Santa Clara, CA</div>
+          <ul class="exp-bullets">
+            <li>Maximized personal sales through personalized styling advice and a loyal client book, consistently exceeding profitability goals.</li>
+            <li>Delivered exceptional customer experiences tailored to individual needs, maintaining brand integrity through visual presentation expertise.</li>
+            <li>Actively participated in all store operations including stock receiving and processing to ensure product availability and presentation.</li>
+          </ul>
+          <div class="exp-tags"><span class="tag">Sales</span><span class="tag">Client Book</span><span class="tag">Visual Merchandising</span><span class="tag">Customer Experience</span></div>
+        </div>
+        <div class="exp-card reveal">
+          <div class="exp-header"><div class="exp-role">Supervisor</div><div class="exp-date">June 2021 – Aug 2022</div></div>
+          <div class="exp-company">Uniqlo · Santa Clara, CA</div>
+          <ul class="exp-bullets">
+            <li>Led and trained a team of sales associates to consistently meet and exceed department sales targets.</li>
+            <li>Managed operational standards including visual merchandising and inventory to uphold brand integrity.</li>
+            <li>Directed store coverage during peak hours, ensuring efficient operations and high-quality customer service.</li>
+            <li>Identified and communicated operational inefficiencies to management, contributing to measurable process improvements.</li>
+            <li>Recognized by Area Manager for the UMC (Manager Candidate) program — Uniqlo's competitive 9-month fast-track to store management. Corresponded directly with national HR; degree requirement was the only barrier to entry.</li>
+          </ul>
+          <div class="exp-tags"><span class="tag">Team Leadership</span><span class="tag">Operations</span><span class="tag">Inventory</span><span class="tag">Training</span><span class="tag">UMC Recommended</span></div>
+
+          <div class="ep-trigger" id="uqTrigger">🏬 On the Floor <span class="ep-arrow">›</span></div>
+          <div class="ep-drawer" id="uqDrawer">
+            <div class="ep-events">
+
+              <div class="ep-event" id="uqEvent0">
+                <div class="ep-event-dot"></div>
+                <div style="flex:1">
+                  <div class="ep-event-title">A-Rank Visual Merchandising</div>
+                  <div class="ep-event-meta">Folding and display standards to brand specification — Sweat Lineup floor set · Valley Fair, Santa Clara CA</div>
+                  <div class="ep-event-expand" id="uqExpand0">
+                    <div class="ep-event-photo portrait">
+                      <img src="assets/images/uniqlo-floor.jpg" alt="A-rank visual merchandising">
+                    </div>
+                  </div>
+                </div>
+                <div class="ep-event-toggle">▾</div>
+              </div>
+
+              <div class="ep-event" id="uqEvent1">
+                <div class="ep-event-dot"></div>
+                <div style="flex:1">
+                  <div class="ep-event-title">Stock Floor Operations</div>
+                  <div class="ep-event-meta">Behind the scenes — receiving, processing, and staging new inventory · Valley Fair, Santa Clara CA</div>
+                  <div class="ep-event-expand" id="uqExpand1">
+                    <div class="ep-event-photo portrait">
+                      <img src="assets/images/uniqlo-stock.jpg" alt="Stock floor operations">
+                    </div>
+                  </div>
+                </div>
+                <div class="ep-event-toggle">▾</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="exp-card reveal">
+          <div class="exp-header"><div class="exp-role">FRL Intern</div><div class="exp-date">June 2020 – Aug 2020</div></div>
+          <div class="exp-company">NAF Internship · Santa Clara, CA</div>
+          <ul class="exp-bullets">
+            <li>Collaborated with a cross-functional team to deliver product innovation projects, including a pitch for a portable library initiative supporting homeless students' academic success.</li>
+            <li>Developed project management and technical skills across multiple business sectors, presenting ideas to senior management and incorporating feedback.</li>
+          </ul>
+          <div class="exp-tags"><span class="tag">Project Management</span><span class="tag">Cross-functional</span><span class="tag">Innovation</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="education">
+    <div class="section-wrap">
+      <p class="section-label reveal">Education</p>
+      <h2 class="section-title reveal">Academic Path</h2>
+      <div class="edu-grid">
+
+        <div class="edu-card reveal">
+          <div class="edu-icon">📚</div>
+          <div class="edu-school">San Jose City College</div>
+          <div class="edu-degree">A.S. Business Administration</div>
+          <div class="edu-year">Aug 2021 – Present · Expected Transfer: Fall 2027</div>
+
+        </div>
+        <div class="edu-card reveal">
+          <div class="edu-icon">📖</div>
+          <div class="edu-school">Upcoming Coursework <span style="font-size:.65rem;background:rgba(124,108,252,.15);color:var(--accent);border:1px solid rgba(124,108,252,.3);border-radius:20px;padding:.2rem .6rem;letter-spacing:.06em;font-family:var(--font-body);font-weight:600;vertical-align:middle;">IN PROGRESS</span></div>
+          <div class="edu-degree" style="margin-bottom:.75rem;">Spring &ndash; Fall 2027</div>
+          <div class="edu-year" style="line-height:1.9;">
+            ACCTG-020: Financial Accounting &middot; 5cr<br>
+            ECON-010B: Intro to Microeconomic Theory &middot; 3cr<br>
+            ACCTG-021: Managerial Accounting &middot; 5cr<br>
+            STAT-C1000: Introduction to Statistics &middot; 3cr
+          </div>
+        </div>
+      </div>
+      <div class="cert-card reveal">
+        <div class="cert-icon">📋</div>
+        <div><div class="cert-name">Foundations of Project Management</div><div class="cert-issuer">Coursera</div><div class="cert-date">March 2023</div></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="skills">
+    <div class="section-wrap">
+      <p class="section-label reveal">Capabilities</p>
+      <h2 class="section-title reveal">What I Bring</h2>
+      <div class="skills-grid">
+        <div class="skill-group reveal">
+          <div class="skill-group-title">Tools &amp; Tech</div>
+          <div class="skill-item"><span class="skill-dot"></span>Excel &amp; Google Sheets — built a live multi-tab portfolio tracker with sector allocation modeling</div>
+          <div class="skill-item"><span class="skill-dot"></span>Python — introductory coursework; logic &amp; data fundamentals</div>
+          <div class="skill-item"><span class="skill-dot"></span>Google Workspace — Docs, Sheets, Calendar; used daily at Google/Maritz</div>
+          <div class="skill-item"><span class="skill-dot"></span>AI tools — actively leverage Claude &amp; ChatGPT to research, build, and learn faster</div>
+        </div>
+        <div class="skill-group reveal">
+          <div class="skill-group-title">Finance &amp; Investing</div>
+          <div class="skill-item"><span class="skill-dot"></span>Personal portfolio management — $42k+ across Roth IRA, 401(k), HSA</div>
+          <div class="skill-item"><span class="skill-dot"></span>Cost basis tracking, sector allocation &amp; factor investing (value, momentum)</div>
+          <div class="skill-item"><span class="skill-dot"></span>Tax-advantaged account strategy — triple-stack IRA/401k/HSA since age 19</div>
+          <div class="skill-item"><span class="skill-dot"></span>Financial planning &amp; budgeting — debt paydown, savings goals, net worth tracking</div>
+        </div>
+        <div class="skill-group reveal">
+          <div class="skill-group-title">Operations &amp; Events</div>
+          <div class="skill-item"><span class="skill-dot"></span>Enterprise event coordination — 200 to 3,000-person scale at Google Bay View</div>
+          <div class="skill-item"><span class="skill-dot"></span>VIP &amp; client handling — primary point of contact for day-of execution</div>
+          <div class="skill-item"><span class="skill-dot"></span>Real-time problem solving under pressure</div>
+          <div class="skill-item"><span class="skill-dot"></span>Team leadership &amp; training — supervised staff at Uniqlo, recommended for UMC</div>
+        </div>
+        <div class="skill-group reveal">
+          <div class="skill-group-title">People &amp; Communication</div>
+          <div class="skill-item"><span class="skill-dot"></span>Client relationship management — built loyal book at Club Monaco</div>
+          <div class="skill-item"><span class="skill-dot"></span>Stakeholder communication across corporate &amp; retail environments</div>
+          <div class="skill-item"><span class="skill-dot"></span>Cross-functional coordination — worked across Maritz, Google, and vendor teams</div>
+          <div class="skill-item"><span class="skill-dot"></span>Self-directed learning — Python, AIS coursework, investing all self-initiated</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="interests">
+    <div class="section-wrap">
+      <p class="section-label reveal">Beyond Work</p>
+      <h2 class="section-title reveal">What Drives Me</h2>
+      <div class="interests-grid" id="iGrid"></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="contact">
+    <div class="section-wrap">
+      <div class="contact-wrap reveal">
+        <h2 class="contact-title">Let's Connect</h2>
+        <p class="contact-sub">Open to AIS opportunities, internships, and professional conversations.</p>
+        <div class="contact-detail">
+          <span class="contact-item">📍 San Jose, CA</span>
+          <span class="contact-item">✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="99f8f0fdf8f7b7f8f7f0faf0fcedfcd9fef4f8f0f5b7faf6f4">[email&#160;protected]</a></span>
+        </div>
+        <div class="contact-links">
+          <a href="/cdn-cgi/l/email-protection#73121a17121d5d121d1a101a16071633141e121a1f5d101c1e" class="btn btn-primary">✉️ Email Me</a>
+          <a href="https://linkedin.com/in/aidaniciete" class="btn btn-ghost" target="_blank">LinkedIn →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>© 2026 Aidan Aniciete · Built with intention.</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><div id="lb">
+  <span id="lb-close">✕</span>
+  <span id="lb-prev">‹</span>
+  <img id="lb-img" src="" alt="">
+  <span id="lb-next">›</span>
+  <div id="lb-counter"></div>
+  <div id="lb-caption"></div>
+</div>
+
+<script>
+(function() {
+  // Cursor glow
+  var glow = document.getElementById('glow');
+  document.addEventListener('mousemove', function(e) {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+
+  // Scroll reveal
+  var revEls = document.querySelectorAll('.reveal');
+  revEls.forEach(function(el) { el.classList.add('hidden'); });
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry, i) {
+      if (entry.isIntersecting) {
+        setTimeout(function() { entry.target.classList.remove('hidden'); entry.target.classList.add('visible'); }, i * 60);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  revEls.forEach(function(el) { obs.observe(el); });
+
+  // ── Interests cards ──────────────────────────────────────────────────────
+  // ── Photo helper ─────────────────────────────────────────────────────────
+  // Each photo entry is either:
+  //   { src: 'assets/images/file.jpg', alt: 'Caption' }  ← real image
+  //   'Caption text 📸'                                   ← placeholder (shown until you add the image)
+  var DATA = {
+    f1: {
+      badge: '🇧🇪 Belgian GP · Spa 2024',
+      desc: 'Spa-Francorchamps 2024. Belgian Grand Prix. One of the most iconic tracks on the calendar — and I was there for it. The forest, the elevation changes, Eau Rouge. Nothing replicates the feeling of being there in person.',
+      photos: [
+        { src: 'assets/images/spa-overview.JPG', alt: 'Spa overview' },
+        { src: 'assets/images/spa-eau-rouge.jpg', alt: 'Eau Rouge' },
+        { src: 'assets/images/spa-pitlane.jpg', alt: 'Pit lane' },
+        { src: 'assets/images/spa-raceday.jpg', alt: 'Race day' }
+      ],
+      sections: [
+        { label: 'Drivers I Follow', type: 'tags', items: ['Max Verstappen', 'Sebastian Vettel'] },
+        { label: 'Bucket List', type: 'bucket', text: '🏁 Le Mans 2029–2030 — watch Seb & Max race together one last time' }
+      ]
+    },
+    fitness: {
+      badge: '🥊 Muay Thai · 🪂 Skydiver · 🏂 Snowboarder · 🏎️ Karter',
+      desc: 'Muay Thai for a year and a half — the most mentally and physically demanding thing I do consistently. Outside the gym: jumped out of planes over New Zealand, Switzerland, and the Bay Area. Snowboarding when the season hits. Karting whenever I get the chance.',
+      photos: [
+        { src: 'assets/images/skydiving-nz.jpg', alt: 'Skydiving NZ' },
+        { src: 'assets/images/skydiving-swiss.jpg', alt: 'Skydiving Switzerland' },
+        { src: 'assets/images/snowboarding.jpg', alt: 'Snowboarding' },
+        'Nature 🌿'
+      ],
+      sections: [
+        { label: 'Karting', type: 'karting',
+          kartPhotos: [
+            { src: 'assets/images/karting-1.jpg', alt: 'Karting' }
+          ]
+        },
+        { label: 'Currently Into', type: 'tags', items: ['Muay Thai', 'Running', 'Snowboarding', 'Skydiving', 'Karting'] },
+        { label: 'Current Goal', type: 'bucket', text: '🎯 Rebuild endurance — consistent mileage before going hard again' },
+        { label: 'Strava', type: 'strava', url: 'https://strava.app.link/5HowXiv4q1b' }
+      ]
+    },
+    travel: {
+      badge: '✈️ 7 Countries & counting',
+      desc: 'Every trip is intentional. Amsterdam canals at golden hour, the Swiss Alps above Interlaken, New Zealand fjords at Milford Sound, the Belgian GP at Spa, Canada in a full blizzard, Mexico sunsets over the Pacific. Each one hit different.',
+      photos: [
+        { src: 'assets/images/amsterdam.jpg', alt: 'Amsterdam' },
+        { src: 'assets/images/interlaken.jpg', alt: 'Interlaken' },
+        { src: 'assets/images/new-zealand.jpg', alt: 'New Zealand' },
+        { src: 'assets/images/belgium.jpg', alt: 'Belgium' },
+        { src: 'assets/images/mexico.jpg', alt: 'Mexico' }
+      ],
+      sections: [
+        { label: 'Been To', type: 'countries', items: ['🇳🇱 Netherlands', '🇨🇭 Switzerland', '🇳🇿 New Zealand', '🇧🇪 Belgium', '🇨🇦 Canada', '🇵🇭 Philippines', '🇲🇽 Mexico'] },
+        { label: 'Next Up', type: 'bucket', text: '🗺️ Japan — already on the list' }
+      ]
+    },
+    finance: {
+      badge: '📊 31 Holdings · Roth IRA + 401(k) + HSA',
+      desc: 'Opened my Roth IRA at 19 with $500. Now managing $42k+ across a Roth IRA, 401(k), and HSA at 23. High-conviction picks, quant factor ETFs, and every position tracked in a custom spreadsheet model.',
+      photos: null,
+      deepLink: '/finance',
+      sections: [
+        { label: 'Net Worth Growth', type: 'chart', points: [
+          { date: 'Aug \'23', value: 1600 },
+          { date: 'Feb \'24', value: 3000 },
+          { date: 'Aug \'24', value: 19900 },
+          { date: 'Mar \'25', value: 20900 },
+          { date: 'Sep \'25', value: 34700 },
+          { date: 'Mar \'26', value: 42300 },
+        ]},
+        { label: 'Strategy Mix', type: 'tags', items: ['High-conviction Equities', 'Quant Factor ETFs', 'REITs', 'International Exposure', 'Written Thesis Per Position'] },
+        { label: 'Philosophy', type: 'bucket', text: '💡 Keep investing through the noise. Conviction over reaction.' }
+      ]
+    },
+    pokemon: {
+      badge: '🎮 VGC · ♟️ Chess',
+      subs: [
+        { title: 'Pokémon VGC', emoji: '🎮', desc: 'Compete in local VGC tournaments and planning to scale up to regionals. Team building and meta reads are half the battle.',
+          photos: [
+            { src: 'assets/images/vgc-team.jpg', alt: 'Team preview' },
+            { src: 'assets/images/vgc-locals.jpg', alt: 'Locals' }
+          ], pc: 'two', tags: ['VGC Format', 'Locals', 'Regionals — soon'] },
+        { title: 'Chess', emoji: '♟️', desc: 'Casual and still learning — play on Chess.com. More about pattern recognition and slowing down than anything competitive.',
+          photos: [
+            
+          ], pc: 'one', tags: ['Chess.com', 'Casual', 'Learning'] }
+      ]
+    },
+    roots: {
+      badge: '🏕️🥁 The Early Years',
+      desc: 'Before the resume there was a drum and a uniform. Two things I didn\'t choose — but stuck with long enough to matter.',
+      photos: null,
+      sections: [
+        {
+          label: '🥁 San Jose Junior Taiko',
+          type: 'video',
+          src: 'assets/videos/taiko-perform.mp4'
+        },
+        {
+          label: '',
+          type: 'photos',
+          items: [
+            { src: 'assets/images/taiko-group.jpg', alt: 'Taiko group photo' }
+          ]
+        },
+        {
+          label: '',
+          type: 'bucket',
+          text: '4th grade through high school graduation · year-round practice for one annual performance — the discipline of showing up when there\'s no spotlight yet.'
+        },
+        {
+          label: '🏕️ Boy Scouts of America',
+          type: 'photos',
+          items: [
+            { src: 'assets/images/scouts-young.jpg', alt: 'Boy Scouts uniform' },
+            { src: 'assets/images/scouts-hike.jpg', alt: 'Scout hiking trip' }
+          ]
+        },
+        {
+          label: '',
+          type: 'bucket',
+          text: 'BSA Troop 611 · learned how to carry a heavy pack, read a map, and show up for the group.'
+        }
+      ]
+    }
+  };
+
+  var CARDS = [
+    { id: 'f1',      icon: '🏎️', label: 'Formula 1 & Motorsport' },
+    { id: 'finance', icon: '📈', label: 'Personal Finance & Investing' },
+    { id: 'travel',  icon: '✈️', label: 'International Travel' },
+    { id: 'pokemon', icon: '🎮', label: 'Game Hobbies' },
+    { id: 'fitness', icon: '🏃', label: 'Outdoor Hobbies' },
+    { id: 'roots',   icon: '🏕️🥁', label: 'Before the Resume' }
+  ];
+
+  var expanded = null;
+
+  function tags(arr) {
+    return '<div class="ic-tags">' + arr.map(function(t){ return '<span class="ic-tag">'+t+'</span>'; }).join('') + '</div>';
+  }
+
+  function photoHTML(p, groupId, idx) {
+    if (typeof p === 'string') return '<div class="ic-photo">'+p+'</div>';
+    return '<div class="ic-photo" data-lb-src="'+p.src+'" data-lb-alt="'+p.alt+'" data-lb-group="'+(groupId||'')+'" data-lb-idx="'+(idx||0)+'"><img src="'+p.src+'" alt="'+p.alt+'" loading="lazy"></div>';
+  }
+
+  function photosGrid(arr, cls, groupId) {
+    if (!arr || !arr.length) return '';
+    var gid = groupId || 'g'+Math.random().toString(36).slice(2);
+    // Only show first photo as thumbnail; all photos stored as data for lightbox
+    var first = arr[0];
+    if (typeof first === 'string') return '<div class="ic-photo">'+first+'</div>';
+    var allData = arr.map(function(p,i){ return p.src+'|||'+p.alt+'|||'+i; }).join('~~~');
+    var countBadge = arr.length > 1 ? '<div class="ic-photo-count">1 / '+arr.length+' · tap to view</div>' : '';
+    return '<div class="ic-photo-wrap" data-lb-src="'+first.src+'" data-lb-alt="'+first.alt+'" data-lb-group="'+gid+'" data-lb-idx="0" data-lb-all="'+encodeURIComponent(allData)+'">' +
+      '<img src="'+first.src+'" alt="'+first.alt+'">' +
+      countBadge +
+      '</div>';
+  }
+
+  function buildSection(s) {
+    var h = '<div class="ic-lbl">'+s.label+'</div>';
+    if (s.type === 'tags')      return h + tags(s.items);
+    if (s.type === 'photos')   return h + photosGrid(s.items, 'ic-photos', s.label.replace(/\W/g,''));
+    if (s.type === 'bucket')    return h + '<div class="ic-bucket">'+s.text+'</div>';
+    if (s.type === 'strava')    return '<a href="'+s.url+'" target="_blank" class="ic-strava">🟠 View on Strava →</a>';
+    if (s.type === 'video')    return h + '<div class="ic-video-wrap"><video src="'+s.src+'" controls playsinline preload="metadata"></video></div>';
+    if (s.type === 'karting')  return h + '<div class="ic-video-wrap"><video src="assets/videos/kart-onboard.mp4" controls playsinline preload="metadata"></video></div>' + photosGrid(s.kartPhotos, 'ic-photos', 'karting');
+    if (s.type === 'countries') return h + '<div class="ic-countries">'+s.items.map(function(c){ return '<span class="ic-country">'+c+'</span>'; }).join('')+'</div>';
+    if (s.type === 'holdings') return '<div class="ic-group"><div class="ic-lbl">'+s.label+'</div><div class="ic-holdings">' + s.items.map(function(h) {
+      var pos = h.gain.startsWith('+');
+      return '<div class="ic-holding"><div class="ic-holding-top"><span class="ic-ticker">'+h.ticker+'</span><span class="ic-gain '+(pos?'pos':'neg')+'">'+h.gain+'</span></div><div class="ic-thesis">'+h.thesis+'</div></div>';
+    }).join('') + '</div></div>';
+    if (s.type === 'chart') {
+      var cid = 'nwchart_' + Math.random().toString(36).slice(2);
+      var last = s.points[s.points.length-1].value;
+      var first = s.points[0].value;
+      var growth = Math.round(((last - first) / first) * 100);
+      var labels = s.points.map(function(p){ return '<span class="ic-chart-label">'+p.date+'</span>'; }).join('');
+      setTimeout(function(){
+        var canvas = document.getElementById(cid);
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var W = canvas.offsetWidth; var H = canvas.offsetHeight;
+        canvas.width = W * 2; canvas.height = H * 2; ctx.scale(2,2);
+        var pts = s.points;
+        var maxV = Math.max.apply(null, pts.map(function(p){return p.value;}));
+        var pad = { t: 10, r: 10, b: 10, l: 10 };
+        var cw = W - pad.l - pad.r; var ch = H - pad.t - pad.b;
+        var xs = pts.map(function(p,i){ return pad.l + (i/(pts.length-1))*cw; });
+        var ys = pts.map(function(p){ return pad.t + ch - (p.value/maxV)*ch; });
+        // Gradient fill
+        var grad = ctx.createLinearGradient(0, pad.t, 0, pad.t+ch);
+        grad.addColorStop(0, 'rgba(124,108,252,0.35)');
+        grad.addColorStop(1, 'rgba(124,108,252,0.02)');
+        ctx.beginPath();
+        ctx.moveTo(xs[0], ys[0]);
+        for (var i=1;i<pts.length;i++) {
+          var cpx = (xs[i-1]+xs[i])/2;
+          ctx.bezierCurveTo(cpx, ys[i-1], cpx, ys[i], xs[i], ys[i]);
+        }
+        ctx.lineTo(xs[xs.length-1], pad.t+ch);
+        ctx.lineTo(xs[0], pad.t+ch);
+        ctx.closePath();
+        ctx.fillStyle = grad; ctx.fill();
+        // Line
+        ctx.beginPath();
+        ctx.moveTo(xs[0], ys[0]);
+        for (var i=1;i<pts.length;i++) {
+          var cpx = (xs[i-1]+xs[i])/2;
+          ctx.bezierCurveTo(cpx, ys[i-1], cpx, ys[i], xs[i], ys[i]);
+        }
+        ctx.strokeStyle = '#7c6cfc'; ctx.lineWidth = 2; ctx.stroke();
+        // Dots
+        for (var i=0;i<pts.length;i++) {
+          ctx.beginPath();
+          ctx.arc(xs[i], ys[i], i===pts.length-1?4:2.5, 0, Math.PI*2);
+          ctx.fillStyle = i===pts.length-1?'#a78bfa':'#7c6cfc'; ctx.fill();
+        }
+      }, 50);
+      return '<div class="ic-chart-wrap">'+h+
+        '<canvas id="'+cid+'" class="ic-chart-canvas"></canvas>'+
+        '<div class="ic-chart-labels">'+labels+'</div>'+
+        '<div class="ic-chart-summary">'+
+          '<div class="ic-chart-stat"><div class="ic-chart-stat-val">$42,300</div><div class="ic-chart-stat-lbl">Current Net Worth</div></div>'+
+          '<div class="ic-chart-stat"><div class="ic-chart-stat-val" style="color:#4ade80">+'+growth+'%</div><div class="ic-chart-stat-lbl">Growth Since Start</div></div>'+
+          '<div class="ic-chart-stat"><div class="ic-chart-stat-val">~3.5yr</div><div class="ic-chart-stat-lbl">Time Invested</div></div>'+
+        '</div>'+
+      '</div>';
+    }
+    return '';
+  }
+
+  function buildSubs(subs) {
+    return subs.map(function(sub, i) {
+      return (i > 0 ? '<hr style="border:none;border-top:1px solid rgba(100,120,200,0.1);margin:1rem 0">' : '') +
+        '<div class="ic-sub">'+
+        '<div class="ic-sub-title">'+sub.emoji+' '+sub.title+'</div>'+
+        photosGrid(sub.photos, sub.pc)+
+        '<p class="ic-desc">'+sub.desc+'</p>'+
+        tags(sub.tags)+
+        '</div>';
+    }).join('');
+  }
+
+  function render() {
+    var grid = document.getElementById('iGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    CARDS.forEach(function(c) {
+      var div = document.createElement('div');
+      var open = expanded === c.id;
+      div.className = 'ic' + (open ? ' open' : '');
+
+      if (!open) {
+        div.innerHTML = '<span class="ic-icon">'+c.icon+'</span><div class="ic-label">'+c.label+'</div><div class="ic-hint">tap to expand ↗</div>';
+        div.addEventListener('click', (function(id){ return function(){ expanded = id; render(); }; })(c.id));
+      } else {
+        var d = DATA[c.id];
+        var body;
+        if (d.subs) {
+          body = buildSubs(d.subs);
+        } else {
+          var ph = d.photos ? photosGrid(d.photos) : '';
+          body = ph + '<p class="ic-desc">'+d.desc+'</p>' + (d.sections ? d.sections.map(buildSection).join('') : '');
+        }
+        var cid = 'icollapse-'+c.id;
+        var deepBtn = d.deepLink ? '<a href="'+d.deepLink+'" class="ic-deeplink">View Full Deep Dive →</a>' : '';
+        div.innerHTML = '<div class="ic-top"><div class="ic-title">'+c.icon+' '+c.label+'</div><span class="ic-badge">'+d.badge+'</span></div><div class="ic-body">'+body+'<div class="ic-footer">'+deepBtn+'<button class="ic-collapse" id="'+cid+'">↑ Collapse</button></div></div>';
+        (function(id){ setTimeout(function(){
+          var btn = document.getElementById('icollapse-'+id);
+          if (btn) btn.addEventListener('click', function(){ expanded = null; render(); });
+        }, 0); })(c.id);
+      }
+      grid.appendChild(div);
+    });
+  }
+
+  render();
+
+  // Lightbox
+  (function(){
+    var lb = document.getElementById('lb');
+    var lbImg = document.getElementById('lb-img');
+    var lbCaption = document.getElementById('lb-caption');
+    var lbCounter = document.getElementById('lb-counter');
+    var lbClose = document.getElementById('lb-close');
+    var lbPrev = document.getElementById('lb-prev');
+    var lbNext = document.getElementById('lb-next');
+    var currentGroup = [];
+    var currentIdx = 0;
+
+    function openLb(photos, idx) {
+      currentGroup = photos;
+      currentIdx = idx;
+      showSlide();
+      lb.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLb() {
+      lb.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function showSlide() {
+      var p = currentGroup[currentIdx];
+      lbImg.src = p.src;
+      lbImg.alt = p.alt;
+      lbCaption.textContent = p.alt || '';
+      lbCounter.textContent = (currentGroup.length > 1) ? (currentIdx+1) + ' / ' + currentGroup.length : '';
+      lbPrev.style.display = currentGroup.length > 1 ? '' : 'none';
+      lbNext.style.display = currentGroup.length > 1 ? '' : 'none';
+    }
+
+    function prev() { currentIdx = (currentIdx - 1 + currentGroup.length) % currentGroup.length; showSlide(); }
+    function next() { currentIdx = (currentIdx + 1) % currentGroup.length; showSlide(); }
+
+    lbClose.addEventListener('click', closeLb);
+    lbPrev.addEventListener('click', function(e){ e.stopPropagation(); prev(); });
+    lbNext.addEventListener('click', function(e){ e.stopPropagation(); next(); });
+    lb.addEventListener('click', function(e){ if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', function(e){
+      if (!lb.classList.contains('active')) return;
+      if (e.key === 'Escape') closeLb();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    });
+
+    // Delegate click on photo thumbnails
+    document.addEventListener('click', function(e){
+      var el = e.target.closest('[data-lb-src]');
+      if (!el) return;
+      var allData = el.dataset.lbAll;
+      var photos;
+      if (allData) {
+        photos = decodeURIComponent(allData).split('~~~').map(function(s){
+          var parts = s.split('|||');
+          return { src: parts[0], alt: parts[1] };
+        });
+      } else {
+        photos = [{ src: el.dataset.lbSrc, alt: el.dataset.lbAlt }];
+      }
+      var idx = parseInt(el.dataset.lbIdx, 10) || 0;
+      openLb(photos, idx);
+    });
+  })();
+
+  // Event portfolio drawer toggle
+  var epTrigger = document.getElementById('epTrigger');
+  var epDrawer = document.getElementById('epDrawer');
+  if (epTrigger && epDrawer) {
+    epTrigger.addEventListener('click', function() {
+      var open = epDrawer.classList.toggle('open');
+      epTrigger.classList.toggle('open', open);
+    });
+  }
+
+  // Event entry expand toggles
+  [0,1,2].forEach(function(i) {
+    var ev = document.getElementById('epEvent'+i);
+    var ex = document.getElementById('epExpand'+i);
+    if (ev && ex) {
+      ev.addEventListener('click', function(e) {
+        var isOpen = ex.classList.toggle('open');
+        ev.classList.toggle('expanded', isOpen);
+      });
+    }
+  });
+
+  // Uniqlo entry expand toggles
+  [0,1].forEach(function(i) {
+    var ev = document.getElementById('uqEvent'+i);
+    var ex = document.getElementById('uqExpand'+i);
+    if (ev && ex) {
+      ev.addEventListener('click', function() {
+        var isOpen = ex.classList.toggle('open');
+        ev.classList.toggle('expanded', isOpen);
+      });
+    }
+  });
+
+  // Uniqlo On the Floor drawer toggle
+  var uqTrigger = document.getElementById('uqTrigger');
+  var uqDrawer = document.getElementById('uqDrawer');
+  if (uqTrigger && uqDrawer) {
+    uqTrigger.addEventListener('click', function() {
+      var open = uqDrawer.classList.toggle('open');
+      uqTrigger.classList.toggle('open', open);
+    });
+  }
+})();
+</script>
+</body>
+</html>
