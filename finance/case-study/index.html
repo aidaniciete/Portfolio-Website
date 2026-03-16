@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aidan Aniciete | Finance Tracker — Case Study</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#080b14;--surface:#0e1525;--surface2:#131d35;--border:rgba(100,120,200,0.12);
+      --accent:#7c6cfc;--soft:#a78bfa;--ocean:#1e3a8a;--purple:#6b3fa0;
+      --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--cyan:#22d3ee;
+      --text:#e8eaf6;--muted:#8892b0;--dim:#4a5568;
+      --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+    }
+
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;min-height:100vh;line-height:1.7;}
+
+    .mesh{position:fixed;inset:0;pointer-events:none;z-index:0;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 20%,rgba(30,58,138,0.25) 0%,transparent 70%),
+        radial-gradient(ellipse 50% 60% at 90% 80%,rgba(107,63,160,0.2) 0%,transparent 70%);}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;
+      padding:1.25rem 3rem;background:rgba(8,11,20,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:var(--font-display);font-weight:800;font-size:1rem;letter-spacing:.05em;color:var(--text);text-decoration:none;}
+    .nav-logo span{color:var(--accent);}
+    .nav-back{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .nav-back:hover{color:var(--text);}
+
+    /* ── Hero ── */
+    .hero{padding:8rem 2rem 5rem;position:relative;z-index:1;border-bottom:1px solid var(--border);background:rgba(124,108,252,0.02);}
+    .hero-inner{max-width:800px;margin:0 auto;}
+    .hero-eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem;}
+    .hero-eyebrow::before{content:'';display:inline-block;width:32px;height:1px;background:var(--accent);}
+    .hero-title{font-family:var(--font-display);font-size:clamp(2.8rem,6vw,5rem);font-weight:800;line-height:.92;letter-spacing:-.03em;margin-bottom:1.5rem;}
+    .hero-title span{display:block;background:linear-gradient(135deg,#3b5fc0 0%,var(--accent) 50%,var(--soft) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero-stats{display:flex;gap:2rem;margin-top:2.5rem;flex-wrap:wrap;}
+    .hero-stat-val{font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--green);}
+    .hero-stat-lbl{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:.2rem;}
+    .hero-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:2rem;}
+    .hero-tag{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.12em;padding:.35rem .9rem;border-radius:20px;border:1px solid rgba(124,108,252,0.3);color:var(--soft);background:rgba(124,108,252,0.07);}
+
+    /* ── Main ── */
+    main{max-width:800px;margin:0 auto;padding:0 2rem 6rem;position:relative;z-index:1;}
+
+    .section-label{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;}
+    .section-title{font-family:var(--font-display);font-size:clamp(1.4rem,3vw,2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1.75rem;}
+    .divider{border:none;border-top:1px solid var(--border);margin:4rem 0;}
+
+    /* ── Journey ── */
+    .journey{padding-top:4rem;}
+    .journey p{color:var(--muted);font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300;}
+    .journey p strong{color:var(--text);font-weight:500;}
+    .journey p em{color:var(--soft);font-style:italic;}
+
+    /* Timeline */
+    .timeline{margin:2.5rem 0;display:flex;flex-direction:column;gap:0;}
+    .tl-item{display:grid;grid-template-columns:120px 1fr;gap:1.5rem;position:relative;padding-bottom:2rem;}
+    .tl-item:last-child{padding-bottom:0;}
+    .tl-item::before{content:'';position:absolute;left:108px;top:8px;bottom:0;width:1px;background:var(--border);}
+    .tl-item:last-child::before{display:none;}
+    .tl-dot{position:absolute;left:103px;top:6px;width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);z-index:1;}
+    .tl-date{font-family:var(--font-mono);font-size:.7rem;color:var(--dim);letter-spacing:.08em;padding-top:.15rem;text-align:right;}
+    .tl-content{padding-left:.5rem;}
+    .tl-title{font-weight:500;color:var(--text);font-size:.9rem;margin-bottom:.3rem;}
+    .tl-desc{font-size:.82rem;color:var(--muted);line-height:1.7;}
+
+    .journey-closer{font-family:var(--font-display);font-size:1.1rem;font-weight:800;color:var(--text);line-height:1.5;margin-top:2rem;padding:1.25rem 1.5rem;border-left:3px solid var(--green);background:rgba(74,222,128,0.04);border-radius:0 8px 8px 0;}
+
+    /* ── Technical depth ── */
+    .tech{padding-top:4rem;}
+
+    .arch-flow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;}
+    .arch-node{background:var(--surface2);border:1px solid rgba(124,108,252,.2);border-radius:8px;padding:.75rem 1.1rem;text-align:center;}
+    .arch-node-title{font-family:var(--font-mono);font-size:.72rem;color:var(--soft);font-weight:500;}
+    .arch-node-sub{font-size:.65rem;color:var(--dim);margin-top:.2rem;line-height:1.4;}
+    .arch-arrow{color:var(--dim);font-size:.85rem;flex-shrink:0;}
+
+    .tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+    @media(max-width:600px){.tech-grid{grid-template-columns:1fr;}}
+    .tech-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;position:relative;overflow:hidden;}
+    .tech-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ocean),var(--purple),transparent);}
+    .tech-card-label{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;}
+    .tech-card-title{font-family:var(--font-display);font-size:1rem;font-weight:800;margin-bottom:.5rem;}
+    .tech-card-desc{font-size:.8rem;color:var(--muted);line-height:1.7;}
+
+    /* Code block */
+    .code-wrap{background:#060a14;border:1px solid rgba(124,108,252,.2);border-radius:12px;overflow:hidden;margin:1.5rem 0;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.25rem;background:rgba(124,108,252,.06);border-bottom:1px solid rgba(124,108,252,.12);}
+    .code-filename{font-family:var(--font-mono);font-size:.72rem;color:var(--soft);}
+    .code-lang{font-family:var(--font-mono);font-size:.65rem;color:var(--dim);letter-spacing:.1em;}
+    .code-body{padding:1.25rem 1.5rem;}
+    .code-body pre{font-family:var(--font-mono);font-size:.78rem;line-height:1.9;color:#e8eaf6;margin:0;white-space:pre-wrap;}
+    .cm{color:#4a5568;}.kw{color:#a78bfa;}.fn{color:#7c6cfc;}.nm{color:#4ade80;}.st{color:#fbbf24;}
+
+    /* Sheets table */
+    .sheets-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:1rem;}
+    .sheets-table th{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:.5rem .85rem;text-align:left;border-bottom:1px solid var(--border);}
+    .sheets-table td{padding:.6rem .85rem;border-bottom:1px solid rgba(100,120,200,0.06);color:var(--muted);}
+    .sheets-table td:first-child{font-family:var(--font-mono);font-size:.72rem;color:var(--soft);}
+    .sheets-table td:last-child{color:var(--dim);font-size:.75rem;}
+    .sheets-table tr:last-child td{border-bottom:none;}
+
+    /* ── CTA ── */
+    .cta{padding-top:4rem;text-align:center;}
+    .cta-label{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:1rem;}
+    .cta-title{font-family:var(--font-display);font-size:1.75rem;font-weight:800;margin-bottom:.75rem;}
+    .cta-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem;}
+    .cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+    .btn-primary{display:inline-flex;align-items:center;gap:.6rem;background:linear-gradient(135deg,var(--ocean),var(--purple));color:#fff;text-decoration:none;padding:1rem 2.25rem;border-radius:10px;font-family:var(--font-display);font-size:1rem;font-weight:700;letter-spacing:.02em;box-shadow:0 0 30px rgba(124,108,252,0.35);transition:all .25s;}
+    .btn-primary:hover{box-shadow:0 0 50px rgba(124,108,252,0.55);transform:translateY(-2px);}
+    .btn-secondary{display:inline-flex;align-items:center;gap:.6rem;background:transparent;color:var(--muted);text-decoration:none;padding:1rem 2rem;border-radius:10px;font-size:.9rem;border:1px solid var(--border);transition:all .25s;}
+    .btn-secondary:hover{color:var(--text);border-color:rgba(124,108,252,.4);}
+
+    footer{border-top:1px solid var(--border);padding:2rem;text-align:center;font-size:.75rem;color:var(--dim);position:relative;z-index:1;}
+    footer a{color:var(--muted);text-decoration:none;transition:color .2s;}
+    footer a:hover{color:var(--text);}
+
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+  </style>
+</head>
+<body>
+<div class="mesh"></div>
+
+<nav>
+  <a href="/" class="nav-logo">AA<span>.</span></a>
+  <a href="/" class="nav-back">← Back to Portfolio</a>
+</nav>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Case Study</div>
+    <h1 class="hero-title">
+      Personal Finance
+      <span>Tracker</span>
+    </h1>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-val" id="liveNW">$42k+</div>
+        <div class="hero-stat-lbl">Current Net Worth</div>
+      </div>
+      <div>
+        <div class="hero-stat-val" id="liveCAGR" style="color:var(--soft);">16.7%</div>
+        <div class="hero-stat-lbl">CAGR · Since Inception</div>
+      </div>
+      <div>
+        <div class="hero-stat-val" style="color:var(--text);">~3.5yr</div>
+        <div class="hero-stat-lbl">Time Invested</div>
+      </div>
+    </div>
+    <div class="hero-meta" style="margin-top:2rem;">
+      <span class="hero-tag">Google Sheets API</span>
+      <span class="hero-tag">Live GOOGLEFINANCE</span>
+      <span class="hero-tag">Canvas.js Chart</span>
+      <span class="hero-tag">Roth IRA + 401(k) + HSA</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── The Journey ── -->
+  <section class="journey reveal">
+    <div class="section-label">Origin</div>
+    <h2 class="section-title">The Journey</h2>
+
+    <p>I started my first real job in November 2022. For the first few paychecks I saved a little — not much. But I'd felt what it was like to have nothing in savings, nothing set aside, and that feeling stuck with me.</p>
+
+    <p>In December 2022 I put in <strong>$500</strong>. That was the start.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">Dec '22</div>
+        <div class="tl-content">
+          <div class="tl-title">The first $500</div>
+          <div class="tl-desc">Opened a Roth IRA with no real plan. Copied other people's portfolios on M1 Finance — not because I understood the thesis, just because someone else did.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2023</div>
+        <div class="tl-content">
+          <div class="tl-title">From copying to listening</div>
+          <div class="tl-desc">Started listening to <em>why</em> people bought what they bought — their backgrounds, their reasoning, their conviction. Stopped picking randomly. Started picking intentionally, even while still learning.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2024</div>
+        <div class="tl-content">
+          <div class="tl-title">Let it compound</div>
+          <div class="tl-desc">Stopped checking every day. Traveled to New Zealand, caught F1 in Belgium. Went into debt doing it — and never once touched my retirement money. Still contributed through all of it.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">Now</div>
+        <div class="tl-content">
+          <div class="tl-title">Conviction over noise</div>
+          <div class="tl-desc">Trimming positions in businesses I don't believe in. Doubling down on the ones I do. Every holding has a documented thesis. The spreadsheet keeps me honest.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="journey-closer">It didn't click in a snap. It never does. But it clicked.</div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ── Why the Website ── -->
+  <section class="reveal" style="padding-top:4rem;">
+    <div class="section-label">The Build</div>
+    <h2 class="section-title">Why I Built This</h2>
+    <p style="color:var(--muted);font-size:1rem;line-height:1.9;font-weight:300;">Honestly? I just loved seeing the number go up.</p>
+    <p style="color:var(--muted);font-size:1rem;line-height:1.9;font-weight:300;margin-top:1rem;">I wanted a live dashboard that showed me exactly where I stood — not a brokerage app with ads and upsells, but something I built myself that reflected how I actually think about my money. The spreadsheet came first, then the website to surface it.</p>
+    <p style="color:var(--muted);font-size:1rem;line-height:1.9;font-weight:300;margin-top:1rem;">It's a personal project. The most personal kind — it's literally my net worth on the screen, updating in real time.</p>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ── Technical Depth ── */-->
+  <section class="tech reveal">
+    <div class="section-label">Technical Depth</div>
+    <h2 class="section-title">How It's Built</h2>
+
+    <!-- Architecture flow -->
+    <div class="arch-flow">
+      <div class="arch-node">
+        <div class="arch-node-title">📋 M1 Raw</div>
+        <div class="arch-node-sub">31 positions<br>cost + live price</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-node-title">📊 Dashboard</div>
+        <div class="arch-node-sub">live totals<br>=SUM + =RRI</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-node-title">🥧 Allocation</div>
+        <div class="arch-node-sub">sector weights<br>auto-recalc</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-node-title">🌐 Website</div>
+        <div class="arch-node-sub">Sheets API<br>live render</div>
+      </div>
+    </div>
+
+    <!-- Tech cards -->
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-card-label">Live Prices</div>
+        <div class="tech-card-title">GOOGLEFINANCE</div>
+        <div class="tech-card-desc">Every position in M1 Raw pulls its current price via <code style="font-family:var(--font-mono);font-size:.75rem;color:var(--soft);">=GOOGLEFINANCE(ticker)</code> — no manual updates, ever. Price changes cascade through cost basis, unrealized gain, and sector allocation automatically.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-label">Growth Rate</div>
+        <div class="tech-card-title">Live CAGR via RRI</div>
+        <div class="tech-card-desc">CAGR is calculated in the sheet using <code style="font-family:var(--font-mono);font-size:.75rem;color:var(--soft);">=RRI(3.5, D4, B4)</code> — lifetime deposits vs current net worth over 3.5 years. The website fetches <code style="font-family:var(--font-mono);font-size:.75rem;color:var(--soft);">Dashboard!H4</code> directly and renders the decimal as a percentage.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-label">Architecture</div>
+        <div class="tech-card-title">Single Source of Truth</div>
+        <div class="tech-card-desc">Update one position in Holdings and the Dashboard total, sector allocation, and net worth snapshot all recalculate instantly. The website is a read-only view — the spreadsheet is the source, the site is the display.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-label">Visualization</div>
+        <div class="tech-card-title">Net Worth Chart</div>
+        <div class="tech-card-desc">Historical net worth plotted in Canvas.js — hand-plotted data points from Dec 2022 to present with the final value updating live from the sheet on every page load.</div>
+      </div>
+    </div>
+
+    <!-- Code block -->
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-filename">Dashboard!H4 → Website</span>
+        <span class="code-lang">GOOGLE SHEETS → SHEETS API → LIVE</span>
+      </div>
+      <div class="code-body">
+        <pre><span class="cm">// In Google Sheets — RRI returns annualized growth as a decimal</span>
+<span class="cm">// 3.5 = years · D4 = lifetime deposits · B4 = current net worth</span>
+<span class="fn">=RRI</span>(<span class="nm">3.5</span>, D4, B4)              <span class="cm">→  0.167</span>
+
+<span class="cm">// Sheets API fetch — 7 ranges pulled in a single Promise.all()</span>
+<span class="kw">const</span> [m1, k401, hsa, deposits, netWorth, alloc, cagr] =
+  <span class="kw">await</span> Promise.<span class="fn">all</span>([
+    <span class="fn">fetch</span>(<span class="st">`M1 Raw!A1:H50`</span>),       <span class="cm">// holdings + live prices</span>
+    <span class="fn">fetch</span>(<span class="st">`401k!C4`</span>),              <span class="cm">// T. Rowe Price balance</span>
+    <span class="fn">fetch</span>(<span class="st">`HSA Holdings!F8`</span>),      <span class="cm">// Fidelity HSA balance</span>
+    <span class="fn">fetch</span>(<span class="st">`Dashboard!D4`</span>),         <span class="cm">// lifetime deposits</span>
+    <span class="fn">fetch</span>(<span class="st">`Dashboard!M4`</span>),         <span class="cm">// total net worth</span>
+    <span class="fn">fetch</span>(<span class="st">`Allocation!B3:E11`</span>),    <span class="cm">// sector weights</span>
+    <span class="fn">fetch</span>(<span class="st">`Dashboard!H4`</span>),         <span class="cm">// live CAGR decimal</span>
+  ]);
+
+<span class="fn">display</span>(cagr * <span class="nm">100</span> + <span class="st">"%"</span>);        <span class="cm">→  "16.7%"</span></pre>
+      </div>
+    </div>
+
+    <!-- Sheets map -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+      <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);font-family:var(--font-display);font-weight:800;font-size:.9rem;">Spreadsheet Architecture</div>
+      <table class="sheets-table">
+        <thead>
+          <tr>
+            <th>Tab</th>
+            <th>What it does</th>
+            <th>Used for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>M1 Raw</td>
+            <td>31 positions — ticker, cost basis, live price via GOOGLEFINANCE, unrealized gain</td>
+            <td>Holdings table, total IRA value</td>
+          </tr>
+          <tr>
+            <td>Dashboard</td>
+            <td>Aggregates all accounts, calculates CAGR via RRI, tracks lifetime deposits</td>
+            <td>Net worth, CAGR, deposits</td>
+          </tr>
+          <tr>
+            <td>Allocation</td>
+            <td>Sector weights auto-calculated from Holdings — Technology, Financials, REITs etc.</td>
+            <td>Sector allocation chart</td>
+          </tr>
+          <tr>
+            <td>401k</td>
+            <td>T. Rowe Price balance — single cell, manually updated</td>
+            <td>Account stack display</td>
+          </tr>
+          <tr>
+            <td>HSA Holdings</td>
+            <td>Fidelity HSA — 3 funds, formula-driven total</td>
+            <td>Account stack display</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ── CTA ── -->
+  <section class="cta reveal">
+    <div class="cta-label">See it live</div>
+    <div class="cta-title">The Dashboard</div>
+    <div class="cta-sub">Every number on this page is real. Every position has a thesis. Updated live from Google Sheets.</div>
+    <div class="cta-btns">
+      <a href="/finance" class="btn-primary">View Live Dashboard →</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>© 2026 Aidan Aniciete · <a href="/">Back to Portfolio</a></p>
+</footer>
+
+<script>
+  // Live stats from Google Sheets
+  (function(){
+    var SHEET_ID = '1i72mgTMMFTpGmc8QUOXwtdkiaA8Jold9qb8fK9nECOM';
+    var API_KEY  = 'AIzaSyDe-nqy7Pz2svs3IIHvcJS_2HU-GAS3wbg';
+    var BASE     = 'https://sheets.googleapis.com/v4/spreadsheets/'+SHEET_ID+'/values';
+    Promise.all([
+      fetch(BASE+'/Dashboard!M4?key='+API_KEY+'&valueRenderOption=UNFORMATTED_VALUE').then(function(r){return r.json();}),
+      fetch(BASE+'/Dashboard!H4?key='+API_KEY+'&valueRenderOption=UNFORMATTED_VALUE').then(function(r){return r.json();})
+    ]).then(function(res){
+      var nw = res[0].values ? parseFloat(res[0].values[0][0]) : null;
+      var cagr = res[1].values ? parseFloat(res[1].values[0][0]) : null;
+      if(nw){
+        var fmt = nw>=1000 ? '$'+(nw/1000).toFixed(1).replace(/\.0$/,'')+'k+' : '$'+Math.round(nw);
+        document.getElementById('liveNW').textContent = fmt;
+      }
+      if(cagr!==null) document.getElementById('liveCAGR').textContent = (cagr*100).toFixed(1)+'%';
+    }).catch(function(){});
+  })();
+
+  // Scroll reveal
+  var reveals = document.querySelectorAll('.reveal');
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('visible'); });
+  },{threshold:0.08});
+  reveals.forEach(function(r){ obs.observe(r); });
+</script>
+</body>
+</html>
