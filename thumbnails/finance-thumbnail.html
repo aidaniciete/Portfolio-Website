@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=1200"/>
+  <title>Finance Tracker — LinkedIn Thumbnail</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1200px;
+      height: 627px;
+      overflow: hidden;
+      background: #080b14;
+      font-family: 'DM Sans', sans-serif;
+      color: #e8eaf6;
+    }
+
+    .canvas {
+      position: relative;
+      width: 1200px;
+      height: 627px;
+      overflow: hidden;
+    }
+
+    /* Mesh background */
+    .mesh {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 5% 10%, rgba(30,58,138,0.45) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 70% at 95% 90%, rgba(107,63,160,0.35) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 60% 20%, rgba(124,108,252,0.12) 0%, transparent 60%);
+    }
+
+    /* Grid lines */
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,108,252,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,108,252,0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* Decorative chart line */
+    .chart-bg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 220px;
+      opacity: 0.18;
+    }
+
+    /* Left content */
+    .left {
+      position: absolute;
+      left: 72px;
+      top: 0;
+      bottom: 0;
+      width: 560px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #7c6cfc;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: #7c6cfc;
+    }
+
+    .title {
+      font-family: 'Syne', sans-serif;
+      font-size: 62px;
+      font-weight: 800;
+      line-height: 0.92;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+
+    .title-line1 { color: #e8eaf6; }
+    .title-line2 {
+      background: linear-gradient(135deg, #3b5fc0 0%, #7c6cfc 50%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      font-weight: 300;
+      color: #8892b0;
+      line-height: 1.65;
+      max-width: 440px;
+      margin-bottom: 36px;
+    }
+
+    .tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(124,108,252,0.3);
+      color: #a78bfa;
+      background: rgba(124,108,252,0.08);
+    }
+
+    /* Right stats panel */
+    .right {
+      position: absolute;
+      right: 64px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: rgba(14,21,37,0.85);
+      border: 1px solid rgba(100,120,200,0.14);
+      border-radius: 14px;
+      padding: 20px 24px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #1e3a8a, #7c6cfc, transparent);
+    }
+
+    .stat-card.green::after {
+      background: linear-gradient(90deg, #065f46, #4ade80, transparent);
+    }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #4a5568;
+      margin-bottom: 6px;
+    }
+
+    .stat-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: #e8eaf6;
+      line-height: 1;
+    }
+
+    .stat-val.accent { color: #a78bfa; }
+    .stat-val.green  { color: #4ade80; }
+
+    .stat-sub {
+      font-size: 11px;
+      color: #4a5568;
+      margin-top: 4px;
+    }
+
+    /* Two-col stat row */
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat-card.small { padding: 16px 20px; }
+    .stat-val.small  { font-size: 24px; }
+
+    /* Live badge */
+    .live-badge {
+      position: absolute;
+      top: 28px;
+      right: 64px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(74,222,128,0.1);
+      border: 1px solid rgba(74,222,128,0.25);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #4ade80;
+      letter-spacing: 0.12em;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: #4ade80;
+      border-radius: 50%;
+    }
+
+    /* Name watermark bottom left */
+    .byline {
+      position: absolute;
+      bottom: 28px;
+      left: 72px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .byline-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #e8eaf6;
+      letter-spacing: 0.04em;
+    }
+
+    .byline-sep { color: #2d3748; font-size: 12px; }
+
+    .byline-url {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #4a5568;
+      letter-spacing: 0.06em;
+    }
+
+    /* Decorative accent line left edge */
+    .accent-line {
+      position: absolute;
+      left: 0;
+      top: 80px;
+      bottom: 80px;
+      width: 3px;
+      background: linear-gradient(180deg, transparent, #7c6cfc 30%, #1e3a8a 70%, transparent);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+<div class="canvas">
+
+  <div class="mesh"></div>
+  <div class="grid"></div>
+  <div class="accent-line"></div>
+
+  <!-- Decorative SVG chart line -->
+  <svg class="chart-bg" viewBox="0 0 1200 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#7c6cfc" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#7c6cfc" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polyline
+      points="0,200 120,195 240,185 360,175 480,140 600,120 720,90 840,70 960,40 1080,25 1200,10"
+      fill="none" stroke="#7c6cfc" stroke-width="2.5" stroke-linejoin="round"/>
+    <polygon
+      points="0,200 120,195 240,185 360,175 480,140 600,120 720,90 840,70 960,40 1080,25 1200,10 1200,220 0,220"
+      fill="url(#chartGrad)"/>
+  </svg>
+
+  <!-- Live badge -->
+  <div class="live-badge">
+    <div class="live-dot"></div>
+    GOOGLE SHEETS · LIVE
+  </div>
+
+  <!-- Left content -->
+  <div class="left">
+    <div class="eyebrow">Personal Finance Tracker</div>
+    <div class="title">
+      <div class="title-line1">Portfolio</div>
+      <div class="title-line2">Dashboard</div>
+    </div>
+    <div class="subtitle">
+      Live multi-tab model tracking Roth IRA, 401(k) &amp; HSA — 31 positions with documented investment theses, sector allocation, and a real-time net worth chart.
+    </div>
+    <div class="tags">
+      <span class="tag">Google Sheets API</span>
+      <span class="tag">Canvas.js</span>
+      <span class="tag">Live Data</span>
+      <span class="tag">31 Holdings</span>
+    </div>
+  </div>
+
+  <!-- Right stats -->
+  <div class="right">
+    <div class="stat-card">
+      <div class="stat-label">Total Net Worth</div>
+      <div class="stat-val accent" id="liveNetWorth">$42k+</div>
+      <div class="stat-sub">Roth IRA + 401(k) + HSA</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card small green">
+        <div class="stat-label">CAGR</div>
+        <div class="stat-val green small" id="liveCAGR">16.7%</div>
+        <div class="stat-sub">Since inception</div>
+      </div>
+      <div class="stat-card small">
+        <div class="stat-label">Positions</div>
+        <div class="stat-val accent small">31</div>
+        <div class="stat-sub">Stocks + ETFs</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Time Invested</div>
+      <div class="stat-val small">~3.5 years</div>
+      <div class="stat-sub">Started at 19 with $500</div>
+    </div>
+  </div>
+
+  <!-- Byline -->
+  <div class="byline">
+    <span class="byline-name">Aidan Aniciete</span>
+    <span class="byline-sep">·</span>
+    <span class="byline-url">aidaniciete.com/finance</span>
+  </div>
+
+</div>
+
+<script>
+// Pull live values from Google Sheets
+(function() {
+  var SHEET_ID = '1i72mgTMMFTpGmc8QUOXwtdkiaA8Jold9qb8fK9nECOM';
+  var API_KEY  = 'AIzaSyDe-nqy7Pz2svs3IIHvcJS_2HU-GAS3wbg';
+  var BASE     = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + '/values';
+
+  Promise.all([
+    fetch(BASE + '/Dashboard!M4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function(r){ return r.json(); }),
+    fetch(BASE + '/Dashboard!H4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function(r){ return r.json(); }),
+  ]).then(function(results) {
+    var nw      = results[0].values ? parseFloat(results[0].values[0][0]) : null;
+    var cagrRaw = results[1].values ? parseFloat(results[1].values[0][0]) : null;
+
+    if (nw) {
+      var formatted = nw >= 1000 ? '$' + (nw / 1000).toFixed(1).replace(/\.0$/, '') + 'k+' : '$' + Math.round(nw);
+      document.getElementById('liveNetWorth').textContent = formatted;
+    }
+    if (cagrRaw !== null) {
+      document.getElementById('liveCAGR').textContent = (cagrRaw * 100).toFixed(1) + '%';
+    }
+  }).catch(function() {});
+})();
+</script>
+</body>
+</html>
