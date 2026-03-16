@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aidan Aniciete | Finance & Investing | AIS Portfolio</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080b14;
+      --surface: #0e1525;
+      --surface2: #131d35;
+      --border: rgba(100,120,200,0.12);
+      --ocean: #1e3a8a;
+      --purple: #6b3fa0;
+      --accent: #7c6cfc;
+      --soft: #a78bfa;
+      --green: #4ade80;
+      --red: #f87171;
+      --text: #e8eaf6;
+      --muted: #8892b0;
+      --dim: #4a5568;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+    .mesh { position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse 60% 50% at 10% 20%, rgba(30,58,138,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 90% 80%, rgba(107,63,160,0.2) 0%, transparent 70%); }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.25rem 3rem;
+      background: rgba(8,11,20,0.85); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 1rem; letter-spacing: .05em; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-back { font-size: .8rem; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+    .nav-back:hover { color: var(--text); }
+
+    main { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 7rem 2rem 4rem; }
+
+    /* Hero */
+    .hero { margin-bottom: 5rem; }
+    .hero-eyebrow { font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+    .hero-title { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; line-height: .95; letter-spacing: -.02em; margin-bottom: 1.25rem; }
+    .hero-title span { display: block; background: linear-gradient(135deg, #3b5fc0 0%, var(--accent) 50%, var(--soft) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-desc { font-size: 1rem; color: var(--muted); max-width: 560px; line-height: 1.75; font-weight: 300; margin-bottom: 2.5rem; }
+
+    /* Summary cards */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 5rem; }
+    .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; position: relative; overflow: hidden; }
+    .summary-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--ocean), var(--purple), transparent); }
+    .summary-val { font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; margin-bottom: .2rem; }
+    .summary-val.green { color: var(--green); }
+    .summary-val.accent { color: var(--soft); }
+    .summary-lbl { font-size: .72rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+
+    /* Section headers */
+    .section-label { font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; }
+    .section-title { font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 800; margin-bottom: 2rem; letter-spacing: -.02em; }
+    .section-wrap { margin-bottom: 5rem; }
+
+    /* Net worth chart */
+    .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
+    .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .chart-title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; }
+    .chart-meta { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+    canvas#netWorthChart { width: 100%; height: 220px; }
+
+    /* Holdings table */
+    .holdings-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem; }
+    .holdings-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .holdings-title { font-family: var(--font-display); font-weight: 700; font-size: .95rem; }
+    .holdings-badge { font-size: .65rem; padding: .25rem .65rem; border-radius: 20px; background: rgba(124,108,252,.1); color: var(--soft); border: 1px solid rgba(124,108,252,.2); letter-spacing: .04em; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: .75rem 1.5rem; text-align: left; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); font-weight: 500; background: rgba(0,0,0,.2); }
+    thead th:last-child { text-align: right; }
+    tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: rgba(124,108,252,.04); }
+    tbody td { padding: .9rem 1.5rem; font-size: .875rem; }
+    .ticker { font-family: var(--font-mono); font-weight: 500; color: var(--text); font-size: .85rem; }
+    .name { color: var(--muted); font-size: .8rem; }
+    .thesis { color: var(--muted); font-size: .78rem; line-height: 1.5; max-width: 300px; }
+    .gain-pos { color: var(--green); font-family: var(--font-mono); font-size: .85rem; text-align: right; }
+    .gain-neg { color: var(--red); font-family: var(--font-mono); font-size: .85rem; text-align: right; }
+
+    /* Allocation */
+    .allocation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .alloc-bar-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; }
+    .alloc-item { margin-bottom: 1.1rem; }
+    .alloc-item:last-child { margin-bottom: 0; }
+    .alloc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: .4rem; }
+    .alloc-sector { font-size: .82rem; color: var(--text); }
+    .alloc-pct { font-family: var(--font-mono); font-size: .78rem; color: var(--soft); }
+    .alloc-bar-bg { height: 5px; background: rgba(255,255,255,.05); border-radius: 3px; overflow: hidden; }
+    .alloc-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--ocean), var(--accent)); transition: width .8s ease; }
+
+    /* Accounts */
+    .accounts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+    .account-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; position: relative; overflow: hidden; }
+    .account-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: linear-gradient(180deg, var(--ocean), var(--purple)); }
+    .account-type { font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; font-weight: 600; }
+    .account-name { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: .25rem; }
+    .account-val { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--green); margin-bottom: .75rem; }
+    .account-detail { font-size: .78rem; color: var(--muted); line-height: 1.7; }
+    .account-detail span { color: var(--soft); }
+
+    /* Philosophy */
+    .phil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .phil-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+    .phil-icon { font-size: 1.5rem; margin-bottom: .75rem; display: block; }
+    .phil-title { font-family: var(--font-display); font-size: .9rem; font-weight: 700; margin-bottom: .5rem; }
+    .phil-desc { font-size: .8rem; color: var(--muted); line-height: 1.65; }
+
+    /* Tracker section */
+    .tracker-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+    .tracker-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: .75rem; margin-bottom: 1.5rem; }
+    .tracker-tab { background: rgba(124,108,252,.07); border: 1px solid rgba(124,108,252,.15); border-radius: 8px; padding: .75rem 1rem; text-align: center; }
+    .tracker-tab-icon { font-size: 1.25rem; margin-bottom: .35rem; display: block; }
+    .tracker-tab-name { font-family: var(--font-display); font-size: .78rem; font-weight: 700; color: var(--soft); }
+    .tracker-tab-desc { font-size: .7rem; color: var(--dim); margin-top: .2rem; }
+
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 0 0 5rem; }
+    .live-tag { font-size: .68rem; color: var(--dim); letter-spacing: .06em; font-family: var(--font-mono); }
+    .live-tag.live { color: #4ade80; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    footer { position: relative; z-index: 1; text-align: center; padding: 2rem; color: var(--dim); font-size: .75rem; letter-spacing: .05em; }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    .reveal { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* Data flow diagram */
+    .flow-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-top: 1.5rem; }
+    .flow-diagram { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0; margin-bottom: 1.5rem; }
+    .flow-node { background: rgba(124,108,252,.1); border: 1px solid rgba(124,108,252,.3); border-radius: 10px; padding: .75rem 1.1rem; text-align: center; min-width: 110px; }
+    .flow-node-title { font-family: var(--font-display); font-size: .78rem; font-weight: 700; color: var(--soft); }
+    .flow-node-sub { font-size: .65rem; color: var(--dim); margin-top: .2rem; line-height: 1.4; }
+    .flow-arrow { font-size: 1.1rem; color: var(--accent); padding: 0 .5rem; flex-shrink: 0; }
+    .flow-note { font-size: .75rem; color: var(--muted); line-height: 1.7; }
+
+    /* Code snippet */
+    .code-wrap { background: #060a14; border: 1px solid rgba(124,108,252,.2); border-radius: 12px; overflow: hidden; margin-top: 1.5rem; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: .6rem 1.25rem; background: rgba(124,108,252,.06); border-bottom: 1px solid rgba(124,108,252,.12); }
+    .code-filename { font-family: var(--font-mono); font-size: .72rem; color: var(--soft); }
+    .code-lang { font-size: .65rem; padding: .15rem .5rem; background: rgba(124,108,252,.15); color: var(--accent); border-radius: 4px; letter-spacing: .06em; }
+    .code-body { padding: 1.25rem 1.5rem; overflow-x: auto; }
+    .code-body pre { font-family: var(--font-mono); font-size: .8rem; line-height: 1.8; color: #e8eaf6; margin: 0; }
+    .kw { color: #c792ea; } .fn { color: #82aaff; } .st { color: #c3e88d; } .cm { color: #546e7a; font-style: italic; } .nm { color: #f78c6c; }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      main { padding: 6rem 1.5rem 3rem; }
+      .allocation-grid { grid-template-columns: 1fr; }
+      thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="mesh"></div>
+
+<nav>
+  <a href="/" class="nav-logo">AA<span>.</span></a>
+  <a href="/" class="nav-back">← Back to Portfolio</a>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero reveal">
+    <p class="hero-eyebrow">Finance & Investing · Deep Dive</p>
+    <h1 class="hero-title">
+      Aidan Aniciete
+      <span>The Tracker.</span>
+    </h1>
+    <p class="hero-desc">
+      Opened a Roth IRA at 19 with $500. Now managing $42k+ across a Roth IRA, 401(k), and HSA at 23.
+      Every position tracked in a custom multi-tab Excel model — cost basis, sector allocation, factor investing, and net worth trajectory.
+    </p>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-grid reveal">
+    <div class="summary-card">
+      <div class="summary-val" id="rothTotal">—</div>
+      <div class="summary-lbl">Roth IRA Value · Live</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-val green" id="unrealGain">—</div>
+      <div class="summary-lbl">Unrealized Gain · Roth IRA</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-val accent" id="posCount">—</div>
+      <div class="summary-lbl">Positions (Roth IRA)</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-val">3</div>
+      <div class="summary-lbl">Tax-Advantaged Accounts</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-val green">~3.5yr</div>
+      <div class="summary-lbl">Time Invested</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-val accent" id="cagrVal">—</div>
+      <div class="summary-lbl">Live CAGR</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PHILOSOPHY -->
+  <div class="section-wrap reveal">
+    <p class="section-label">Approach</p>
+    <h2 class="section-title">Investment Philosophy</h2>
+    <div class="phil-grid">
+      <div class="phil-card">
+        <span class="phil-icon">🏦</span>
+        <div class="phil-title">Max Tax Advantage First</div>
+        <div class="phil-desc">Triple-stack IRA + 401(k) + HSA before anything else. The tax savings compound just as hard as the returns.</div>
+      </div>
+      <div class="phil-card">
+        <span class="phil-icon">📐</span>
+        <div class="phil-title">Factor Investing</div>
+        <div class="phil-desc">QVAL, QMOM, IVAL, IMOM — systematic quant factor ETFs for value and momentum exposure. Evidence-based, not gut-feel.</div>
+      </div>
+      <div class="phil-card">
+        <span class="phil-icon">🔬</span>
+        <div class="phil-title">High-Conviction Stocks</div>
+        <div class="phil-desc">Every position has a documented thesis. GOOG held since 2022. ASML for EUV monopoly. SHOP for e-commerce infrastructure.</div>
+      </div>
+      <div class="phil-card">
+        <span class="phil-icon">⏳</span>
+        <div class="phil-title">Long Time Horizon</div>
+        <div class="phil-desc">Started at 19. The 2065 target date on the 401(k) says it all. Volatility is noise — compounding is the signal.</div>
+      </div>
+      <div class="phil-card">
+        <span class="phil-icon">🗂️</span>
+        <div class="phil-title">Track Everything</div>
+        <div class="phil-desc">Cost basis on every lot. Sector weights. Net worth snapshot. You can't manage what you don't measure.</div>
+      </div>
+      <div class="phil-card">
+        <span class="phil-icon">🌍</span>
+        <div class="phil-title">Geographic Diversification</div>
+        <div class="phil-desc">IVAL + IMOM for international factor exposure. FTIHX in HSA for global ex-US. US-heavy but not US-only.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- NET WORTH CHART -->
+  <div class="section-wrap reveal">
+    <p class="section-label">Growth</p>
+    <h2 class="section-title">Net Worth Trajectory</h2>
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Portfolio Value Over Time</div>
+          <div class="chart-meta">Roth IRA + 401(k) + HSA · Dec 2022 – Present</div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:1.1rem;font-weight:500;color:var(--green);" id="chartVal">$42,353</div>
+      </div>
+      <canvas id="netWorthChart"></canvas>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ACCOUNTS -->
+  <div class="section-wrap reveal">
+    <p class="section-label">Accounts</p>
+    <h2 class="section-title">The Triple Stack</h2>
+    <div class="accounts-grid">
+      <div class="account-card">
+        <div class="account-type">Roth IRA · M1 Finance</div>
+        <div class="account-name">Self-Directed Brokerage</div>
+        <div class="account-val" id="rothTriple">—</div>
+        <div class="account-detail">
+          31 positions · <span>high-conviction stocks + factor ETFs</span><br>
+          Opened Dec 2022 at age 19 with $500<br>
+          Contributions: <span>post-tax · grows tax-free forever</span>
+        </div>
+      </div>
+      <div class="account-card">
+        <div class="account-type">401(k) · T. Rowe Price</div>
+        <div class="account-name">Maritz Employer Plan</div>
+        <div class="account-val" id="stack401k">—</div>
+        <div class="account-detail">
+          Fund: <span>TRP Retirement Hybrid 2065</span><br>
+          Started: <span>July 2024</span><br>
+          Strategy: <span>target-date auto-rebalancing</span>
+        </div>
+      </div>
+      <div class="account-card">
+        <div class="account-type">HSA · Fidelity</div>
+        <div class="account-name">Health Savings Account</div>
+        <div class="account-val" id="hsaTriple">—</div>
+        <div class="account-detail">
+          Holdings: <span>FSSNX · FTIHX · FDRXX</span><br>
+          Triple tax-advantaged: <span>pre-tax in, tax-free growth, tax-free out</span><br>
+          Strategy: <span>invest HSA, pay medical costs out-of-pocket</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- HOLDINGS TABLE -->
+  <div class="section-wrap reveal">
+    <p class="section-label">Roth IRA</p>
+    <h2 class="section-title">All Holdings</h2>
+
+    <div class="holdings-wrap">
+      <div class="holdings-header">
+        <div class="holdings-title">Stocks</div>
+        <div style="display:flex;align-items:center;gap:.75rem;"><span class="holdings-badge" id="stockBadge">— positions</span><span class="live-tag" id="liveTag">Loading live prices...</span></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Company</th>
+            <th>Thesis</th>
+            <th>Overall Return</th>
+          </tr>
+        </thead>
+        <tbody id="stocksTable"></tbody>
+      </table>
+    </div>
+
+    <div class="holdings-wrap">
+      <div class="holdings-header">
+        <div class="holdings-title">Factor ETFs</div>
+        <span class="holdings-badge" id="etfBadge">— positions · quant systematic</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Fund</th>
+            <th>Strategy</th>
+            <th>Overall Return</th>
+          </tr>
+        </thead>
+        <tbody id="etfsTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTOR ALLOCATION -->
+  <div class="section-wrap reveal">
+    <p class="section-label">Roth IRA</p>
+    <h2 class="section-title">Sector Allocation</h2>
+    <div class="alloc-bar-wrap">
+      <div id="allocBars"></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TRACKER MODEL -->
+  <div class="section-wrap reveal">
+    <p class="section-label">The Model</p>
+    <h2 class="section-title">Inside the Spreadsheet</h2>
+    <div class="tracker-card">
+      <div class="tracker-tabs" id="trackerTabs"></div>
+      <p style="font-size:.85rem;color:var(--muted);line-height:1.75;">
+        Built in Excel with live formula linking across all tabs — change a value in Holdings and it cascades to Dashboard, Allocation, and Net Worth instantly.
+        Every position has a documented investment thesis. Every account is tracked with cost basis and unrealized gain/loss.
+        The goal: one source of truth for my entire financial picture.
+      </p>
+    </div>
+
+    <div class="flow-wrap reveal">
+      <p class="section-label" style="margin-bottom:.75rem;">Data Flow</p>
+      <div class="flow-diagram">
+        <div class="flow-node">
+          <div class="flow-node-title">📋 Holdings</div>
+          <div class="flow-node-sub">31 positions<br>cost basis + value</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="flow-node-title">📊 Dashboard</div>
+          <div class="flow-node-sub">live totals<br>=SUM(Holdings)</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="flow-node-title">🥧 Allocation</div>
+          <div class="flow-node-sub">sector weights<br>auto-recalc</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="flow-node-title">💰 Net Worth</div>
+          <div class="flow-node-sub">IRA + 401k + HSA<br>+ savings − debt</div>
+        </div>
+      </div>
+      <p class="flow-note">
+        Every value in the model is formula-driven — no manual entry after the initial setup. Update a position in Holdings and the Dashboard total, sector allocation percentage, and net worth snapshot all recalculate instantly. This mirrors the single-source-of-truth principle used in relational database design.
+      </p>
+    </div>
+
+    <div class="code-wrap reveal">
+      <div class="code-header">
+        <span class="code-filename">cagr_calculator.py</span>
+        <span class="code-lang">PYTHON</span>
+      </div>
+      <div class="code-body">
+        <pre><span class="cm"># CAGR Calculator — Compound Annual Growth Rate</span>
+<span class="cm"># Used to measure portfolio performance over time</span>
+
+<span class="kw">def</span> <span class="fn">calculate_cagr</span>(start_value, end_value, years):
+    <span class="st">"""
+    CAGR = (end_value / start_value) ^ (1 / years) - 1
+    """</span>
+    <span class="kw">if</span> start_value &lt;= <span class="nm">0</span> <span class="kw">or</span> years &lt;= <span class="nm">0</span>:
+        <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">"Values must be positive"</span>)
+    cagr = (end_value / start_value) ** (<span class="nm">1</span> / years) - <span class="nm">1</span>
+    <span class="kw">return</span> round(cagr * <span class="nm">100</span>, <span class="nm">2</span>)
+
+<span class="cm"># My Roth IRA: $500 → $23,279 over ~3.5 years</span>
+start  = <span class="nm">500</span>
+end    = <span class="nm">23_279</span>
+years  = <span class="nm">3.5</span>
+
+result = <span class="fn">calculate_cagr</span>(start, end, years)
+<span class="fn">print</span>(<span class="st">f"CAGR: {result}%"</span>)  <span class="cm"># → CAGR: 16.7%</span></pre>
+      </div>
+    </div>
+  </div>
+
+
+</main>
+
+<footer>
+  <p>© 2026 Aidan Aniciete · <a href="/">Back to Portfolio</a></p>
+</footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+// ── LIVE DATA ─────────────────────────────────────────────────────────────────
+const ALL_HOLDINGS = [
+  { ticker:'GOOG',  name:'Alphabet Inc.',                       cost: 38.65,   snapVal: 1351.64, snapPrice: 295.7,  thesis:'Search + YouTube + GCP; AI integration accelerating moat',            type:'stock' },
+  { ticker:'SHOP',  name:'Shopify Inc.',                        cost: 188.58,  snapVal: 383.51,  snapPrice: 86.5,   thesis:'E-commerce infrastructure; merchant growth + payments expansion',       type:'stock' },
+  { ticker:'NVDA',  name:'NVIDIA Corporation',                  cost: 259.71,  snapVal: 1039.99, snapPrice: 114.5,  thesis:'AI GPU monopoly; data center capex supercycle',                         type:'stock' },
+  { ticker:'ASML',  name:'ASML Holding N.V.',                   cost: -354.9,  snapVal: 1362.62, snapPrice: 680.0,  thesis:'EUV lithography monopoly — irreplaceable in semiconductor supply chain', type:'stock' },
+  { ticker:'JPM',   name:'JPMorgan Chase & Co.',                cost: 384.15,  snapVal: 907.61,  snapPrice: 262.8,  thesis:'Best-run US bank; benefits from rate environment and capital markets',   type:'stock' },
+  { ticker:'AXP',   name:'American Express',                    cost: 656.83,  snapVal: 863.86,  snapPrice: 270.5,  thesis:'Premium card network + travel recovery; high-spend customer base',       type:'stock' },
+  { ticker:'AAPL',  name:'Apple Inc.',                          cost: 176.88,  snapVal: 338.89,  snapPrice: 214.0,  thesis:'Consumer ecosystem + services flywheel; loyal user base',                type:'stock' },
+  { ticker:'AMZN',  name:'Amazon.com Inc.',                     cost: 834.81,  snapVal: 1087.91, snapPrice: 199.5,  thesis:'AWS cloud dominance + logistics flywheel; AI infrastructure buildout',   type:'stock' },
+  { ticker:'MCD',   name:"McDonald's Corporation",              cost: 406.0,   snapVal: 464.41,  snapPrice: 293.0,  thesis:'Franchise model royalty stream; global brand + value menu resilience',   type:'stock' },
+  { ticker:'NFLX',  name:'Netflix Inc.',                        cost: 1205.0,  snapVal: 1331.54, snapPrice: 1000.0, thesis:'Content library + ad-supported tier driving margin expansion',           type:'stock' },
+  { ticker:'BRK.B', name:'Berkshire Hathaway',                  cost: 1366.75, snapVal: 1428.52, snapPrice: 486.0,  thesis:'Buffett-run conglomerate; quality compounder, defensive anchor',         type:'stock' },
+  { ticker:'XOM',   name:'Exxon Mobil',                         cost: 440.67,  snapVal: 525.93,  snapPrice: 107.5,  thesis:'Largest US energy major; Pioneer acquisition expanding scale',           type:'stock' },
+  { ticker:'CVX',   name:'Chevron Corporation',                 cost: 512.12,  snapVal: 557.54,  snapPrice: 155.5,  thesis:'Integrated oil major; dividend growth + Permian Basin production',       type:'stock' },
+  { ticker:'WELL',  name:'Welltower Inc.',                      cost: 680.09,  snapVal: 713.05,  snapPrice: 145.5,  thesis:'Healthcare REIT; senior housing + medical office tailwinds',             type:'stock' },
+  { ticker:'O',     name:'Realty Income Corp.',                 cost: 700.32,  snapVal: 726.74,  snapPrice: 53.5,   thesis:'Monthly dividend REIT; net-lease commercial real estate',                type:'stock' },
+  { ticker:'MSFT',  name:'Microsoft Corporation',               cost: 693.33,  snapVal: 703.1,   snapPrice: 388.5,  thesis:'Azure cloud + Copilot AI integration; Office 365 sticky revenue',        type:'stock' },
+  { ticker:'VT',    name:'Vanguard Total World ETF',            cost: 467.27,  snapVal: 462.56,  snapPrice: 110.5,  thesis:'Broad global diversification; passive core holding',                     type:'stock' },
+  { ticker:'META',  name:'Meta Platforms Inc.',                 cost: 724.02,  snapVal: 676.74,  snapPrice: 596.0,  thesis:'Social media monopoly; Reality Labs bet on spatial computing',           type:'stock' },
+  { ticker:'EQR',   name:'Equity Residential',                  cost: 682.65,  snapVal: 636.63,  snapPrice: 60.5,   thesis:'Apartment REIT; urban rental demand in supply-constrained markets',      type:'stock' },
+  { ticker:'ISRG',  name:'Intuitive Surgical',                  cost: 795.44,  snapVal: 754.1,   snapPrice: 502.0,  thesis:'Robotic surgery leader; recurring revenue from consumables',             type:'stock' },
+  { ticker:'UNH',   name:'UnitedHealth Group',                  cost: 670.51,  snapVal: 621.18,  snapPrice: 487.0,  thesis:'Managed care + Optum data platform; defensive healthcare exposure',      type:'stock' },
+  { ticker:'HD',    name:'Home Depot Inc.',                     cost: 698.25,  snapVal: 661.23,  snapPrice: 382.0,  thesis:'Home improvement duopoly; housing market cycle play',                    type:'stock' },
+  { ticker:'BAC',   name:'Bank of America',                     cost: 617.52,  snapVal: 516.7,   snapPrice: 43.5,   thesis:'Retail banking giant; rate sensitivity and loan book quality key risk',  type:'stock' },
+  { ticker:'IBIT',  name:'iShares Bitcoin Trust',               cost: 1532.5,  snapVal: 1209.91, snapPrice: 48.5,   thesis:'Regulated crypto exposure; high conviction on long-term digital asset thesis', type:'stock' },
+  { ticker:'LLY',   name:'Eli Lilly',                           cost: 932.52,  snapVal: 864.92,  snapPrice: 832.0,  thesis:'GLP-1 obesity drug pipeline; multi-year revenue growth runway',          type:'stock' },
+  { ticker:'NVO',   name:'Novo Nordisk A/S',                    cost: 851.24,  snapVal: 592.42,  snapPrice: 70.5,   thesis:'GLP-1 pioneer; Ozempic/Wegovy growth offset by competition concerns',    type:'stock' },
+  { ticker:'BKNG',  name:'Booking Holdings',                    cost: 842.17,  snapVal: 740.12,  snapPrice: 5100.0, thesis:'Online travel OTA duopoly; global accommodation + experience market',    type:'stock' },
+  { ticker:'IMOM',  name:'Alpha Architect Intl Quant Momentum', cost: 182.93,  snapVal: 340.35,  snapPrice: 40.5,   thesis:'International momentum factor; systematic non-US exposure',              type:'etf' },
+  { ticker:'IVAL',  name:'Alpha Architect Intl Quant Value',    cost: 220.21,  snapVal: 345.66,  snapPrice: 38.5,   thesis:'International deep value factor; geographic diversification',            type:'etf' },
+  { ticker:'QVAL',  name:'Alpha Architect US Quant Value',      cost: 421.8,   snapVal: 575.54,  snapPrice: 51.5,   thesis:'Deep value factor ETF; disciplined quantitative value investing',        type:'etf' },
+  { ticker:'QMOM',  name:'Alpha Architect US Quant Momentum',   cost: 456.84,  snapVal: 581.95,  snapPrice: 62.5,   thesis:'Factor-based momentum strategy; systematic quant approach',              type:'etf' },
+];
+
+const ALLOCATION = [
+  { sector:'Technology',            pct: 27.6, tickers:'GOOG, MSFT, AAPL, AMZN, NVDA, SHOP' },
+  { sector:'Financials',            pct: 13.6, tickers:'JPM, AXP, BAC, BRK.B' },
+  { sector:'Healthcare',            pct: 13.3, tickers:'LLY, ISRG, UNH, NVO' },
+  { sector:'Factor ETFs',           pct: 12.1, tickers:'QMOM, QVAL, IVAL, IMOM' },
+  { sector:'REITs',                 pct:  9.7, tickers:'O, WELL, EQR' },
+  { sector:'Consumer Discretionary',pct:  7.5, tickers:'NFLX, MCD, BKNG' },
+  { sector:'Crypto',                pct:  5.7, tickers:'IBIT' },
+  { sector:'Entertainment/Media',   pct:  3.2, tickers:'META' },
+  { sector:'Energy',                pct:  5.1, tickers:'CVX, XOM' },
+  { sector:'Global ETF',            pct:  2.2, tickers:'VT' },
+];
+
+const TRACKER_TABS = [
+  { icon:'📊', name:'Dashboard', desc:'Live totals + top performers' },
+  { icon:'📋', name:'Holdings',  desc:'All 31 positions + theses' },
+  { icon:'🥧', name:'Allocation',desc:'Sector weights + breakdown' },
+  { icon:'🏢', name:'401(k)',    desc:'T. Rowe Price account' },
+  { icon:'🏥', name:'HSA',       desc:'Fidelity · 3 funds' },
+  { icon:'💰', name:'Savings',   desc:'Goals + cash buckets' },
+  { icon:'💳', name:'Debt',      desc:'Credit utilization tracker' },
+];
+
+const NET_WORTH_DATA = [
+  { label:"Dec '22", val: 500 },
+  { label:"Jun '23", val: 1600 },
+  { label:"Dec '23", val: 5200 },
+  { label:"Jun '24", val: 12800 },
+  { label:"Dec '24", val: 32800 },  // Roth ~$18k + 401k ~$13k + HSA ~$1.8k
+  { label:"Jun '25", val: 37200 },
+  { label:"Dec '25", val: 41800 },
+  { label:"Mar '26", val: 39905 },  // live — updated by fetchSheets()
+];
+
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function fmtGain(g) {
+  const pct = (g * 100).toFixed(2);
+  const sign = g >= 0 ? '+' : '';
+  return { text: sign + pct + '%', pos: g >= 0 };
+}
+
+function renderRow(h, liveGain, livePrice, tableEl) {
+  const g = fmtGain(liveGain);
+  const priceStr = livePrice ? `<span style="font-size:.7rem;color:var(--dim);">$${livePrice.toFixed(2)}</span>` : '';
+  tableEl.innerHTML += `<tr>
+    <td><div class="ticker">${h.ticker}</div>${priceStr}</td>
+    <td><div class="name">${h.name}</div></td>
+    <td><div class="thesis">${h.thesis}</div></td>
+    <td class="${g.pos ? 'gain-pos' : 'gain-neg'}" id="gain-${h.ticker}">${g.text}</td>
+  </tr>`;
+}
+
+// Initial render with snapshot data
+const stocksTable = document.getElementById('stocksTable');
+const etfsTable = document.getElementById('etfsTable');
+
+ALL_HOLDINGS.forEach(h => {
+  const snapGain = h.cost <= 0 ? 0 : (h.snapVal - h.cost) / Math.abs(h.cost);
+  const tbl = h.type === 'stock' ? stocksTable : etfsTable;
+  renderRow(h, snapGain, null, tbl);
+});
+
+// ── GOOGLE SHEETS CONFIG ─────────────────────────────────────────────────────
+const SHEET_ID  = '1i72mgTMMFTpGmc8QUOXwtdkiaA8Jold9qb8fK9nECOM';
+const API_KEY   = 'AIzaSyDe-nqy7Pz2svs3IIHvcJS_2HU-GAS3wbg';
+const BASE      = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
+const ETF_LIST  = ['QVAL','QMOM','IVAL','IMOM','VT','IMOM'];
+const THESIS    = {
+  'BRK.B':'Buffett-run conglomerate; quality compounder, defensive anchor',
+  'ASML' :'EUV lithography monopoly — irreplaceable in semiconductor supply chain',
+  'NFLX' :'Content library + ad-supported tier driving margin expansion',
+  'GOOG' :'Search + YouTube + GCP; AI integration accelerating moat',
+  'IBIT' :'Regulated crypto exposure; high conviction on long-term digital asset thesis',
+  'AMZN' :'AWS cloud dominance + logistics flywheel; AI infrastructure buildout',
+  'NVDA' :'AI GPU monopoly; data center capex supercycle',
+  'JPM'  :'Best-run US bank; benefits from rate environment and capital markets',
+  'LLY'  :'GLP-1 obesity drug pipeline; multi-year revenue growth runway',
+  'AXP'  :'Premium card network + travel recovery; high-spend customer base',
+  'BKNG' :'Online travel OTA duopoly; global accommodation + experience market',
+  'ISRG' :'Robotic surgery leader; recurring revenue from consumables',
+  'O'    :'Monthly dividend REIT; net-lease commercial real estate',
+  'WELL' :'Healthcare REIT; senior housing + medical office tailwinds',
+  'MSFT' :'Azure cloud + Copilot AI integration; Office 365 sticky revenue',
+  'HD'   :'Home improvement duopoly; housing market cycle play',
+  'META' :'Social media monopoly; Reality Labs bet on spatial computing',
+  'EQR'  :'Apartment REIT; urban rental demand in supply-constrained markets',
+  'UNH'  :'Managed care + Optum data platform; defensive healthcare exposure',
+  'NVO'  :'GLP-1 pioneer; Ozempic/Wegovy growth offset by competition concerns',
+  'QVAL' :'Deep value factor ETF; disciplined quantitative value investing',
+  'QMOM' :'Factor-based momentum strategy; systematic quant approach',
+  'CVX'  :'Integrated oil major; dividend growth + Permian Basin production',
+  'XOM'  :'Largest US energy major; Pioneer acquisition expanding scale',
+  'BAC'  :'Retail banking giant; rate sensitivity and loan book quality key risk',
+  'MCD'  :"Franchise model royalty stream; global brand + value menu resilience",
+  'VT'   :'Broad global diversification; passive core holding',
+  'SHOP' :'E-commerce infrastructure; merchant growth + payments expansion',
+  'IVAL' :'International deep value factor; geographic diversification',
+  'IMOM' :'International momentum factor; systematic non-US exposure',
+  'AAPL' :'Consumer ecosystem + services flywheel; loyal user base',
+};
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+async function fetchSheets() {
+  const liveTag = document.getElementById('liveTag');
+  if (liveTag) liveTag.textContent = 'Syncing with Google Sheets...';
+
+  try {
+    // Fetch M1 Raw (holdings + live prices via GOOGLEFINANCE)
+    // Fetch 401k C4 and HSA Holdings F8 simultaneously
+    const [m1Res, k401Res, hsaRes, depositsRes, netWorthRes, allocRes] = await Promise.all([
+      fetch(`${BASE}/M1%20Raw!A1:H50?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+      fetch(`${BASE}/401k!C4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+      fetch(`${BASE}/HSA%20Holdings!F8?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+      fetch(`${BASE}/Dashboard!D4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+      fetch(`${BASE}/Dashboard!M4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+      fetch(`${BASE}/Allocation!B3:E11?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+    ]);
+
+    const [m1Data, k401Data, hsaData, depositsData, netWorthData, allocData] = await Promise.all([
+      m1Res.json(), k401Res.json(), hsaRes.json(), depositsRes.json(), netWorthRes.json(), allocRes.json()
+    ]);
+
+    // ── Parse M1 Raw ──
+    const rows = (m1Data.values || []).slice(1).filter(r => r[0] && r[7]);
+    let totalValue = 0, totalCost = 0;
+
+    const stocksTable = document.getElementById('stocksTable');
+    const etfsTable   = document.getElementById('etfsTable');
+    stocksTable.innerHTML = '';
+    etfsTable.innerHTML   = '';
+
+    rows.forEach(r => {
+      const ticker   = r[0].trim();
+      const name     = r[1] || ticker;
+      const cost     = parseFloat(r[4]) || 0;
+      const gainPct  = parseFloat(r[6]) || 0;  // already a percentage e.g. 74.78
+      const value    = parseFloat(r[7]) || 0;
+      const price    = parseFloat(r[3]) * (1 + gainPct / 100);
+
+      totalValue += value;
+      totalCost  += cost;
+
+      const g       = gainPct >= 0;
+      const tbl     = ETF_LIST.includes(ticker) ? etfsTable : stocksTable;
+      tbl.innerHTML += `<tr>
+        <td><div class="ticker">${ticker}</div><span style="font-size:.7rem;color:var(--dim)">$${price.toFixed(2)}</span></td>
+        <td><div class="name">${name}</div></td>
+        <td><div class="thesis">${THESIS[ticker] || '—'}</div></td>
+        <td class="${g ? 'gain-pos' : 'gain-neg'}">${g ? '+' : ''}${gainPct.toFixed(2)}%</td>
+      </tr>`;
+    });
+
+    // ── Update summary cards ──
+    const DEPOSITS = depositsData.values ? parseFloat(depositsData.values[0][0]) : 13560;
+    const unrealGain = totalValue - totalCost;
+    const cagr = (Math.pow(totalValue / DEPOSITS, 1 / 3.5) - 1) * 100;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    const setColor = (id, pos) => { const el = document.getElementById(id); if (el) el.style.color = pos ? 'var(--green)' : 'var(--red)'; };
+
+    set('rothTotal',  fmt(totalValue));
+    set('unrealGain', (unrealGain >= 0 ? '+' : '-') + fmt(Math.abs(unrealGain)));
+    setColor('unrealGain', unrealGain >= 0);
+    set('posCount', rows.length);
+    // Update table position badges
+    const stockCount = rows.filter(r => !ETF_LIST.includes(r[0].trim())).length;
+    const etfCount = rows.filter(r => ETF_LIST.includes(r[0].trim())).length;
+    const stockBadge = document.getElementById('stockBadge');
+    const etfBadge = document.getElementById('etfBadge');
+    if (stockBadge) stockBadge.textContent = stockCount + ' positions';
+    if (etfBadge) etfBadge.textContent = etfCount + ' positions · quant systematic';
+    set('cagrVal',    cagr.toFixed(1) + '%');
+    set('rothTriple', fmt(totalValue));
+    set('chartVal',   fmt(totalValue));
+
+    // ── 401k ──
+    const val401k = k401Data.values ? parseFloat(k401Data.values[0][0]) : null;
+    if (val401k) set('stack401k', fmt(val401k));
+
+    // ── HSA ──
+    const valHSA = hsaData.values ? parseFloat(hsaData.values[0][0]) : null;
+    if (valHSA) set('hsaTriple', fmt(valHSA));
+
+    // ── Update chart with total net worth from Dashboard M4 ──
+    const totalNetWorth = netWorthData.values ? parseFloat(netWorthData.values[0][0]) : (totalValue + (val401k || 0) + (valHSA || 0));
+    NET_WORTH_DATA[NET_WORTH_DATA.length - 1].val = Math.round(totalNetWorth);
+    set('chartVal', fmt(totalNetWorth));
+    drawChart();
+
+    // ── Sector Allocation from sheet ──
+    if (allocData.values) {
+      const allocBarsEl = document.getElementById('allocBars');
+      allocBarsEl.innerHTML = '';
+      const maxPct = Math.max(...allocData.values.map(r => parseFloat(r[2]) * 100));
+      allocData.values.forEach(r => {
+        const sector  = r[0];
+        const pct     = (parseFloat(r[2]) * 100).toFixed(1);
+        const tickers = r[3] || '';
+        allocBarsEl.innerHTML += `<div class="alloc-item">
+          <div class="alloc-row">
+            <span class="alloc-sector">${sector}</span>
+            <span class="alloc-pct">${pct}%</span>
+          </div>
+          <div class="alloc-bar-bg">
+            <div class="alloc-bar-fill" style="width:${(parseFloat(pct) / maxPct * 100).toFixed(1)}%"></div>
+          </div>
+          <div style="font-size:.7rem;color:var(--dim);margin-top:.25rem;">${tickers}</div>
+        </div>`;
+      });
+    }
+
+    // ── Live tag ──
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    if (liveTag) {
+      liveTag.textContent = `● Live · Google Sheets · ${timeStr}`;
+      liveTag.style.color = '#4ade80';
+    }
+
+  } catch(err) {
+    console.error('Sheets error:', err);
+    // Try each fetch individually to find which one fails
+    const tests = [
+      ['M1 Raw', `${BASE}/M1%20Raw!A1:H50?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
+      ['401k',   `${BASE}/401k!C4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
+      ['HSA',    `${BASE}/HSA%20Holdings!F8?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
+      ['Dashboard D4', `${BASE}/Dashboard!D4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
+    ];
+    for (const [name, url] of tests) {
+      try {
+        const r = await fetch(url);
+        const d = await r.json();
+        console.log(name, '→', r.status, d.error ? d.error.message : 'OK', d.values ? d.values[0] : '');
+      } catch(e) {
+        console.error(name, '→ FAILED:', e.message);
+      }
+    }
+    const liveTagEl = document.getElementById('liveTag');
+    if (liveTagEl) {
+      liveTagEl.textContent = '⚠ Could not load live data — check console';
+      liveTagEl.style.color = 'var(--yellow)';
+    }
+  }
+}
+
+fetchSheets();
+
+// Allocation bars
+const allocBars = document.getElementById('allocBars');
+ALLOCATION.forEach(a => {
+  allocBars.innerHTML += `<div class="alloc-item">
+    <div class="alloc-row">
+      <span class="alloc-sector">${a.sector}</span>
+      <span class="alloc-pct">${a.pct}%</span>
+    </div>
+    <div class="alloc-bar-bg">
+      <div class="alloc-bar-fill" style="width:${a.pct / 28 * 100}%"></div>
+    </div>
+    <div style="font-size:.7rem;color:var(--dim);margin-top:.25rem;">${a.tickers}</div>
+  </div>`;
+});
+
+// Tracker tabs
+const trackerTabs = document.getElementById('trackerTabs');
+TRACKER_TABS.forEach(t => {
+  trackerTabs.innerHTML += `<div class="tracker-tab">
+    <span class="tracker-tab-icon">${t.icon}</span>
+    <div class="tracker-tab-name">${t.name}</div>
+    <div class="tracker-tab-desc">${t.desc}</div>
+  </div>`;
+});
+
+// ── NET WORTH CHART ───────────────────────────────────────────────────────────
+function drawChart() {
+  const canvas = document.getElementById('netWorthChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = 220;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 20, right: 20, bottom: 40, left: 60 };
+  const cW = W - pad.left - pad.right;
+  const cH = H - pad.top - pad.bottom;
+  const vals = NET_WORTH_DATA.map(d => d.val);
+  const maxV = Math.max(...vals) * 1.1;
+
+  function xPos(i) { return pad.left + (i / (vals.length - 1)) * cW; }
+  function yPos(v) { return pad.top + cH - (v / maxV) * cH; }
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(100,120,200,0.08)';
+  ctx.lineWidth = 1;
+  [0, 10000, 20000, 30000, 40000, 50000].forEach(v => {
+    const y = yPos(v);
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(136,146,176,0.5)';
+    ctx.font = '10px DM Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('$' + (v/1000) + 'k', pad.left - 8, y + 4);
+  });
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
+  grad.addColorStop(0, 'rgba(124,108,252,0.25)');
+  grad.addColorStop(1, 'rgba(124,108,252,0)');
+  ctx.beginPath();
+  ctx.moveTo(xPos(0), yPos(vals[0]));
+  for (let i = 1; i < vals.length; i++) {
+    const cpx = (xPos(i-1) + xPos(i)) / 2;
+    ctx.bezierCurveTo(cpx, yPos(vals[i-1]), cpx, yPos(vals[i]), xPos(i), yPos(vals[i]));
+  }
+  ctx.lineTo(xPos(vals.length-1), pad.top + cH);
+  ctx.lineTo(xPos(0), pad.top + cH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(xPos(0), yPos(vals[0]));
+  for (let i = 1; i < vals.length; i++) {
+    const cpx = (xPos(i-1) + xPos(i)) / 2;
+    ctx.bezierCurveTo(cpx, yPos(vals[i-1]), cpx, yPos(vals[i]), xPos(i), yPos(vals[i]));
+  }
+  ctx.strokeStyle = 'rgba(124,108,252,0.9)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Dots + labels
+  NET_WORTH_DATA.forEach((d, i) => {
+    const x = xPos(i), y = yPos(d.val);
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2);
+    ctx.fillStyle = i === vals.length-1 ? '#a78bfa' : 'rgba(124,108,252,0.7)';
+    ctx.fill();
+    ctx.fillStyle = 'rgba(136,146,176,0.7)';
+    ctx.font = '9px DM Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(d.label, x, H - 8);
+  });
+}
+requestAnimationFrame(() => setTimeout(drawChart, 100));
+window.addEventListener('resize', drawChart);
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
