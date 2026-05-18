@@ -1,0 +1,75 @@
+# aidaniciete.com
+
+Personal portfolio website built as part of CIS 041 coursework at San Jose City College.  
+Live site: [aidaniciete.com](https://aidaniciete.com)
+
+-----
+
+## Overview
+
+This project is a personal portfolio site hosted on GitHub Pages with a custom domain configured through Porkbun. It showcases my professional background, projects, and technical skills developed through coursework and hands-on work experience.
+
+-----
+
+## Features
+
+- **Portfolio & Case Studies** — Project writeups and documentation of professional work
+- **Google Sheets API Integration** — Live data pulled from Google Sheets via JavaScript
+- **AIS Audit Sandbox** — Interactive accounting information systems demo
+- **Responsive Design** — Mobile-friendly layout across all pages
+
+-----
+
+## Tech Stack
+
+|Layer           |Technology             |
+|----------------|-----------------------|
+|Hosting         |GitHub Pages           |
+|Domain          |Porkbun (custom domain)|
+|Frontend        |HTML, CSS, JavaScript  |
+|Data Integration|Google Sheets API      |
+
+-----
+
+## Project Structure
+
+```
+aidaniciete.com/
+├── index.html          # Homepage
+├── /assets             # Images, icons, stylesheets
+├── /projects           # Case study and project pages
+├── lemonade.html       # Accounting learning game
+├── vgc-guide.html      # VGC field guide
+└── ...
+```
+
+-----
+
+## Setup & Deployment
+
+This site deploys automatically via GitHub Pages on every push to the `main` branch.
+
+To run locally, clone the repo and open `index.html` in a browser — no build step required.
+
+```bash
+git clone https://github.com/[your-username]/[your-repo].git
+cd [your-repo]
+open index.html
+```
+
+-----
+
+## Course Context
+
+**Course:** CIS 041 — Computer Applications and Information Systems  
+**Institution:** San Jose City College  
+
+
+This repo demonstrates practical application of web publishing, file management, and JavaScript-based integrations covered in the course.
+
+-----
+
+## Contact
+
+**Aidan Aniciete**  
+[aidaniciete.com](https://aidaniciete.com
