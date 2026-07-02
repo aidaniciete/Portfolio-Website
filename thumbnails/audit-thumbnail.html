@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=1200"/>
+  <title>AIS Audit Sandbox — LinkedIn Thumbnail</title>
+  <link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Albert+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1200px;
+      height: 627px;
+      overflow: hidden;
+      background: #F6F5F0;
+      font-family: 'Albert Sans', sans-serif;
+      color: #1B211D;
+    }
+
+    .canvas {
+      position: relative;
+      width: 1200px;
+      height: 627px;
+      overflow: hidden;
+    }
+
+    /* Faint ledger rules across the background */
+    .rules {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 39px,
+        rgba(27,33,29,0.045) 39px,
+        rgba(27,33,29,0.045) 40px
+      );
+      pointer-events: none;
+    }
+
+    /* Tape accent line left */
+    .accent-line {
+      position: absolute;
+      left: 0;
+      top: 60px;
+      bottom: 60px;
+      width: 4px;
+      background: #F2CA4C;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left {
+      position: absolute;
+      left: 72px;
+      top: 0;
+      bottom: 0;
+      width: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .eyebrow {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #1E5B45;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: #1B211D;
+    }
+
+    .title {
+      font-family: 'Young Serif', Georgia, serif;
+      font-size: 58px;
+      font-weight: 400;
+      line-height: 1.02;
+      letter-spacing: -0.01em;
+      margin-bottom: 24px;
+    }
+
+    .title-line1 { color: #1B211D; }
+    .title-line2 {
+      color: #1E5B45;
+      background: linear-gradient(transparent 68%, #F2CA4C 68%, #F2CA4C 96%, transparent 96%);
+      display: inline-block;
+      padding: 0 6px;
+      margin-left: -6px;
+    }
+
+    .subtitle {
+      font-size: 14.5px;
+      color: #5E6B63;
+      line-height: 1.65;
+      max-width: 420px;
+      margin-bottom: 30px;
+    }
+
+    /* Fraud type pills */
+    .fraud-types {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .fraud-row { display: flex; gap: 8px; }
+
+    .fraud-pill {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      padding: 5px 11px;
+      border: 1px solid #DBD8CD;
+      border-left: 2px solid;
+      background: #FFFFFF;
+      white-space: nowrap;
+    }
+
+    .fraud-pill.red    { border-left-color: #B3372E; color: #B3372E; }
+    .fraud-pill.yellow { border-left-color: #A66A00; color: #A66A00; }
+    .fraud-pill.purple { border-left-color: #6B4FA0; color: #6B4FA0; }
+    .fraud-pill.cyan   { border-left-color: #0E7490; color: #0E7490; }
+    .fraud-pill.green  { border-left-color: #1E7A4E; color: #1E7A4E; }
+    .fraud-pill.indigo { border-left-color: #4E5DA8; color: #4E5DA8; }
+    .fraud-pill.plum   { border-left-color: #8A2E5E; color: #8A2E5E; }
+
+    /* ── RIGHT PANEL — mock transaction table ── */
+    .right {
+      position: absolute;
+      right: 48px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 420px;
+    }
+
+    .table-header-label {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8C968F;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .mock-table {
+      background: #FFFFFF;
+      border: 1px solid #DBD8CD;
+      overflow: hidden;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 0 rgba(27,33,29,0.04);
+    }
+
+    .table-head {
+      display: grid;
+      grid-template-columns: 80px 1fr 80px 80px;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #EFEDE6;
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #5E6B63;
+      border-bottom: 1px solid #1B211D;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 80px 80px;
+      gap: 8px;
+      padding: 10px 16px;
+      border-bottom: 1px solid #ECEAE2;
+      font-size: 11.5px;
+      align-items: center;
+      background: #FFFFFF;
+    }
+
+    .table-row:last-child { border-bottom: none; }
+
+    .table-row.flagged { background: #F4F1E7; border-left: 3px solid #6B4FA0; padding-left: 13px; }
+    .table-row.danger  { background: #F9F0EF; border-left: 3px solid #B3372E; padding-left: 13px; }
+    .table-row.warn    { background: #F8F3E6; border-left: 3px solid #A66A00; padding-left: 13px; }
+
+    .txn-id { font-family: 'Spline Sans Mono', monospace; font-size: 10px; color: #1E5B45; font-weight: 500; }
+    .txn-vendor { font-size: 11px; color: #1B211D; }
+    .txn-amount { font-family: 'Spline Sans Mono', monospace; font-size: 11px; color: #1B211D; text-align: right; }
+    .txn-amount.high { color: #A66A00; font-weight: 500; }
+
+    .flag-badge {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 8.5px;
+      padding: 3px 7px;
+      text-align: center;
+      letter-spacing: 0.06em;
+      border: 1px solid;
+      background: #FFFFFF;
+    }
+
+    .flag-badge.dup   { border-color: #A66A00; color: #A66A00; }
+    .flag-badge.shell { border-color: #6B4FA0; color: #6B4FA0; }
+    .flag-badge.clean { border-color: #1E7A4E; color: #1E7A4E; }
+    .flag-badge.split { border-color: #B3372E; color: #B3372E; }
+    .flag-badge.miss  { border-color: #0E7490; color: #0E7490; }
+
+    /* Bottom stat row */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: #DBD8CD;
+      border: 1px solid #DBD8CD;
+    }
+
+    .stat-box {
+      background: #FFFFFF;
+      padding: 14px 16px;
+    }
+
+    .stat-n {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .stat-n.accent { color: #1E5B45; }
+    .stat-n.yellow { color: #A66A00; }
+    .stat-n.red    { color: #B3372E; }
+
+    .stat-l {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8C968F;
+    }
+
+    /* Infinite badge */
+    .infinite-badge {
+      position: absolute;
+      top: 28px;
+      right: 48px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid #1E5B45;
+      padding: 5px 14px;
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 10px;
+      color: #1E5B45;
+      letter-spacing: 0.12em;
+      font-weight: 500;
+    }
+
+    .byline {
+      position: absolute;
+      bottom: 28px;
+      left: 72px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .byline-name {
+      font-family: 'Young Serif', Georgia, serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: #1B211D;
+    }
+
+    .byline-sep { color: #C5C2B8; }
+
+    .byline-url {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 11px;
+      color: #5E6B63;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+<div class="canvas">
+
+  <div class="rules"></div>
+  <div class="accent-line"></div>
+
+  <!-- Badge -->
+  <div class="infinite-badge">∞ INFINITE PRACTICE MODE</div>
+
+  <!-- Left -->
+  <div class="left">
+    <div class="eyebrow">AIS Audit Sandbox v2</div>
+    <div class="title">
+      <div class="title-line1">Catch the</div>
+      <div><span class="title-line2">Fraud.</span></div>
+    </div>
+    <div class="subtitle">
+      Randomly generated company transactions with real fraud patterns. Flag the issues, identify the type, submit your audit — every round is unique.
+    </div>
+
+    <div class="fraud-types">
+      <div class="fraud-row">
+        <span class="fraud-pill yellow">● Duplicate PO</span>
+        <span class="fraud-pill red">● Threshold Splitting</span>
+        <span class="fraud-pill purple">● Unregistered Vendor</span>
+      </div>
+      <div class="fraud-row">
+        <span class="fraud-pill cyan">● Missing Docs</span>
+        <span class="fraud-pill green">● Unauth. Approver</span>
+        <span class="fraud-pill indigo">● Qty Mismatch</span>
+        <span class="fraud-pill plum">● Price Mismatch</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: mock transaction table -->
+  <div class="right">
+    <div class="table-header-label">
+      <span>Sample Audit — Meridian Supplies Co.</span>
+      <span>FY2025</span>
+    </div>
+
+    <div class="mock-table">
+      <div class="table-head">
+        <span>TXN ID</span>
+        <span>Vendor</span>
+        <span>Amount</span>
+        <span>Flag</span>
+      </div>
+
+      <div class="table-row">
+        <span class="txn-id">TXN-1042</span>
+        <span class="txn-vendor">OfficePro LLC</span>
+        <span class="txn-amount">$4,200</span>
+        <span class="flag-badge clean">✓ Clean</span>
+      </div>
+
+      <div class="table-row danger">
+        <span class="txn-id">TXN-1043</span>
+        <span class="txn-vendor">Global Solutions LLC</span>
+        <span class="txn-amount high">$24,850</span>
+        <span class="flag-badge split">Splitting</span>
+      </div>
+
+      <div class="table-row warn">
+        <span class="txn-id">TXN-1044</span>
+        <span class="txn-vendor">Apex Freight Co.</span>
+        <span class="txn-amount">$7,100</span>
+        <span class="flag-badge dup">Dup PO</span>
+      </div>
+
+      <div class="table-row flagged">
+        <span class="txn-id">TXN-1045</span>
+        <span class="txn-vendor">Nexus Holdings</span>
+        <span class="txn-amount high">$18,400</span>
+        <span class="flag-badge shell">Shell</span>
+      </div>
+
+      <div class="table-row">
+        <span class="txn-id">TXN-1046</span>
+        <span class="txn-vendor">SafeGuard Security</span>
+        <span class="txn-amount">$9,600</span>
+        <span class="flag-badge miss">No Docs</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-strip">
+      <div class="stat-box">
+        <div class="stat-n accent">7</div>
+        <div class="stat-l">Fraud Types</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-n yellow">∞</div>
+        <div class="stat-l">Unique Audits</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-n red">3-Way</div>
+        <div class="stat-l">Doc Match</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Byline -->
+  <div class="byline">
+    <span class="byline-name">Aidan Aniciete</span>
+    <span class="byline-sep">·</span>
+    <span class="byline-url">aidaniciete.com/audit</span>
+  </div>
+
+</div>
+</body>
+</html>
