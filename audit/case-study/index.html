@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aidan Aniciete | AIS Audit Sandbox — Case Study</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231E5B45'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23F7F6F1' font-family='Georgia'>A</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Albert+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#F6F5F0;--surface:#FFFFFF;--surface2:#EFEDE6;--border:#DBD8CD;
+      --accent:#1E5B45;--soft:#2E7A5E;
+      --green:#1E7A4E;--red:#B3372E;--yellow:#A66A00;--cyan:#0E7490;--plum:#6B4FA0;
+      --tape:#F2CA4C;
+      --text:#1B211D;--muted:#5E6B63;--dim:#8C968F;
+      --font-display:'Young Serif',Georgia,serif;
+      --font-body:'Albert Sans','Helvetica Neue',Arial,sans-serif;
+      --font-mono:'Spline Sans Mono','SF Mono',Menlo,monospace;
+    }
+
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;min-height:100vh;line-height:1.7;-webkit-font-smoothing:antialiased;}
+    ::selection{background:var(--tape);color:var(--text)}
+    a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+    /* ── Nav ── */
+    nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:baseline;
+      padding:.85rem 2rem;background:rgba(246,245,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:var(--font-mono);font-weight:500;font-size:.85rem;letter-spacing:.04em;color:var(--text);text-decoration:none;}
+    .nav-logo span{color:var(--accent);}
+    .nav-back{font-family:var(--font-mono);font-size:.74rem;color:var(--muted);text-decoration:none;transition:color .15s;}
+    .nav-back:hover{color:var(--text);border-bottom:2px solid var(--tape);}
+
+    /* ── Hero ── */
+    .hero{padding:4.5rem 2rem 3rem;position:relative;z-index:1;border-bottom:1px solid var(--border);}
+    .hero-inner{max-width:800px;margin:0 auto;}
+    .hero-eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem;}
+    .hero-eyebrow::before{content:'';display:inline-block;width:32px;height:1px;background:var(--text);}
+    .hero-title{font-family:var(--font-display);font-size:clamp(2.2rem,5vw,3.6rem);font-weight:400;line-height:1.05;letter-spacing:-.01em;margin-bottom:1.5rem;}
+    .hero-title span{display:block;color:var(--accent);}
+    .hero-meta{display:flex;gap:.5rem 1.25rem;flex-wrap:wrap;margin-top:1.75rem;font-family:var(--font-mono);font-size:.72rem;color:var(--muted);}
+    .hero-tag{white-space:nowrap;}
+    .hero-tag::before{content:'· ';color:var(--dim);}
+
+    /* ── Main wrap ── */
+    main{max-width:800px;margin:0 auto;padding:0 2rem 5rem;position:relative;z-index:1;}
+
+    /* ── Section labels ── */
+    .section-label{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;}
+    .section-title{font-family:var(--font-display);font-size:clamp(1.35rem,3vw,1.8rem);font-weight:400;letter-spacing:-.01em;margin-bottom:1.75rem;}
+
+    /* ── Divider ── */
+    .divider{border:none;border-top:1px solid var(--border);margin:3.5rem 0;}
+
+    /* ── Story section ── */
+    .story{padding-top:3.5rem;}
+    .story p{color:var(--text);font-size:1rem;line-height:1.85;margin-bottom:1.25rem;max-width:64ch;}
+    .story p strong{color:var(--text);font-weight:600;}
+    .story p em{color:var(--accent);font-style:italic;}
+    .story .closer{font-family:var(--font-display);font-size:1.15rem;font-weight:400;color:var(--text);line-height:1.5;margin-top:2rem;padding-left:1.1rem;border-left:3px solid var(--tape);}
+
+    /* ── How it works ── */
+    .how{padding-top:3.5rem;}
+    .how > p{color:var(--muted) !important;}
+    .fraud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-bottom:2.5rem;}
+    .fraud-card{background:var(--surface);border:1px solid var(--border);padding:1rem 1.25rem;border-left-width:3px;}
+    .fraud-card.dup{border-left-color:#A66A00;}
+    .fraud-card.split{border-left-color:#B3372E;}
+    .fraud-card.shell{border-left-color:#6B4FA0;}
+    .fraud-card.miss{border-left-color:#0E7490;}
+    .fraud-card.unauth{border-left-color:#1E7A4E;}
+    .fraud-card-label{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem;font-family:var(--font-mono);font-weight:500;}
+    .fraud-card.dup .fraud-card-label{color:#A66A00;}
+    .fraud-card.split .fraud-card-label{color:#B3372E;}
+    .fraud-card.shell .fraud-card-label{color:#6B4FA0;}
+    .fraud-card.miss .fraud-card-label{color:#0E7490;}
+    .fraud-card.unauth .fraud-card-label{color:#1E7A4E;}
+    .fraud-card-desc{font-size:.8rem;color:var(--muted);line-height:1.6;}
+
+    .feature-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:2rem;}
+    .feature-item{display:flex;gap:1rem;align-items:flex-start;background:var(--surface);border:1px solid var(--border);padding:1rem 1.25rem;}
+    .feature-icon{display:none;}
+    .feature-text{font-size:.87rem;color:var(--muted);line-height:1.65;}
+    .feature-text strong{color:var(--text);font-weight:400;display:block;margin-bottom:.25rem;font-size:.98rem;font-family:var(--font-display);}
+
+    /* ── Aha moment ── */
+    .aha{padding-top:3.5rem;}
+    .aha-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--tape);padding:2rem;margin-bottom:2rem;}
+    .aha-card p{color:var(--text);font-size:.92rem;line-height:1.85;margin-bottom:1rem;}
+    .aha-card p:last-child{margin-bottom:0;}
+    .aha-card strong{color:var(--text);font-weight:600;}
+    .aha-card em{color:var(--accent);}
+
+    /* ── Technical appendix ── */
+    .appendix{padding-top:3.5rem;}
+    .appendix-block{background:var(--surface);border:1px solid var(--border);padding:2rem;margin-bottom:1.5rem;}
+    .appendix-block-title{font-family:var(--font-display);font-size:1.05rem;font-weight:400;margin-bottom:1rem;color:var(--text);}
+    .appendix-block p{font-size:.86rem;color:var(--muted);line-height:1.85;margin-bottom:.85rem;}
+    .appendix-block p:last-child{margin-bottom:0;}
+    .appendix-block strong{color:var(--text);font-weight:600;}
+
+    .fraud-breakdown{display:flex;flex-direction:column;gap:.5rem;margin-top:1rem;}
+    .fraud-line{display:grid;grid-template-columns:160px 1fr;gap:1rem;font-size:.8rem;padding:.6rem .85rem;background:var(--bg);border-left:2px solid var(--border);}
+    .fraud-line.dup{border-color:#A66A00;}
+    .fraud-line.split{border-color:#B3372E;}
+    .fraud-line.shell{border-color:#6B4FA0;}
+    .fraud-line.miss{border-color:#0E7490;}
+    .fraud-line.unauth{border-color:#1E7A4E;}
+    .fraud-line-name{font-family:var(--font-mono);font-size:.72rem;color:var(--accent);}
+    .fraud-line-desc{color:var(--muted);line-height:1.5;}
+
+    /* ── CTA ── */
+    .cta{padding-top:3.5rem;text-align:center;}
+    .cta-label{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:1rem;}
+    .cta-title{font-family:var(--font-display);font-size:1.6rem;font-weight:400;margin-bottom:.75rem;}
+    .cta-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem;}
+    .btn-try{display:inline-flex;align-items:center;gap:.6rem;background:var(--accent);color:#fff;text-decoration:none;padding:.9rem 2rem;font-family:var(--font-mono);font-size:.85rem;letter-spacing:.02em;border:1px solid var(--accent);transition:background .15s;}
+    .btn-try:hover{background:var(--text);border-color:var(--text);}
+
+    /* ── Footer ── */
+    footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-family:var(--font-mono);font-size:.72rem;color:var(--dim);position:relative;z-index:1;}
+    footer a{color:var(--muted);text-decoration:none;transition:color .15s;}
+    footer a:hover{color:var(--text);border-bottom:2px solid var(--tape);}
+
+    @media(max-width:640px){
+      .fraud-line{grid-template-columns:1fr;gap:.25rem;}
+      nav{padding:.85rem 1.25rem}
+      .hero,main{padding-left:1.25rem;padding-right:1.25rem}
+    }
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none !important}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">AA<span>.</span></a>
+  <a href="/" class="nav-back">← Back to Portfolio</a>
+</nav>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Case Study</div>
+    <h1 class="hero-title">
+      AIS Audit
+      <span>Sandbox v2</span>
+    </h1>
+    <div class="hero-meta">
+      <span class="hero-tag">Vanilla JS</span>
+      <span class="hero-tag">Randomized Data Engine</span>
+      <span class="hero-tag">Three-Way Match</span>
+      <span class="hero-tag">GAAP Compliant</span>
+      <span class="hero-tag">Infinite Practice Mode</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── The Story ── -->
+  <section class="story reveal">
+    <div class="section-label">Origin</div>
+    <h2 class="section-title">Why I Built This</h2>
+
+    <p>An offhand comment made me think — my portfolio was impressive, my experience was solid, but my technical accounting skills? <strong>Still unproven.</strong></p>
+
+    <p>I'm at SJCC. My accounting classes haven't even started yet. So instead of waiting, I had an idea: <em>what if auditing was a game you could actually practice?</em></p>
+
+    <p>I built a sandbox that generates randomized company transactions seeded with real fraud patterns. Every round is unique. You review the transactions, flag what looks suspicious, identify the fraud type, and submit your audit for scoring.</p>
+
+    <p>Honestly? I expected it to be easy. It wasn't. That told me it was worth building.</p>
+
+    <div class="closer">I wanted to see if I could.<br>Turns out I could.</div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ── How It Works ── -->
+  <section class="how reveal">
+    <div class="section-label">The Tool</div>
+    <h2 class="section-title">How It Works</h2>
+
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1.75rem;line-height:1.8;">Each audit session generates a fictional company with 18–22 randomized transactions. Hidden inside are 6–10 fraudulent entries across 3–5 active fraud types. Your job is to find them.</p>
+
+    <div class="fraud-grid">
+      <div class="fraud-card dup">
+        <div class="fraud-card-label">● Duplicate PO</div>
+        <div class="fraud-card-desc">Same PO number appears on two transactions — a payment already issued, billed again.</div>
+      </div>
+      <div class="fraud-card split">
+        <div class="fraud-card-label">● Threshold Splitting</div>
+        <div class="fraud-card-desc">Amounts clamped just under $25k to avoid director-level approval. The pattern is in the cluster.</div>
+      </div>
+      <div class="fraud-card shell">
+        <div class="fraud-card-label">● Unregistered Vendor</div>
+        <div class="fraud-card-desc">Vague shell company names that don't appear in the approved vendor directory.</div>
+      </div>
+      <div class="fraud-card miss">
+        <div class="fraud-card-label">● Missing Docs</div>
+        <div class="fraud-card-desc">Invoice and PO exist — but the Receiving Report is absent. Payment can't be verified.</div>
+      </div>
+      <div class="fraud-card unauth">
+        <div class="fraud-card-label">● Unauth. Approver</div>
+        <div class="fraud-card-desc">A supervisor signed off on a transaction that required manager or director authority.</div>
+      </div>
+    </div>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-text">
+          <strong>Three-Way Match Panel</strong>
+          Every transaction has a slide-in panel showing the Purchase Order, Invoice, and Receiving Report. Discrepancies are flagged across all three documents — Duplicate POs show a fulfilled status, Missing Docs show a blank receiving report, Vendor mismatches show conflicting names across PO and invoice.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-text">
+          <strong>Audit Scoring</strong>
+          Submit your audit and get an instant breakdown — correct flags, wrong flags, missed issues, and a percentage score. Every flag requires you to identify the specific fraud type, not just mark it suspicious.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-text">
+          <strong>Infinite Practice Mode</strong>
+          No two audits are the same. Company, industry, transaction count, fraud distribution, PO numbers, vendor mix — all randomized every round. The patterns become instinct over time.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ── Aha Moment ── -->
+  <section class="aha reveal">
+    <div class="section-label">Professional Skepticism</div>
+    <h2 class="section-title">I Audited My Own Code</h2>
+
+    <div class="aha-card">
+      <p>The first version of this tool had a logic error. When a <strong>Duplicate PO</strong> was detected, the risk calculator summed <em>both</em> transactions — the original and the duplicate — inflating the at-risk figure. A $5,000 fraudulent charge was reporting <em>$10,000 at risk</em>.</p>
+      <p>Under <strong>GAAP</strong>, only the second payment is the loss. The first is a legitimate obligation. The model was double-counting.</p>
+      <p>I caught it, traced it through the aggregation logic, and refactored the calculation to only count the flagged transaction as exposure. The Total Issues counter was also updated to treat a duplicate pair as <strong>one finding</strong> — consistent with how an auditor would document it in a workpaper.</p>
+      <p><em>Professional skepticism doesn't stop at the data. It applies to the systems you build to analyze it.</em></p>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ── Technical Appendix ── -->
+  <section class="appendix reveal">
+    <div class="section-label">Technical Appendix</div>
+    <h2 class="section-title">Under the Hood</h2>
+
+    <div class="appendix-block">
+      <div class="appendix-block-title">Session Randomizer</div>
+      <p>Every audit is generated fresh — no two rounds are the same. Each session picks a random company from a pool of 8 fictional firms across different industries, then assigns a randomized fiscal year, employee count, and revenue figure. Transaction count varies between 18–22 per round, and PO/TXN counters start at random offsets so the IDs never look patterned.</p>
+      <p>A <strong>Fisher-Yates shuffle</strong> determines which transaction slots receive fraud assignments, so the position of red flags changes every time. From there, 3–5 fraud types are activated per round and distributed across 6–10 fraud slots using modulo cycling — ensuring variety without clustering.</p>
+    </div>
+
+    <div class="appendix-block">
+      <div class="appendix-block-title">Fraud Generation Logic</div>
+      <p>Each fraud type has its own dedicated generation rules — amount ranges, vendor pools, approver filters, and document states are all set independently:</p>
+
+      <div class="fraud-breakdown">
+        <div class="fraud-line dup">
+          <span class="fraud-line-name">Duplicate PO</span>
+          <span class="fraud-line-desc">First occurrence generated clean with no flag. Second reuses the same PO number and is marked fraudulent — mirrors a real double-payment scenario.</span>
+        </div>
+        <div class="fraud-line split">
+          <span class="fraud-line-name">Threshold Splitting</span>
+          <span class="fraud-line-desc">Amount clamped to $24,500–$24,999, just under the $25k director approval ceiling. Exploits the approval tier gap.</span>
+        </div>
+        <div class="fraud-line shell">
+          <span class="fraud-line-name">Unregistered Vendor</span>
+          <span class="fraud-line-desc">Pulls from a separate shell vendor pool with intentionally vague names. Three-Way Match shows vendor mismatch across PO and invoice.</span>
+        </div>
+        <div class="fraud-line miss">
+          <span class="fraud-line-name">Missing Docs</span>
+          <span class="fraud-line-desc">Legitimate vendor and amount — but the Receiving Report is null. Three-Way Match panel shows the document as absent with no verification possible.</span>
+        </div>
+        <div class="fraud-line unauth">
+          <span class="fraud-line-name">Unauth. Approver</span>
+          <span class="fraud-line-desc">Approver pool filtered to supervisor-level only, below the authority threshold required for the transaction amount.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ── CTA ── -->
+  <section class="cta reveal">
+    <div class="cta-label">Ready?</div>
+    <div class="cta-title">Try the Sandbox</div>
+    <div class="cta-sub">A new audit — different company, different fraud, different patterns — every time you click.</div>
+    <a href="/audit" class="btn-try">Launch Audit Sandbox →</a>
+  </section>
+
+</main>
+
+<footer>
+  <p>© 2026 Aidan Aniciete · <a href="/">Back to Portfolio</a></p>
+</footer>
+
+</body>
+</html>
