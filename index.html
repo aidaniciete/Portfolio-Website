@@ -212,6 +212,8 @@
     .contact .place { margin-top: 1.6rem; }
     .contact .credits { font-size: var(--step-small); max-width: 60ch; margin-top: 3.5rem; }
     .contact .credits a { color: inherit; }
+    /* nothing sits in the rail here, so the whole block lines up with the heading */
+    .contact .frame > :not(.out) { margin-left: calc(-1 * var(--out)); }
 
     /* ---------- footer ---------- */
     .foot { padding: 1.75rem var(--pad); display: grid; grid-template-columns: 1fr auto 1fr; gap: .5rem 1.5rem; align-items: baseline; font-size: var(--step-small); color: var(--muted); }
