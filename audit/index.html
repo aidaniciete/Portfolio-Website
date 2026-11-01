@@ -1,219 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Aidan Aniciete | AIS Audit Sandbox</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231E5B45'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23F7F6F1' font-family='Georgia'>A</text></svg>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIS Audit Sandbox · Aidan Aniciete</title>
+  <meta name="description" content="A practice audit: review a generated company’s transactions, check the supporting documents and flag the fraud.">
+  <meta name="theme-color" content="#f5f4ef">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230F2346'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23F5F4EF' font-family='Georgia,serif'>A</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Albert+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Albert+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --bg:#F6F5F0;--surface:#FFFFFF;--surface2:#EFEDE6;--border:#DBD8CD;
-      --accent:#1E5B45;--soft:#2E7A5E;
-      --green:#1E7A4E;--red:#B3372E;--yellow:#A66A00;--cyan:#0E7490;--plum:#6B4FA0;
-      --tape:#F2CA4C;
-      --text:#1B211D;--muted:#5E6B63;--dim:#8C968F;
-      --font-display:'Young Serif',Georgia,serif;
-      --font-body:'Albert Sans','Helvetica Neue',Arial,sans-serif;
-      --font-mono:'Spline Sans Mono','SF Mono',Menlo,monospace;
+    /* the sandbox's result colours, mapped onto the site's palette */
+    :root { --green: var(--gain); --red: var(--loss); --yellow: var(--warn); --text: var(--ink); }
+
+    /* a tool needs a wider page than the reading column */
+    .wide { max-width: calc(72rem + 2 * var(--pad)); margin-inline: auto; padding-inline: var(--pad); }
+    .tool-hero { padding-top: clamp(2.5rem, 7vh, 4.5rem); }
+    .tool-hero .eyebrow { color: var(--muted); }
+    .tool-hero h1 { font-size: clamp(2.3rem, 1.4rem + 3.6vw, 4.6rem); line-height: 1; letter-spacing: -0.02em; margin-top: .6rem; }
+    .tool-hero .mark { width: 3.5rem; height: .4rem; background: var(--accent); margin-top: 1.4rem; }
+    .tool-hero #companySub { margin-top: 1rem; color: var(--muted); }
+    .tool-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 1.5rem 2rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--ink); }
+    .tool-bar .stats { gap: 1rem 2.75rem; }
+    .streak-bar { margin-top: 1.25rem; font-size: var(--step-small); color: var(--muted); max-width: none; }
+    .streak-bar b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    .instructions { margin-top: clamp(2.5rem, 5vw, 3.5rem); background: var(--surface); padding: clamp(1.25rem, 3vw, 2rem); }
+    .instructions h2 { font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem); }
+    .instructions h2 + p { margin-top: 1rem; max-width: 70ch; }
+    .instructions strong { font-weight: 600; }
+    .hint-btn { margin-top: 1rem; text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: .07em; font-weight: 500; }
+    @media (hover: hover) and (pointer: fine) { .hint-btn:hover { text-decoration-color: var(--accent); } }
+    .hints-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .6rem; margin-top: 1rem; }
+    .hint-card { background: var(--bg); padding: .8rem 1rem; }
+    .hint-label { font-weight: 600; font-size: .95rem; margin-bottom: .25rem; }
+    .hint-desc { color: var(--muted); font-size: var(--step-small); line-height: 1.45; }
+
+    .filters { display: flex; flex-wrap: wrap; gap: .4rem; margin: 2.5rem 0 1rem; }
+    .filter-btn { background: var(--surface); padding: .4rem .85rem; font-size: var(--step-small); font-weight: 500; transition: background-color var(--t-hover) ease, color var(--t-hover) ease; }
+    @media (hover: hover) and (pointer: fine) { .filter-btn:hover { background: var(--accent); } }
+    .filter-btn.active { background: var(--ink); color: var(--bg); }
+
+    /* the ledger */
+    .table-header, .txn-row { display: grid; grid-template-columns: 7rem 4rem minmax(8rem, 1fr) 6rem 7rem 8rem minmax(13rem, 1.4fr); gap: .75rem; align-items: center; }
+    .table-header { padding: .6rem .75rem; border-bottom: 2px solid var(--ink); font-size: var(--step-small); color: var(--muted); font-weight: 500; }
+    .txn-list { margin-bottom: 1.75rem; }
+    .txn-row { padding: .75rem; border-bottom: 1px solid var(--rule); font-size: .95rem; transition: background-color var(--t-hover) ease; }
+    .txn-row.odd { background: rgba(235, 233, 225, .55); }
+    .txn-row.flagged { background: rgba(243, 204, 87, .28); box-shadow: inset 4px 0 0 var(--accent); }
+    .txn-row.r-correct { background: #e3efe7; box-shadow: inset 4px 0 0 var(--gain); }
+    .txn-row.r-wrong { background: #f5e4e1; box-shadow: inset 4px 0 0 var(--loss); }
+    .txn-row.r-missed { background: #f6ecd6; box-shadow: inset 4px 0 0 var(--warn); }
+    .txn-id { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .txn-date, .txn-cat, .txn-approver { color: var(--muted); font-size: var(--step-small); font-variant-numeric: tabular-nums; }
+    .txn-amount { font-variant-numeric: tabular-nums; }
+    .txn-amount.high { color: var(--warn); font-weight: 600; }
+    .docs-btn { display: block; margin-top: .15rem; font-size: .8rem; font-weight: 500; color: var(--muted); text-decoration: underline; text-underline-offset: .18em; }
+    @media (hover: hover) and (pointer: fine) { .docs-btn:hover { color: var(--ink); text-decoration-color: var(--accent); } }
+    .flag-btns { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .flag-btn { padding: .2rem .5rem; font-size: .75rem; color: var(--muted); box-shadow: inset 0 0 0 1px var(--rule); background: var(--bg); white-space: nowrap; transition: color var(--t-hover) ease, box-shadow var(--t-hover) ease; }
+    @media (hover: hover) and (pointer: fine) { .flag-btn:hover { color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); } }
+    .flag-btn.selected { color: #fff; box-shadow: none; }
+    .result-text { font-size: var(--step-small); font-weight: 500; }
+
+    .tool-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem 1rem; margin-bottom: 2rem; }
+
+    /* report */
+    .report { background: var(--dark); color: var(--dark-ink); padding: clamp(1.5rem, 4vw, 2.5rem); margin-bottom: 2rem; }
+    .report-title { font-family: var(--font-display); font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem); line-height: 1.1; margin-bottom: 1.5rem; }
+    .report-title::before { content: ''; display: block; width: 2.75rem; height: .3rem; background: var(--accent); margin-bottom: 1rem; }
+    .score-grid { display: flex; flex-wrap: wrap; gap: 1.25rem 3rem; margin-bottom: 1.5rem; }
+    .score-n { font-family: var(--font-display); font-size: clamp(2rem, 1.5rem + 1.5vw, 2.8rem); line-height: 1; font-variant-numeric: tabular-nums; }
+    .score-l { font-size: var(--step-small); color: var(--dark-muted); margin-top: .25rem; }
+    .report { --green: #8fd3a8; --red: #f2a093; --yellow: var(--accent); --ink: var(--dark-ink); }
+    .report-msg { color: var(--dark-muted); border-top: 1px solid rgba(245, 244, 239, .18); padding-top: 1rem; max-width: 70ch; }
+    .report .btn-submit { background: var(--accent); color: var(--accent-ink); }
+    .report .btn-reset { color: var(--dark-ink); box-shadow: inset 0 0 0 1.5px var(--dark-ink); }
+
+    /* buttons inside the tool share the site's button */
+    .btn, .btn-new { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding: 0 1.4rem; font-weight: 500; white-space: nowrap; transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) ease, color var(--t-hover) ease; }
+    .btn:active, .btn-new:active { transform: scale(0.97); }
+    .btn-new { background: var(--ink); color: var(--bg); }
+    .btn-submit { background: var(--accent); color: var(--accent-ink); }
+    .btn-reset { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+    @media (hover: hover) and (pointer: fine) {
+      .btn-new:hover { background: #1b3158; }
+      .btn-submit:hover { background: #f7d873; }
+      .btn-reset:hover { background: var(--ink); color: var(--bg); }
     }
-    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:13px;min-height:100vh;-webkit-font-smoothing:antialiased}
-    ::selection{background:var(--tape);color:var(--text)}
-    a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-    nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:baseline;
-      padding:.85rem 2rem;background:rgba(246,245,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
-    .nav-logo{font-family:var(--font-mono);font-weight:500;font-size:.85rem;letter-spacing:.04em;color:var(--text);text-decoration:none;}
-    .nav-logo span{color:var(--accent);}
-    .nav-back{font-family:var(--font-mono);font-size:.74rem;color:var(--muted);text-decoration:none;transition:color .15s;}
-    .nav-back:hover{color:var(--text);border-bottom:2px solid var(--tape);}
-    .header{border-bottom:1px solid var(--border);padding:2.25rem 2rem 1.5rem;position:relative;z-index:1;}
-    .header-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem}
-    .eyebrow{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;color:var(--accent);margin-bottom:.5rem;text-transform:uppercase}
-    .company-name{font-family:var(--font-display);font-size:1.6rem;font-weight:400;margin-bottom:.25rem;letter-spacing:-.01em}
-    .company-sub{color:var(--muted);font-family:var(--font-mono);font-size:.72rem}
-    .stats{display:flex;gap:.75rem;flex-wrap:wrap;align-items:stretch}
-    .stat-box{background:var(--surface);border:1px solid var(--border);padding:.7rem 1.2rem;text-align:center}
-    .stat-n{font-family:var(--font-mono);font-size:1.25rem;font-weight:500}
-    .stat-l{font-family:var(--font-mono);font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem}
-    .btn-new{background:var(--accent);color:#fff;border:1px solid var(--accent);padding:.7rem 1.4rem;cursor:pointer;font-family:var(--font-mono);font-size:.76rem;transition:background .15s;white-space:nowrap}
-    .btn-new:hover{background:var(--text);border-color:var(--text)}
-    .wrap{max-width:1100px;margin:0 auto;padding:1.5rem 2rem}
-    .session-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface);border:1px solid var(--border);padding:.35rem .85rem;font-family:var(--font-mono);font-size:.68rem;color:var(--accent);margin-bottom:1rem}
-    .streak-bar{display:flex;align-items:center;gap:.75rem;background:var(--surface);border:1px solid var(--border);padding:.65rem 1rem;margin-bottom:1rem;font-family:var(--font-mono);font-size:.72rem;color:var(--muted);flex-wrap:wrap}
-    .streak-n{font-family:var(--font-mono);font-size:1rem;font-weight:500;color:var(--yellow)}
-    .instructions{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--tape);padding:1rem 1.25rem;margin-bottom:1.5rem}
-    .inst-title{font-family:var(--font-display);font-weight:400;margin-bottom:.5rem;font-size:.95rem}
-    .inst-body{color:var(--muted);line-height:1.7;font-size:.82rem}
-    .inst-body strong{color:var(--text) !important}
-    .hint-btn{margin-top:.75rem;background:transparent;border:none;border-bottom:1px dashed var(--accent);color:var(--accent);padding:0 0 .1rem;cursor:pointer;font-size:.74rem;font-family:var(--font-mono)}
-    .hints-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-top:.9rem}
-    .hint-card{background:var(--bg);padding:.75rem;border:1px solid var(--border)}
-    .hint-label{font-weight:600;margin-bottom:.3rem;font-size:.75rem}
-    .hint-desc{color:var(--muted);font-size:.72rem;line-height:1.5}
-    .filters{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
-    .filter-btn{background:var(--surface);color:var(--muted);border:1px solid var(--border);padding:.32rem .8rem;cursor:pointer;font-size:.7rem;font-family:var(--font-mono);transition:all .15s}
-    .filter-btn:hover{border-color:var(--accent);color:var(--text)}
-    .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .table-header{display:grid;grid-template-columns:90px 80px 1fr 90px 120px 110px 1fr;gap:.5rem;padding:.5rem 1rem;border-top:1px solid var(--text);border-bottom:1px solid var(--border);font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-    .txn-list{display:flex;flex-direction:column;margin-bottom:1.5rem}
-    .txn-row{display:grid;grid-template-columns:90px 80px 1fr 90px 120px 110px 1fr;gap:.5rem;padding:.65rem 1rem;transition:background .15s;align-items:center;border-bottom:1px solid var(--border);background:var(--surface)}
-    .txn-row.even{background:var(--surface)}
-    .txn-row.odd{background:#FBFAF6}
-    .txn-row.flagged{background:#EAF0EC;border-left:3px solid var(--accent);padding-left:calc(1rem - 3px)}
-    .txn-row.r-correct{background:#E9F2EC;border-left:3px solid var(--green);padding-left:calc(1rem - 3px)}
-    .txn-row.r-wrong{background:#F6E9E7;border-left:3px solid var(--red);padding-left:calc(1rem - 3px)}
-    .txn-row.r-missed{background:#F7F0E2;border-left:3px solid var(--yellow);padding-left:calc(1rem - 3px)}
-    .txn-id{color:var(--accent);font-family:var(--font-mono);font-weight:500}
-    .txn-date,.txn-cat,.txn-approver{color:var(--muted);font-family:var(--font-mono);font-size:.68rem}
-    .txn-amount{color:var(--text);font-family:var(--font-mono)}
-    .txn-amount.high{color:var(--yellow);font-weight:500}
-    .flag-btns{display:flex;gap:.35rem;flex-wrap:wrap}
-    .flag-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:.2rem .5rem;cursor:pointer;font-size:.6rem;font-family:var(--font-mono);transition:all .15s;white-space:nowrap}
-    .flag-btn:hover{border-color:var(--muted);color:var(--text)}
-    .flag-btn.selected{color:#fff}
-    .result-text{font-size:.72rem;font-family:var(--font-mono)}
-    .actions{display:flex;justify-content:flex-end;gap:1rem;margin-bottom:2rem}
-    .btn{padding:.65rem 1.4rem;cursor:pointer;font-family:var(--font-mono);font-size:.76rem;border:1px solid var(--border);transition:all .15s;background:transparent}
-    .btn-reset{color:var(--muted)}
-    .btn-reset:hover{color:var(--text);border-color:var(--text)}
-    .btn-submit{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500}
-    .btn-submit:hover{background:var(--text);border-color:var(--text)}
-    .report{background:var(--surface);border:1px solid var(--border);padding:2rem;margin-top:1rem}
-    .report-title{font-family:var(--font-display);font-size:1.25rem;font-weight:400;margin-bottom:1.5rem}
-    .score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem}
-    .score-card{background:var(--bg);padding:1rem;text-align:center;border:1px solid var(--border)}
-    .score-n{font-family:var(--font-mono);font-size:1.6rem;font-weight:500}
-    .score-l{font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:.25rem}
-    .report-msg{color:var(--muted);font-size:.82rem;line-height:1.75;border-top:1px solid var(--border);padding-top:1rem}
-    /* Three-Way Match Panel */
-    .docs-btn{background:transparent;border:1px solid var(--border);color:var(--accent);padding:.18rem .55rem;cursor:pointer;font-size:.62rem;font-family:var(--font-mono);transition:all .15s;white-space:nowrap;margin-top:.25rem}
-    .docs-btn:hover{border-color:var(--accent);background:#EAF0EC}
-    .panel-overlay{position:fixed;inset:0;background:rgba(27,33,29,.4);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
-    .panel-overlay.open{opacity:1;pointer-events:all}
-    .panel{position:fixed;top:0;right:0;width:480px;max-width:95vw;height:100vh;background:var(--bg);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;padding:1.75rem}
-    .panel.open{transform:translateX(0)}
-    .panel-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
-    .panel-title{font-family:var(--font-display);font-weight:400;font-size:1.05rem}
-    .panel-sub{font-family:var(--font-mono);font-size:.68rem;color:var(--muted);margin-top:.25rem}
-    .panel-close{background:transparent;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center}
-    .panel-close:hover{color:var(--text);border-color:var(--text)}
-    .doc-card{background:var(--surface);border:1px solid var(--border);padding:1.25rem;margin-bottom:1rem}
-    .doc-card.mismatch{border-color:var(--red);border-left-width:3px}
-    .doc-card.missing{border-color:var(--yellow);border-left-width:3px}
-    .doc-label{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-    .doc-label .doc-status{font-size:.6rem;padding:.15rem .5rem;background:#E9F2EC;color:var(--green)}
-    .doc-label .doc-status.bad{background:#F6E9E7;color:var(--red)}
-    .doc-label .doc-status.warn{background:#F7F0E2;color:var(--yellow)}
-    .doc-row{display:flex;justify-content:space-between;font-size:.75rem;padding:.3rem 0;border-bottom:1px solid var(--surface2)}
-    .doc-row:last-child{border-bottom:none}
-    .doc-key{color:var(--muted)}
-    .doc-val{color:var(--text);font-weight:500;font-family:var(--font-mono);font-size:.72rem;text-align:right}
-    .doc-val.flag{color:var(--red)}
-    .doc-val.warn{color:var(--yellow)}
-    .match-summary{background:#E9F2EC;border:1px solid var(--green);padding:.75rem 1rem;font-family:var(--font-mono);font-size:.72rem;color:var(--green);margin-top:.5rem;text-align:center}
-    .match-summary.fail{background:#F6E9E7;border-color:var(--red);color:var(--red)}
-    @media(max-width:768px){
-      .table-header,.txn-row{grid-template-columns:80px 65px 1fr 80px}
-      .txn-cat,.txn-approver{display:none}
-      nav{padding:.85rem 1.25rem}
-      .header,.wrap{padding-left:1.25rem;padding-right:1.25rem}
+
+    /* three-way match panel */
+    .panel-overlay { position: fixed; inset: 0; background: rgba(10, 20, 44, .5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+    .panel-overlay.open { opacity: 1; pointer-events: all; }
+    .panel { position: fixed; top: 0; right: 0; width: 30rem; max-width: 95vw; height: 100vh; height: 100dvh; background: var(--bg); z-index: 201; transform: translateX(100%); transition: transform .3s var(--ease-out); overflow-y: auto; padding: 1.75rem; }
+    .panel.open { transform: none; }
+    .panel-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+    .panel-title { font-family: var(--font-display); font-size: 1.8rem; line-height: 1.1; }
+    .panel-title::before { content: ''; display: block; width: 2.25rem; height: .25rem; background: var(--accent); margin-bottom: .8rem; }
+    .panel-sub { font-size: var(--step-small); color: var(--muted); margin-top: .35rem; }
+    .panel-close { width: 2.75rem; height: 2.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    @media (hover: hover) and (pointer: fine) { .panel-close:hover { background: var(--surface); } }
+    .doc-card { background: var(--surface); padding: 1.1rem 1.25rem; margin-bottom: .75rem; }
+    .doc-card.mismatch { box-shadow: inset 4px 0 0 var(--loss); }
+    .doc-card.missing { box-shadow: inset 4px 0 0 var(--warn); }
+    .doc-label { font-weight: 600; margin-bottom: .6rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .doc-status { font-size: .75rem; font-weight: 500; padding: .1rem .5rem; background: #e3efe7; color: var(--gain); }
+    .doc-status.bad { background: #f5e4e1; color: var(--loss); }
+    .doc-status.warn { background: #f6ecd6; color: var(--warn); }
+    .doc-row { display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; padding: .35rem 0; border-bottom: 1px solid var(--rule); }
+    .doc-row:last-child { border-bottom: 0; }
+    .doc-key { color: var(--muted); }
+    .doc-val { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+    .doc-val.flag { color: var(--loss); }
+    .doc-val.warn { color: var(--warn); }
+    .match-summary { margin-top: .5rem; padding: .8rem 1rem; text-align: center; font-weight: 500; background: #e3efe7; color: var(--gain); }
+    .match-summary.fail { background: #f5e4e1; color: var(--loss); }
+
+    @media (min-width: 1101px) { .table-scroll > * { min-width: 58rem; } }
+    @media (max-width: 1100px) {
+      .table-header, .txn-row { grid-template-columns: 6.5rem 3.75rem minmax(0, 1fr) 6rem; }
+      .txn-cat, .txn-approver, .table-header > :nth-child(5), .table-header > :nth-child(6), .table-header > :nth-child(7) { display: none; }
+      .txn-row > .flag-btns, .txn-row > .result-text { grid-column: 1 / -1; }
     }
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none !important}}
+    @media (max-width: 640px) {
+      .table-header, .txn-row { grid-template-columns: 5.75rem minmax(0, 1fr) auto; }
+      .txn-date, .table-header > :nth-child(2) { display: none; }
+      .txn-amount, .table-header > :nth-child(4) { text-align: right; }
+    }
   </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
 <!-- Three-Way Match Side Panel -->
 <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
-<div class="panel" id="docPanel">
+<div class="panel" id="docPanel" role="dialog" aria-label="Three-way match">
   <div class="panel-header">
     <div>
-      <div class="panel-title">Three-Way Match</div>
+      <div class="panel-title">Three-way match</div>
       <div class="panel-sub" id="panelSub">Purchase Order · Invoice · Receiving Report</div>
     </div>
-    <button class="panel-close" onclick="closePanel()">✕</button>
+    <button class="panel-close" onclick="closePanel()" aria-label="Close">✕</button>
   </div>
   <div id="panelBody"></div>
 </div>
 
-<nav>
-  <a href="/" class="nav-logo">AA<span>.</span></a>
-  <a href="/" class="nav-back">← Back to Portfolio</a>
-</nav>
+<header class="top">
+  <a class="wordmark" href="/">Aidan Aniciete</a>
+  <nav aria-label="Pages">
+    <ul>
+      <li><a href="/audit" aria-current="page">Sandbox</a></li>
+      <li><a href="/audit/case-study">Case study</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
 
-<div class="header">
-  <div class="header-inner">
-    <div>
-      <div class="eyebrow">AIS Audit Sandbox v2 · Infinite Practice Mode</div>
-      <div class="company-name" id="companyName">Loading...</div>
-      <div class="company-sub" id="companySub"></div>
+<main id="main">
+<div class="wide">
+  <section class="tool-hero">
+    <p class="eyebrow">AIS Audit Sandbox v2 · Infinite practice mode</p>
+    <h1 id="companyName">Loading…</h1>
+    <div class="mark" aria-hidden="true"></div>
+    <p id="companySub"></p>
+    <div class="tool-bar">
+      <div class="stats">
+        <div><strong id="flagCount">0</strong><span>Flagged</span></div>
+        <div><strong id="totalIssues" style="color:var(--warn)">—</strong><span>Total issues</span></div>
+        <div><strong id="atRisk" style="color:var(--loss)">—</strong><span>At risk</span></div>
+      </div>
+      <button class="btn-new" onclick="newAudit()">New audit</button>
     </div>
-    <div class="stats">
-      <div class="stat-box"><div class="stat-n" id="flagCount" style="color:var(--accent)">0</div><div class="stat-l">Flagged</div></div>
-      <div class="stat-box"><div class="stat-n" id="totalIssues" style="color:var(--yellow)">—</div><div class="stat-l">Total Issues</div></div>
-      <div class="stat-box"><div class="stat-n" id="atRisk" style="color:var(--red)">—</div><div class="stat-l">At Risk</div></div>
-      <button class="btn-new" onclick="newAudit()">New Audit</button>
-    </div>
-  </div>
-</div>
-
-<div class="wrap">
-  <div class="streak-bar">
-    Audits completed: <span class="streak-n" id="streakCount">0</span>
-    &nbsp;·&nbsp; Best score: <span id="bestScore" style="color:var(--green)">—</span>
-    &nbsp;·&nbsp; <span style="color:var(--accent)">Each new audit is randomly generated — no two are the same</span>
-  </div>
+    <p class="streak-bar">Audits completed: <b id="streakCount">0</b> · Best score: <b id="bestScore">—</b> · Each new audit is randomly generated, so no two are the same.</p>
+  </section>
 
   <div class="instructions">
-    <div class="inst-title">Your Mission</div>
-    <div class="inst-body">You're auditing a randomly generated company's transactions. Review each one and flag anything suspicious. Select the fraud type for each flag. Hit <strong style="color:var(--text)">Submit Audit</strong> when done. Every audit is unique — refresh or click New Audit for a fresh set. Heads up: some findings only show up in the supporting <strong style="color:var(--text)">Docs</strong> — and not everything that looks suspicious on the ledger is a finding. Verify before you flag.</div>
+    <h2>Your mission</h2>
+    <p>You're auditing a randomly generated company's transactions. Review each one and flag anything suspicious. Select the fraud type for each flag. Hit <strong>Submit Audit</strong> when done. Every audit is unique — refresh or click New Audit for a fresh set. Heads up: some findings only show up in the supporting <strong>Docs</strong> — and not everything that looks suspicious on the ledger is a finding. Verify before you flag.</p>
     <button class="hint-btn" onclick="toggleHints()">Show Fraud Types Reference ↓</button>
     <div id="hintsGrid" class="hints-grid" style="display:none">
-      <div class="hint-card" style="border-left:3px solid #A66A00">
-        <div class="hint-label" style="color:#A66A00">● Duplicate PO</div>
+      <div class="hint-card" style="box-shadow:inset 4px 0 0 #8A5A00">
+        <div class="hint-label" style="color:#8A5A00">Duplicate PO</div>
         <div class="hint-desc">Same PO number on multiple transactions — potential double payment.</div>
       </div>
-      <div class="hint-card" style="border-left:3px solid #B3372E">
-        <div class="hint-label" style="color:#B3372E">● Threshold Splitting</div>
+      <div class="hint-card" style="box-shadow:inset 4px 0 0 #B3372E">
+        <div class="hint-label" style="color:#B3372E">Threshold Splitting</div>
         <div class="hint-desc">Amounts just below the $25,000 approval limit — structuring to avoid oversight.</div>
       </div>
-      <div class="hint-card" style="border-left:3px solid #6B4FA0">
-        <div class="hint-label" style="color:#6B4FA0">● Unregistered Vendor</div>
+      <div class="hint-card" style="box-shadow:inset 4px 0 0 #6B4FA0">
+        <div class="hint-label" style="color:#6B4FA0">Unregistered Vendor</div>
         <div class="hint-desc">Vendor not in the approved master list — potential shell company.</div>
       </div>
-      <div class="hint-card" style="border-left:3px solid #0E7490">
-        <div class="hint-label" style="color:#0E7490">● Missing Documentation</div>
+      <div class="hint-card" style="box-shadow:inset 4px 0 0 #0E7490">
+        <div class="hint-label" style="color:#0E7490">Missing Documentation</div>
         <div class="hint-desc">No supporting invoice or delivery confirmation on file.</div>
       </div>
-      <div class="hint-card" style="border-left:3px solid #1E7A4E">
-        <div class="hint-label" style="color:#1E7A4E">● Unauthorized Approver</div>
+      <div class="hint-card" style="box-shadow:inset 4px 0 0 #1E7A4E">
+        <div class="hint-label" style="color:#1E7A4E">Unauthorized Approver</div>
         <div class="hint-desc">Transaction approved by someone without authority for that amount or category.</div>
       </div>
-      <div class="hint-card" style="border-left:3px solid #4E5DA8">
-        <div class="hint-label" style="color:#4E5DA8">● Qty Mismatch</div>
+      <div class="hint-card" style="box-shadow:inset 4px 0 0 #4E5DA8">
+        <div class="hint-label" style="color:#4E5DA8">Qty Mismatch</div>
         <div class="hint-desc">Invoice bills more units than the PO ordered and receiving confirmed. Only visible in the Docs — the ledger row looks clean.</div>
       </div>
-      <div class="hint-card" style="border-left:3px solid #8A2E5E">
-        <div class="hint-label" style="color:#8A2E5E">● Price Mismatch</div>
+      <div class="hint-card" style="box-shadow:inset 4px 0 0 #8A2E5E">
+        <div class="hint-label" style="color:#8A2E5E">Price Mismatch</div>
         <div class="hint-desc">Invoice unit price exceeds the contracted PO rate. Only visible in the Docs — the ledger row looks clean.</div>
       </div>
     </div>
   </div>
 
   <div class="filters" id="filters"></div>
-  <div class="table-header">
-    <div>TXN ID</div><div>Date</div><div>Vendor</div><div>Amount</div><div>Category</div><div>Approved By</div><div>Flag</div>
+  <div class="table-scroll">
+    <div class="table-header">
+      <div>Transaction</div><div>Date</div><div>Vendor</div><div>Amount</div><div>Category</div><div>Approved by</div><div>Flag</div>
+    </div>
+    <div class="txn-list" id="txnList"></div>
   </div>
-  <div class="txn-list" id="txnList"></div>
-  <div class="actions" id="actions">
-    <button class="btn btn-reset" onclick="resetAudit()">Reset Flags</button>
-    <button class="btn btn-submit" onclick="submitAudit()">Submit Audit →</button>
+  <div class="tool-actions" id="actions">
+    <button class="btn btn-reset" onclick="resetAudit()">Reset flags</button>
+    <button class="btn btn-submit" onclick="submitAudit()">Submit audit</button>
   </div>
   <div id="report" style="display:none"></div>
 </div>
+
+<section class="yellow" style="margin-top: 3rem">
+  <div class="frame">
+    <h2 class="out">How I built it</h2>
+    <p class="lead">Why I made it, how the fraud is generated, and the bug I found in my own risk math.</p>
+    <div class="actions">
+      <a class="button" href="/audit/case-study">Read the case study</a>
+      <a class="link" href="/">Back to the home page</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <span>Aidan Aniciete, San Jose</span>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="mailto:aidan.aniciete@gmail.com">Email</a></li>
+    <li><a href="https://linkedin.com/in/aidaniciete" target="_blank" rel="noopener">LinkedIn</a></li>
+  </ul>
+  <span class="right">© 2026</span>
+</footer>
 
 <script>
 // ── Data Pools ────────────────────────────────────────────────
@@ -253,7 +286,7 @@ var APPROVERS = [
 ];
 
 var FRAUD_TYPES = {
-  DUPLICATE_PO:{label:'Duplicate PO',color:'#A66A00'},
+  DUPLICATE_PO:{label:'Duplicate PO',color:'#8A5A00'},
   BELOW_APPROVAL_THRESHOLD:{label:'Threshold Splitting',color:'#B3372E'},
   VENDOR_NOT_REGISTERED:{label:'Unregistered Vendor',color:'#6B4FA0'},
   MISSING_SUPPORTING_DOCS:{label:'Missing Docs',color:'#0E7490'},
