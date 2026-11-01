@@ -203,6 +203,21 @@
     .contact .credits { font-size: var(--step-small); max-width: 60ch; margin-top: 3.5rem; }
     .contact .credits a { color: inherit; }
     .contact .to-top { margin-top: 1.25rem; font-weight: 500; }
+
+    /* ---------- the archives: past projects, kept small ---------- */
+    .archives { padding-bottom: var(--section); }
+    .archives h2 + .lead { margin-top: 1.1rem; color: var(--muted); }
+    .archive { margin-top: 3rem; }
+    .archive .when { color: var(--muted); }
+    .archive h3 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); line-height: 1.1; }
+    .archive .kind { color: var(--muted); margin-top: .35rem; }
+    .archive .body > p:not(.kind) { margin-top: 1rem; }
+    .screens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: 1.75rem; }
+    .screens button { display: block; width: 100%; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(15, 35, 70, .12); cursor: zoom-in; transition: transform var(--t-press) var(--ease-out); }
+    .screens button:active { transform: scale(0.985); }
+    .screens img { width: 100%; aspect-ratio: 393 / 852; transition: transform 500ms var(--ease-out); }
+    @media (hover: hover) and (pointer: fine) { .screens button:hover img { transform: scale(1.03); } }
+    .archive .more { margin-top: 1.5rem !important; font-weight: 500; }
     /* nothing sits in the rail here, so the whole block lines up with the heading */
     .contact .frame > :not(.out) { margin-left: calc(-1 * var(--out)); }
 
@@ -528,6 +543,28 @@
     </div>
   </section>
 
+  <!-- ============ The Archives ============ -->
+  <section class="frame section archives" id="archives">
+    <h2 class="out">The Archives</h2>
+    <p class="lead">Not everything makes it to production.</p>
+
+    <article class="archive hang">
+      <p class="when">2023 · archived, unfinished</p>
+      <div class="body">
+        <h3>Clohive</h3>
+        <p class="kind">Product exploration, UX design and user research planning</p>
+        <p>When I started my first professional job, I didn’t know how to dress for it. I learned by watching YouTube videos, looking up which colors go together, browsing outfit ideas and asking my family what worked. Clohive was an idea for an app that would bring that search into one place for young men working out their style.</p>
+        <p>At the time I thought I wanted to work in product management, so I wrote a research plan and designed the main screens. I lost interest before the idea was ever tested with users.</p>
+        <div class="screens">
+          <button type="button" data-lb="clohive" data-src="assets/images/archives/clohive-quiz.png" data-alt="Clohive mockup: a style quiz asking which outfit best represents your ideal everyday look"><img src="assets/images/archives/clohive-quiz.png" width="393" height="852" alt="Clohive mockup: a style quiz asking which outfit best represents your ideal everyday look" loading="lazy" decoding="async"></button>
+          <button type="button" data-lb="clohive" data-src="assets/images/archives/clohive-home.png" data-alt="Clohive mockup: the home feed of outfit recommendations"><img src="assets/images/archives/clohive-home.png" width="393" height="852" alt="Clohive mockup: the home feed of outfit recommendations" loading="lazy" decoding="async"></button>
+          <button type="button" data-lb="clohive" data-src="assets/images/archives/clohive-community.png" data-alt="Clohive mockup: community posts asking for styling advice"><img src="assets/images/archives/clohive-community.png" width="393" height="852" alt="Clohive mockup: community posts asking for styling advice" loading="lazy" decoding="async"></button>
+        </div>
+        <p class="more"><a class="link" href="archives/clohive/">Read the Clohive story</a></p>
+      </div>
+    </article>
+  </section>
+
   <!-- ============ Act three: contact ============ -->
   <section class="contact" id="contact" data-chapter="contact">
     <div class="frame">
@@ -539,7 +576,7 @@
         <a class="link" href="https://linkedin.com/in/aidaniciete" target="_blank" rel="noopener">LinkedIn</a>
       </div>
       <p class="place">San Jose, California.</p>
-      <p class="credits">Pictures of San José City College by <a href="https://commons.wikimedia.org/wiki/File:San_Jos%C3%A9_City_College_1684.jpg">Cristiano Tomás</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>) and of Tower Hall by <a href="https://commons.wikimedia.org/wiki/File:Tower_Hall,_San_Jos%C3%A9_State_University_-_DSC03886.JPG">Daderot</a> (<a href="https://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0</a>), via Wikimedia Commons. Everything else is mine.</p>
+      <p class="credits">Pictures of San José City College by <a href="https://commons.wikimedia.org/wiki/File:San_Jos%C3%A9_City_College_1684.jpg">Cristiano Tomás</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>) and of Tower Hall by <a href="https://commons.wikimedia.org/wiki/File:Tower_Hall,_San_Jos%C3%A9_State_University_-_DSC03886.JPG">Daderot</a> (<a href="https://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0</a>), via Wikimedia Commons. The photos in the Clohive mockups were placeholders from the web and are blurred. Everything else is mine.</p>
       <p class="to-top"><a class="link" href="#top">Back to top ↑</a></p>
     </div>
   </section>
