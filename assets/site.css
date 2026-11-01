@@ -1,7 +1,7 @@
 /* ==========================================================
    Shared styles for the pages under the home page
    (/finance, /audit and their case studies).
-   Tokens, type, header, rail and footer are copied from the
+   Tokens, type, header and rail are copied from the
    home page's inline styles so every page reads as one site:
    cream for the work, navy for the numbers, yellow to close.
    ========================================================== */
@@ -176,16 +176,12 @@ main h2::before { content: ''; display: block; width: 2.75rem; height: .3rem; ba
 .yellow h2::before { background: var(--ink); }
 .yellow h2 + * { margin-top: 1.4rem; }
 .yellow .actions { margin-top: 2rem; }
+.yellow .to-top { margin-top: 1.5rem; font-weight: 500; }
+/* nothing sits in the rail here, so the whole block lines up with the heading (as on the home page) */
+.yellow .frame > :not(.out) { margin-left: calc(-1 * var(--out)); }
 .yellow ::selection { background: var(--ink); color: var(--accent); }
 .yellow :focus-visible { outline-color: var(--ink); }
 @media (hover: hover) and (pointer: fine) { .yellow .button.ghost:hover { background: var(--ink); color: var(--accent); } }
-
-/* ---------- footer: same as the home page ---------- */
-.foot { padding: 1.75rem var(--pad); display: grid; grid-template-columns: 1fr auto 1fr; gap: .5rem 1.5rem; align-items: baseline; font-size: var(--step-small); color: var(--muted); }
-.foot ul { display: flex; gap: 1.5rem; justify-content: center; }
-.foot a { color: var(--ink); text-decoration: none; }
-.foot a:hover { text-decoration: underline; text-underline-offset: .18em; }
-.foot .right { text-align: right; }
 
 /* ---------- desktop: open the rail ---------- */
 @media (min-width: 960px) {
@@ -212,7 +208,4 @@ main h2::before { content: ''; display: block; width: 2.75rem; height: .3rem; ba
 @media (max-width: 640px) {
   .top { position: static; }
   .hero h1 { font-size: clamp(2.6rem, 12vw, 3.8rem); }
-  .foot { grid-template-columns: 1fr; }
-  .foot ul { justify-content: flex-start; }
-  .foot .right { text-align: left; }
 }
