@@ -154,6 +154,11 @@
     .role li::before { content: ''; position: absolute; left: 0; top: .52em; width: .55em; height: .55em; background: var(--accent); }
     .role .body > p:not(.role-where), .role .pair { margin-top: 1.25rem; }
     .role.past h3 { font-size: 1.2rem; }
+    .role .figures { display: grid; grid-template-columns: repeat(3, minmax(0, max-content)); gap: 1rem clamp(1.5rem, 4vw, 3rem); margin-top: 1.4rem; }
+    .role .figures div { display: flex; flex-direction: column-reverse; justify-content: flex-end; }   /* number on top, label below */
+    .role .figures dd { font-family: var(--font-display); font-size: clamp(2rem, 1.5rem + 1.6vw, 2.75rem); line-height: 1; font-variant-numeric: tabular-nums; }
+    .role .figures dt { font-size: var(--step-small); color: var(--muted); margin-top: .35rem; line-height: 1.35; }
+    .role .figures + ul { margin-top: 1.6rem; }
 
 
     /* ---------- act two: beyond work, in navy ---------- */
@@ -346,12 +351,17 @@
       <div class="body">
         <h3>Event Services Specialist, Event Center</h3>
         <p class="role-where">Maritz, on site at Google’s Bay View Event Center, Mountain View</p>
+        <dl class="figures">
+          <div><dt>Events supported</dt><dd>44</dd></div>
+          <div><dt>Attendees</dt><dd>14,000+</dd></div>
+          <div><dt>Events as Lead ESS</dt><dd>8</dd></div>
+        </dl>
         <ul>
-          <li><span class="hl">43 events</span> supported since May 2025, with more than 13,000 in-person attendees and programs of up to 1,000+ guests.</li>
-          <li>Lead specialist on seven of them, from 175 to 580 attendees: running the onsite team and coordinating setup, catering, AV and transportation.</li>
-          <li>Led onsite delivery of a <span class="hl">537-attendee program at Hangar One</span> during the venue’s first events.</li>
-          <li>Multi-day programs of up to nine days, from load-in through rehearsal, event and load-out, across up to eleven spaces.</li>
-          <li>Day-to-day partner to event managers, outside production agencies and vendors on six-figure programs, and the client’s point of contact for day-of execution.</li>
+          <li>Served as <span class="hl">Lead ESS for 8 corporate events</span> (175 to 1,000 attendees), directing onsite teams of up to 5 ESSs.</li>
+          <li>Supported 44 events totaling 14,000+ attendees, including programs spanning up to 9 days and 11 spaces.</li>
+          <li>Participated in event planning meetings 3–4 months before execution, developing onsite task lists and leading internal team briefings to align staffing, schedules, and operational requirements.</li>
+          <li>Coordinated onsite operations across catering, production, furniture, transportation, and other venue partners, independently resolving operational issues and escalating matters outside established authority.</li>
+          <li>Led onsite operations for a <span class="hl">537-attendee program at Hangar One</span> during the venue’s initial events.</li>
         </ul>
       </div>
     </article>
@@ -360,11 +370,12 @@
       <p class="role-when">Nov 2022 – May 2025</p>
       <div class="body">
         <h3>Event Services Specialist, Core Team</h3>
-        <p class="role-where">Maritz, on site at Google, Sunnyvale</p>
+        <p class="role-where">Maritz, on site at Google, Mountain View</p>
         <ul>
-          <li>Supported 89 tech talks and events of 50 to 200 people in one eight-month stretch: registration, catering, transportation and VIP handling.</li>
-          <li>Four shout-outs from different Google hosts at events I supported, presented at a Maritz team town hall.</li>
-          <li>Audited internal event spaces on a regular schedule to keep them at corporate standard.</li>
+          <li>Delivered white-glove hospitality and onsite support for corporate events, earning multiple Google host commendations for proactive problem-solving, technical expertise, and exceptional guest service.</li>
+          <li>Independently prepared post-event debrief emails documenting outcomes, operational issues, and follow-up items.</li>
+          <li>Resolved unexpected event-day challenges through hands-on troubleshooting and coordination with facilities, vendors, and onsite teams.</li>
+          <li>Conducted three weekly room-by-room audits to maintain event-space readiness and identify maintenance issues.</li>
         </ul>
       </div>
     </article>
@@ -375,8 +386,8 @@
         <h3>Stylist</h3>
         <p class="role-where">Club Monaco, Santa Clara</p>
         <ul>
-          <li>Built a returning client book through personal styling that consistently beat the store’s profitability goals.</li>
-          <li>Stock receiving and processing alongside the floor, so product was out and presented the way the brand expects.</li>
+          <li>Provided high-touch hospitality and relationship management for luxury clientele, consistently exceeding sales goals.</li>
+          <li>Maintained inventory accuracy and visual merchandising standards in a client-facing boutique environment.</li>
         </ul>
       </div>
     </article>
@@ -387,9 +398,8 @@
         <h3>Supervisor</h3>
         <p class="role-where">Uniqlo, Valley Fair, Santa Clara</p>
         <ul>
-          <li>Led and trained a team of sales associates against department targets, and ran floor coverage through peak hours.</li>
-          <li>Owned visual merchandising and inventory standards for my department.</li>
-          <li>Flagged operational problems to management, several of which turned into process changes.</li>
+          <li>Led and mentored 15+ sales associates to exceed department targets through shift management and coaching.</li>
+          <li>Maintained operational standards, conducted loss prevention audits, and recommended process improvements.</li>
         </ul>
         <p>My area manager put me forward for Uniqlo’s Manager Candidate program, a nine-month track to store management. The degree requirement was the one thing in the way.</p>
         <div class="pair">
