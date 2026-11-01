@@ -155,21 +155,6 @@
     .role .body > p:not(.role-where), .role .pair { margin-top: 1.25rem; }
     .role.past h3 { font-size: 1.2rem; }
 
-    /* ---------- projects ---------- */
-    .project { margin-top: 3rem; }
-    .project .plate { background: var(--surface); padding: clamp(1rem, 3vw, 2.25rem); }
-    .project .plate img { margin-inline: auto; }
-    .project .hang { margin-top: 2rem; }
-    .project h3 { font-family: var(--font-text); font-weight: 600; letter-spacing: 0; line-height: 1.25; }
-    .project .cells { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
-    .project .cells a { display: flex; align-items: center; justify-content: center; min-height: 3.75rem; padding: .5rem 1rem; text-align: center; text-decoration: none; font-weight: 500; background: var(--surface); transition: background-color var(--t-hover) ease, color var(--t-hover) ease, transform var(--t-press) var(--ease-out); }
-    .project .cells a:first-child { background: var(--ink); color: var(--bg); }
-    @media (hover: hover) and (pointer: fine) {
-      .project .cells a:first-child:hover { background: #1b3158; }
-      .project .cells a:last-child:hover { background: var(--accent); color: var(--accent-ink); }
-    }
-    .project .cells a:active { transform: scale(0.98); }
-    .tools { margin-top: 3rem; }
 
     /* ---------- act two: beyond work, in navy ---------- */
     .night { background: var(--dark); color: var(--dark-ink); margin-top: var(--section); padding-block: var(--section); }
@@ -276,7 +261,6 @@
       .hero-row { gap: 2.25rem; }
       .hero-row .portrait { order: 2; max-width: 14rem; }
       .entry.hang { gap: .75rem; }
-      .project .cells { grid-template-columns: 1fr; }
       .strip { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
       .strip img { aspect-ratio: 4 / 3; }
       .strip > button:first-child:nth-last-child(odd) { grid-column: 1 / -1; }
@@ -300,7 +284,6 @@
     <ul>
       <li><a href="#direction">Direction</a></li>
       <li><a href="#experience">Experience</a></li>
-      <li><a href="#projects">Projects</a></li>
       <li><a href="#beyond">Beyond work</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
@@ -439,30 +422,6 @@
         </ul>
       </div>
     </article>
-  </section>
-
-  <section class="frame section" id="projects" data-chapter="projects">
-    <h2 class="out">Projects</h2>
-    <p>I wanted to practice on real numbers, so I built a tracker for my own accounts.</p>
-
-    <article class="project">
-      <div class="plate out" data-ui>
-        <img src="assets/images/tracker-chart.png" width="936" height="357" alt="The tracker’s net worth chart, rising from near zero in late 2022 to about $42,000 in 2026" loading="lazy" decoding="async">
-      </div>
-      <div class="hang">
-        <h3>Personal Portfolio Tracker</h3>
-        <div class="flow-tight">
-          <p>A multi-tab Excel and Google Sheets model that tracks my Roth IRA, 401(k) and HSA in one place: cost basis for every lot, sector allocation, a written thesis for each position, and a net worth chart. The figures on this site read from the sheet, so they’re current.</p>
-          <p class="muted">Every brokerage shows one account at a time. I wanted one record of the whole picture, kept carefully enough that I’d trust it.</p>
-          <div class="cells" style="margin-top: 1.4rem">
-            <a href="/finance">See the tracker</a>
-            <a href="/finance/case-study">Read the case study</a>
-          </div>
-        </div>
-      </div>
-    </article>
-
-    <p class="tools">I built the tracker with help from Claude and ChatGPT, which I also lean on for research. The rest of my day-to-day toolkit is Excel and Google Sheets, Google Workspace and introductory Python.</p>
   </section>
 
   <!-- ============ Act two: life ============ -->
