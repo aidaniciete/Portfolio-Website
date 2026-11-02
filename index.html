@@ -514,7 +514,7 @@
       <div class="entry hang">
         <h3>Investing</h3>
         <div class="flow">
-          <p>I opened a Roth IRA at 19 with $500. At 23 it’s <span id="descNetWorth">$42k+</span> across a Roth IRA, a 401(k) and an HSA, in <span id="liveBadge">31 positions</span>, each with a written thesis: a few high-conviction stocks, quant factor ETFs, some REITs and international exposure. The chart reads from the tracker, so it’s live.</p>
+          <p>I opened a Roth IRA at 19 with $500. At 23 it’s <span id="descNetWorth">$42k+</span> across a Roth IRA, a 401(k) and an HSA, in <span id="liveBadge">31 positions</span>, each with a written thesis: a few high-conviction stocks, quant factor ETFs, some REITs and international exposure. The figures and the chart’s latest point read from the tracker, so they’re live.</p>
           <div class="chart">
             <canvas id="nwChart" width="640" height="180" role="img" aria-label="Net worth from August 2023 to March 2026, rising from $1,600 to about $42,000"></canvas>
             <div class="labels"><span>Aug ’23</span><span>Feb ’24</span><span>Aug ’24</span><span>Mar ’25</span><span>Sep ’25</span><span>Mar ’26</span></div>
@@ -554,7 +554,7 @@
         <h3>Clohive</h3>
         <p class="kind">Product exploration, UX design and user research planning</p>
         <p>When I started my first professional job, I didn’t know how to dress for it. I learned by watching YouTube videos, looking up which colors go together, browsing outfit ideas and asking my family what worked. Clohive was an idea for an app that would bring that search into one place for young men working out their style.</p>
-        <p>At the time I thought I wanted to work in product management, so I wrote a research plan and designed the main screens. I lost interest before the idea was ever tested with users.</p>
+        <p>At the time I thought I wanted to work in product management, so I wrote a research plan and designed the main screens. A paid survey came back with responses I couldn’t trust, so I didn’t use them, and I lost interest before the idea was ever tested with users.</p>
         <div class="screens">
           <button type="button" data-lb="clohive" data-src="assets/images/archives/clohive-quiz.png" data-alt="Clohive mockup: a style quiz asking which outfit best represents your ideal everyday look"><img src="assets/images/archives/clohive-quiz.png" width="393" height="852" alt="Clohive mockup: a style quiz asking which outfit best represents your ideal everyday look" loading="lazy" decoding="async"></button>
           <button type="button" data-lb="clohive" data-src="assets/images/archives/clohive-home.png" data-alt="Clohive mockup: the home feed of outfit recommendations"><img src="assets/images/archives/clohive-home.png" width="393" height="852" alt="Clohive mockup: the home feed of outfit recommendations" loading="lazy" decoding="async"></button>
@@ -668,6 +668,15 @@
   var points = [1600, 3000, 19900, 20900, 34700, 42300];
   var canvas = document.getElementById('nwChart');
   var drawn = false;
+  // The tracker script below swaps the last point for today's net worth, so the line ends at the live figure.
+  window.setLatestNetWorth = function (v) {
+    if (!canvas) return;
+    points[points.length - 1] = Math.round(v);
+    var last = document.querySelector('.chart .labels span:last-child');
+    if (last) last.textContent = 'Now';
+    canvas.setAttribute('aria-label', 'Net worth from August 2023 to now, rising from $1,600 to $' + Math.round(v).toLocaleString());
+    if (drawn) drawChart(1);
+  };
   function drawChart(progress) {
     var W = canvas.clientWidth || 640, H = 180, dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = W * dpr; canvas.height = H * dpr;
@@ -727,7 +736,7 @@
     var nw = res[0].values ? parseFloat(res[0].values[0][0]) : null;
     var cagr = res[1].values ? parseFloat(res[1].values[0][0]) : null;
     var rows = (res[2].values || []).slice(1).filter(function (r) { return r[0] && r[7]; });
-    if (nw) { set('liveNetWorth', '$' + Math.round(nw).toLocaleString()); set('descNetWorth', fmtMoney(nw) + '+'); }
+    if (nw) { set('liveNetWorth', '$' + Math.round(nw).toLocaleString()); set('descNetWorth', fmtMoney(nw) + '+'); if (window.setLatestNetWorth) window.setLatestNetWorth(nw); }
     if (cagr !== null && !isNaN(cagr)) { set('liveCAGR', (cagr * 100).toFixed(1) + '%'); var cs = document.getElementById('cagrStat'); if (cs) cs.hidden = false; }
     if (rows.length) set('liveBadge', rows.length + ' positions');
   }).catch(function (err) { console.warn('Tracker fetch failed:', err); });
