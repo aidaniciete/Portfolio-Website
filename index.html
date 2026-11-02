@@ -197,14 +197,19 @@
     .contact .credits a { color: inherit; }
     .contact .to-top { margin-top: 1.25rem; font-weight: 500; }
 
-    /* ---------- the archives: past projects, kept small ---------- */
+    /* ---------- projects, and the archives: past projects, kept small ---------- */
     .archives { padding-bottom: var(--section); }
-    .archives h2 + .lead { margin-top: 1.1rem; color: var(--muted); }
-    .archive { margin-top: 3rem; }
-    .archive .when { color: var(--muted); }
-    .archive h3 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); line-height: 1.1; }
-    .archive .kind { color: var(--muted); margin-top: .35rem; }
-    .archive .body > p:not(.kind) { margin-top: 1rem; }
+    .projects h2 + .lead, .archives h2 + .lead { margin-top: 1.1rem; color: var(--muted); }
+    .project, .archive { margin-top: 3rem; }
+    .project .when, .archive .when { color: var(--muted); }
+    .project h3, .archive h3 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); line-height: 1.1; }
+    .project .kind, .archive .kind { color: var(--muted); margin-top: .35rem; }
+    .project .body > p:not(.kind), .archive .body > p:not(.kind) { margin-top: 1rem; }
+    .shot { margin-top: 1.75rem; }
+    .shot button { display: block; width: 100%; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(15, 35, 70, .12); cursor: zoom-in; transition: transform var(--t-press) var(--ease-out); }
+    .shot button:active { transform: scale(0.985); }
+    .shot img { width: 100%; height: auto; transition: transform 500ms var(--ease-out); }
+    @media (hover: hover) and (pointer: fine) { .shot button:hover img { transform: scale(1.03); } }
     .screens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: 1.75rem; }
     .screens button { display: block; width: 100%; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(15, 35, 70, .12); cursor: zoom-in; transition: transform var(--t-press) var(--ease-out); }
     .screens button:active { transform: scale(0.985); }
@@ -290,6 +295,7 @@
     <ul>
       <li><a href="#direction">Direction</a></li>
       <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
       <li><a href="#beyond">Beyond work</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
@@ -330,8 +336,7 @@
     <div class="flow">
       <p>What interests me most in accounting is the investigative side: tracing where money actually went, finding the entries that don’t line up, and understanding how fraud happens inside an organization and how it gets caught, or doesn’t. Forensic accounting and fraud examination are the fields I’m working toward.</p>
       <p>Next to that, I’m interested in accounting information systems, internal controls and IT audit, because that is where most of the evidence lives and where the controls either hold or fail.</p>
-      <p>For now I’m partway through the degree, reading a lot, and building things to get closer to the material. The main one is the <a class="link" href="/audit">AIS Audit Sandbox</a>, a practice tool I made with a lot of help from AI. It generates a company’s transactions with fraud planted in them, and you work through the ledger and the supporting documents to find it. <a class="link" href="/audit/case-study">The case study</a> covers how it works and the bug I found in my own risk math.</p>
-      <p>My working experience so far is four years in event operations, and you’ll find it below.</p>
+      <p>For now I’m partway through the degree, reading a lot, and building things to get closer to the material, like the <a class="link" href="#projects">AIS Audit Sandbox</a> under Projects. My working experience so far is four years in event operations, and you’ll find it below.</p>
     </div>
     <dl class="plan">
       <div class="hang"><dt>Now</dt><dd>San Jose City College<p>A.S. Business Administration, since August 2021</p></dd></div>
@@ -432,6 +437,25 @@
         <ul>
           <li>Worked with a team on product projects, including a pitch for a portable library for students experiencing homelessness, which we presented to senior management.</li>
         </ul>
+      </div>
+    </article>
+  </section>
+
+  <section class="frame section projects" id="projects" data-chapter="projects">
+    <h2 class="out">Projects</h2>
+    <p class="lead">Things I’ve built to learn the material.</p>
+
+    <article class="project hang">
+      <p class="when">2026 · learning project</p>
+      <div class="body">
+        <h3>AIS Audit Sandbox</h3>
+        <p class="kind">Fraud detection practice, internal controls, JavaScript</p>
+        <p>A practice tool for spotting purchasing fraud. Each round makes up a company with 18 to 22 transactions and hides 6 to 10 problems in them, such as duplicate POs, payments split to stay under an approval limit, vendors missing from the approved list, missing receiving reports and approvals from someone without the authority. You flag what you find and get a score. Some problems only show up when you compare the purchase order, invoice and receiving report, and some transactions look suspicious but aren’t.</p>
+        <p>I built it with a lot of help from AI, as a way to practice spotting these schemes in a ledger. The first version double-counted duplicate payments in the at-risk total, counting the original payment along with the duplicate. The case study covers how I found and fixed that.</p>
+        <figure class="shot">
+          <button type="button" data-lb="audit" data-src="assets/images/projects/audit-sandbox.jpg" data-alt="The AIS Audit Sandbox ledger: transactions with vendor, amount, category and approver, and a row of fraud types to flag on each"><img src="assets/images/projects/audit-sandbox.jpg" width="1600" height="892" alt="The AIS Audit Sandbox ledger: transactions with vendor, amount, category and approver, and a row of fraud types to flag on each" loading="lazy" decoding="async"></button>
+        </figure>
+        <p class="more"><a class="link" href="/audit">Try the sandbox</a> · <a class="link" href="/audit/case-study">Read the case study</a></p>
       </div>
     </article>
   </section>
