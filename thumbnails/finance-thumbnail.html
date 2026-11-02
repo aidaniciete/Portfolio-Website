@@ -356,7 +356,7 @@
   var BASE     = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + '/values';
 
   Promise.all([
-    fetch(BASE + '/Dashboard!M4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function(r){ return r.json(); }),
+    fetch(BASE + '/Dashboard!L4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function(r){ return r.json(); }),
     fetch(BASE + '/Dashboard!H4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function(r){ return r.json(); }),
   ]).then(function(results) {
     var nw      = results[0].values ? parseFloat(results[0].values[0][0]) : null;

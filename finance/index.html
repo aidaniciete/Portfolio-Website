@@ -422,7 +422,7 @@ async function fetchSheets() {
       fetch(`${BASE}/401k!C4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/HSA%20Holdings!F7?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Dashboard!D4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
-      fetch(`${BASE}/Dashboard!M4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+      fetch(`${BASE}/Dashboard!L4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Allocation!B3:E11?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Dashboard!H4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
     ]);
@@ -494,7 +494,7 @@ async function fetchSheets() {
     const valHSA = cell(hsaData);
     if (valHSA) set('hsaTriple', fmt(valHSA));
 
-    // ── Update chart with total net worth from Dashboard M4 ──
+    // ── Update chart with total net worth from Dashboard L4 ──
     // If the sheet's total is broken, keep the last saved figure rather than show a wrong one.
     const totalNetWorth = cell(netWorthData);
     if (totalNetWorth !== null) {

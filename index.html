@@ -729,7 +729,7 @@
   function set(id, text) { var el = document.getElementById(id); if (el && text) el.textContent = text; }
   if (!window.fetch) return;
   Promise.all([
-    fetch(BASE + '/Dashboard!M4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); }),
+    fetch(BASE + '/Dashboard!L4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); }),
     fetch(BASE + '/Dashboard!H4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); }),
     fetch(BASE + '/M1%20Raw!A1:H50?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); })
   ]).then(function (res) {
