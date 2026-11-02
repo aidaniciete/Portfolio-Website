@@ -306,16 +306,14 @@ const ALL_HOLDINGS = [
 ];
 
 const ALLOCATION = [
-  { sector:'Technology',            pct: 27.6, tickers:'GOOG, MSFT, AAPL, AMZN, NVDA, SHOP' },
-  { sector:'Financials',            pct: 13.6, tickers:'JPM, AXP, BAC, BRK.B' },
-  { sector:'Healthcare',            pct: 13.3, tickers:'LLY, ISRG, UNH, NVO' },
-  { sector:'Factor ETFs',           pct: 12.1, tickers:'QMOM, QVAL, IVAL, IMOM' },
-  { sector:'REITs',                 pct:  9.7, tickers:'O, WELL, EQR' },
-  { sector:'Consumer Discretionary',pct:  7.5, tickers:'NFLX, MCD, BKNG' },
-  { sector:'Crypto',                pct:  5.7, tickers:'IBIT' },
-  { sector:'Entertainment/Media',   pct:  3.2, tickers:'META' },
-  { sector:'Energy',                pct:  5.1, tickers:'CVX, XOM' },
-  { sector:'Global ETF',            pct:  2.2, tickers:'VT' },
+  { sector:'Financials',             pct: 21.2, tickers:'BRK.B, JPM, AXP' },
+  { sector:'Technology',             pct: 19.0, tickers:'ASML, NVDA, AAPL' },
+  { sector:'Factor ETFs',            pct: 15.3, tickers:'QVAL, QMOM, IVAL, IMOM' },
+  { sector:'Communication Services', pct: 13.0, tickers:'GOOG, NFLX, META' },
+  { sector:'Healthcare',             pct: 11.7, tickers:'LLY' },
+  { sector:'Energy',                 pct:  9.0, tickers:'CVX, XOM' },
+  { sector:'Consumer Discretionary', pct:  6.8, tickers:'AMZN' },
+  { sector:'Consumer Staples',       pct:  4.0, tickers:'COST' },
 ];
 
 const TRACKER_TABS = [
@@ -504,7 +502,8 @@ async function fetchSheets() {
     }
 
     // ── Sector Allocation from sheet ──
-    const allocRows = (allocData.values || []).filter(r => Number.isFinite(parseFloat(r[2])));
+    // skip blank rows, errors and empty sectors (0%)
+    const allocRows = (allocData.values || []).filter(r => parseFloat(r[2]) > 0);
     if (allocRows.length) {
       const allocBarsEl = document.getElementById('allocBars');
       allocBarsEl.innerHTML = '';
@@ -564,6 +563,7 @@ fetchSheets();
 
 // Allocation bars
 const allocBars = document.getElementById('allocBars');
+const maxAlloc = Math.max(...ALLOCATION.map(a => a.pct));
 ALLOCATION.forEach(a => {
   allocBars.innerHTML += `<div class="alloc-item">
     <div class="alloc-row">
@@ -571,7 +571,7 @@ ALLOCATION.forEach(a => {
       <span class="alloc-pct">${a.pct}%</span>
     </div>
     <div class="alloc-bar-bg">
-      <div class="alloc-bar-fill" style="width:${a.pct / 28 * 100}%"></div>
+      <div class="alloc-bar-fill" style="width:${(a.pct / maxAlloc * 100).toFixed(1)}%"></div>
     </div>
     <div class="alloc-tickers">${a.tickers}</div>
   </div>`;
