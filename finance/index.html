@@ -402,20 +402,20 @@ async function fetchSheets() {
   if (liveTag) liveTag.textContent = 'Syncing with Google Sheets…';
 
   try {
-    // Fetch M1 Raw (holdings + live prices via GOOGLEFINANCE)
-    // Fetch 401k C4 and HSA Holdings F8 simultaneously
-    const [m1Res, k401Res, hsaRes, depositsRes, netWorthRes, allocRes, cagrRes] = await Promise.all([
+    // M1 Raw: the holdings table. Holdings!F2: the Roth total at live GOOGLEFINANCE prices,
+    // the same figure the annual return uses. The combined total is added up on this page.
+    const [m1Res, k401Res, hsaRes, depositsRes, rothRes, allocRes, cagrRes] = await Promise.all([
       fetch(`${BASE}/M1%20Raw!A1:H50?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/401k!C4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/HSA%20Holdings!F7?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Dashboard!D4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
-      fetch(`${BASE}/Dashboard!L4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+      fetch(`${BASE}/Holdings!F2?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Allocation!B3:E11?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Dashboard!H4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
     ]);
 
-    const [m1Data, k401Data, hsaData, depositsData, netWorthData, allocData, cagrData] = await Promise.all([
-      m1Res.json(), k401Res.json(), hsaRes.json(), depositsRes.json(), netWorthRes.json(), allocRes.json(), cagrRes.json()
+    const [m1Data, k401Data, hsaData, depositsData, rothData, allocData, cagrData] = await Promise.all([
+      m1Res.json(), k401Res.json(), hsaRes.json(), depositsRes.json(), rothRes.json(), allocRes.json(), cagrRes.json()
     ]);
 
     // ── Parse M1 Raw ──
@@ -451,7 +451,8 @@ async function fetchSheets() {
     });
 
     // ── Update summary cards ──
-    const unrealGain = totalValue - totalCost;
+    const rothValue = cell(rothData) ?? totalValue;   // M1's export only if the live total is missing
+    const unrealGain = rothValue - totalCost;
     // Annual return from Dashboard!H4: an XIRR over every deposit and today's Roth value, as a decimal
     const cagrRaw = cell(cagrData);
     const cagr = cagrRaw !== null ? cagrRaw * 100 : null;   // no guessing if the sheet's figure is missing
@@ -459,7 +460,7 @@ async function fetchSheets() {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     const setColor = (id, pos) => { const el = document.getElementById(id); if (el) el.className = pos ? 'is-gain' : 'is-loss'; };
 
-    set('rothTotal',  fmt(totalValue));
+    set('rothTotal',  fmt(rothValue));
     set('unrealGain', (unrealGain >= 0 ? '+' : '-') + fmt(Math.abs(unrealGain)));
     setColor('unrealGain', unrealGain >= 0);
     set('posCount', rows.length);
@@ -471,7 +472,7 @@ async function fetchSheets() {
     if (stockBadge) stockBadge.textContent = stockCount + ' positions';
     if (etfBadge) etfBadge.textContent = etfCount + ' positions · quant systematic';
     if (cagr !== null) set('cagrVal', cagr.toFixed(1) + '%');
-    set('rothTriple', fmt(totalValue));
+    set('rothTriple', fmt(rothValue));
 
     // ── 401k ──
     const val401k = cell(k401Data);
@@ -481,12 +482,12 @@ async function fetchSheets() {
     const valHSA = cell(hsaData);
     if (valHSA) set('hsaTriple', fmt(valHSA));
 
-    // ── Update chart with the combined account value from Dashboard L4 ──
-    // If the sheet's total is broken, keep the last saved figure rather than show a wrong one.
-    const totalNetWorth = cell(netWorthData);
-    if (totalNetWorth !== null) {
-      NET_WORTH_DATA[NET_WORTH_DATA.length - 1].val = Math.round(totalNetWorth);
-      set('chartVal', fmt(totalNetWorth));
+    // ── Combined value: the three accounts as shown above, added up here so the total always foots ──
+    // If any account is missing, keep the last saved figure rather than show a partial total.
+    if (val401k !== null && valHSA !== null) {
+      const combined = Math.round(rothValue) + Math.round(val401k) + Math.round(valHSA);
+      NET_WORTH_DATA[NET_WORTH_DATA.length - 1].val = combined;
+      set('chartVal', fmt(combined));
       drawChart();
     }
 

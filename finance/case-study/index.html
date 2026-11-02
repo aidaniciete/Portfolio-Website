@@ -164,17 +164,19 @@
 <span class="fn">=XIRR</span>(amounts, dates)              <span class="cm">→  0.132</span>
 
 <span class="cm">// Sheets API fetch — 7 ranges pulled in a single Promise.all()</span>
-<span class="kw">const</span> [m1, k401, hsa, deposits, netWorth, alloc, cagr] =
+<span class="kw">const</span> [m1, k401, hsa, deposits, roth, alloc, cagr] =
   <span class="kw">await</span> Promise.<span class="fn">all</span>([
     <span class="fn">fetch</span>(<span class="st">`M1 Raw!A1:H50`</span>),       <span class="cm">// holdings + live prices</span>
     <span class="fn">fetch</span>(<span class="st">`401k!C4`</span>),              <span class="cm">// T. Rowe Price balance</span>
     <span class="fn">fetch</span>(<span class="st">`HSA Holdings!F7`</span>),      <span class="cm">// Fidelity HSA balance</span>
     <span class="fn">fetch</span>(<span class="st">`Dashboard!D4`</span>),         <span class="cm">// lifetime deposits</span>
-    <span class="fn">fetch</span>(<span class="st">`Dashboard!L4`</span>),         <span class="cm">// combined account value</span>
+    <span class="fn">fetch</span>(<span class="st">`Holdings!F2`</span>),          <span class="cm">// Roth IRA at live prices</span>
     <span class="fn">fetch</span>(<span class="st">`Allocation!B3:E11`</span>),    <span class="cm">// sector weights</span>
     <span class="fn">fetch</span>(<span class="st">`Dashboard!H4`</span>),         <span class="cm">// Roth IRA annual return</span>
   ]);
 
+<span class="cm">// the combined value is added up on the page, so it always matches the three accounts</span>
+<span class="kw">const</span> total = roth + k401 + hsa;
 <span class="fn">display</span>(cagr * <span class="nm">100</span> + <span class="st">"%"</span>);        <span class="cm">→  "13.2%"</span></pre>
       </div>
 
@@ -215,17 +217,18 @@
     var SHEET_ID = '1i72mgTMMFTpGmc8QUOXwtdkiaA8Jold9qb8fK9nECOM';
     var API_KEY  = 'AIzaSyDe-nqy7Pz2svs3IIHvcJS_2HU-GAS3wbg';
     var BASE     = 'https://sheets.googleapis.com/v4/spreadsheets/'+SHEET_ID+'/values';
-    Promise.all([
-      fetch(BASE+'/Dashboard!L4?key='+API_KEY+'&valueRenderOption=UNFORMATTED_VALUE').then(function(r){return r.json();}),
-      fetch(BASE+'/Dashboard!H4?key='+API_KEY+'&valueRenderOption=UNFORMATTED_VALUE').then(function(r){return r.json();})
-    ]).then(function(res){
-      var nw = res[0].values ? parseFloat(res[0].values[0][0]) : null;
-      var cagr = res[1].values ? parseFloat(res[1].values[0][0]) : null;
+    function get(range){ return fetch(BASE+'/'+range+'?key='+API_KEY+'&valueRenderOption=UNFORMATTED_VALUE').then(function(r){return r.json();}); }
+    function cell(d){ var v = d && d.values ? parseFloat(d.values[0][0]) : NaN; return isFinite(v) ? v : null; }
+    Promise.all([get('Holdings!F2'), get('401k!C4'), get('HSA%20Holdings!F7'), get('Dashboard!H4')]).then(function(res){
+      // the three accounts added up here, as on the home page and /finance
+      var roth = cell(res[0]), k401 = cell(res[1]), hsa = cell(res[2]);
+      var nw = roth!==null && k401!==null && hsa!==null ? Math.round(roth)+Math.round(k401)+Math.round(hsa) : null;
+      var cagr = cell(res[3]);
       if(nw){
         var fmt = nw>=1000 ? '$'+(nw/1000).toFixed(1).replace(/\.0$/,'')+'k+' : '$'+Math.round(nw);
         document.getElementById('liveNW').textContent = fmt;
       }
-      if(cagr!==null && !isNaN(cagr)) document.getElementById('liveCAGR').textContent = (cagr*100).toFixed(1)+'%';
+      if(cagr!==null) document.getElementById('liveCAGR').textContent = (cagr*100).toFixed(1)+'%';
     }).catch(function(){});
   })();
 </script>

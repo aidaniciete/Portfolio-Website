@@ -516,8 +516,8 @@
         <div class="flow">
           <p>I opened a Roth IRA at 19 with $500. At 23 it’s <span id="descNetWorth">$48k+</span> across a Roth IRA, a 401(k) and an HSA, with <span id="liveBadge">18 positions</span> in the Roth, each with a written thesis: a few high-conviction stocks, plus quant factor ETFs for value, momentum and international exposure. The figures and the chart’s latest point read from the tracker, so they’re live.</p>
           <div class="chart">
-            <canvas id="nwChart" width="640" height="180" role="img" aria-label="Combined Roth IRA, 401(k) and HSA value from August 2023 to March 2026, rising from $1,600 to about $42,000"></canvas>
-            <div class="labels"><span>Aug ’23</span><span>Feb ’24</span><span>Aug ’24</span><span>Mar ’25</span><span>Sep ’25</span><span>Mar ’26</span></div>
+            <canvas id="nwChart" width="640" height="180" role="img" aria-label="Combined Roth IRA, 401(k) and HSA value from December 2022 to November 2026, rising from $500 to about $48,000"></canvas>
+            <div class="labels"><span>Dec ’22</span><span>Dec ’23</span><span>Dec ’24</span><span>Dec ’25</span><span>Nov ’26</span></div>
             <div class="stats">
               <div><strong id="liveNetWorth">$48k+</strong><span>Across all three accounts now</span></div>
               <div id="cagrStat" hidden><strong id="liveCAGR"></strong><span>Roth IRA annual return since the first deposit</span></div>
@@ -665,7 +665,8 @@
   });
 
   // Account value chart: drawn once when it scrolls into view. Colours come from CSS so it fits the navy section.
-  var points = [1600, 3000, 19900, 20900, 34700, 42300];
+  // Same history as /finance (Dec '22 to Nov '26); the last point is replaced by the live total.
+  var points = [500, 1600, 5200, 12800, 32800, 37200, 41800, 39905, 48455];
   var canvas = document.getElementById('nwChart');
   var drawn = false;
   // The tracker script below swaps the last point for today's combined value, so the line ends at the live figure.
@@ -674,7 +675,7 @@
     points[points.length - 1] = Math.round(v);
     var last = document.querySelector('.chart .labels span:last-child');
     if (last) last.textContent = 'Now';
-    canvas.setAttribute('aria-label', 'Combined Roth IRA, 401(k) and HSA value from August 2023 to now, rising from $1,600 to $' + Math.round(v).toLocaleString());
+    canvas.setAttribute('aria-label', 'Combined Roth IRA, 401(k) and HSA value from December 2022 to now, rising from $500 to $' + Math.round(v).toLocaleString());
     if (drawn) drawChart(1);
   };
   function drawChart(progress) {
@@ -728,16 +729,16 @@
   function fmtMoney(n) { return n >= 1000 ? '$' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : '$' + Math.round(n); }
   function set(id, text) { var el = document.getElementById(id); if (el && text) el.textContent = text; }
   if (!window.fetch) return;
-  Promise.all([
-    fetch(BASE + '/Dashboard!L4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); }),
-    fetch(BASE + '/Dashboard!H4?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); }),
-    fetch(BASE + '/M1%20Raw!A1:H50?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); })
-  ]).then(function (res) {
-    var nw = res[0].values ? parseFloat(res[0].values[0][0]) : null;
-    var cagr = res[1].values ? parseFloat(res[1].values[0][0]) : null;
-    var rows = (res[2].values || []).slice(1).filter(function (r) { return r[0] && r[7]; });
+  function get(range) { return fetch(BASE + '/' + range + '?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); }); }
+  function cell(d) { var v = d && d.values ? parseFloat(d.values[0][0]) : NaN; return isFinite(v) ? v : null; }
+  Promise.all([get('Holdings!F2'), get('401k!C4'), get('HSA%20Holdings!F7'), get('Dashboard!H4'), get('M1%20Raw!A1:H50')]).then(function (res) {
+    // The combined figure is the three accounts added up here (same as /finance), so it always foots.
+    var roth = cell(res[0]), k401 = cell(res[1]), hsa = cell(res[2]);
+    var nw = roth !== null && k401 !== null && hsa !== null ? Math.round(roth) + Math.round(k401) + Math.round(hsa) : null;
+    var cagr = cell(res[3]);
+    var rows = (res[4].values || []).slice(1).filter(function (r) { return r[0] && r[7]; });
     if (nw) { set('liveNetWorth', '$' + Math.round(nw).toLocaleString()); set('descNetWorth', fmtMoney(nw) + '+'); if (window.setLatestNetWorth) window.setLatestNetWorth(nw); }
-    if (cagr !== null && !isNaN(cagr)) { set('liveCAGR', (cagr * 100).toFixed(1) + '%'); var cs = document.getElementById('cagrStat'); if (cs) cs.hidden = false; }
+    if (cagr !== null) { set('liveCAGR', (cagr * 100).toFixed(1) + '%'); var cs = document.getElementById('cagrStat'); if (cs) cs.hidden = false; }
     if (rows.length) set('liveBadge', rows.length + ' positions');
   }).catch(function (err) { console.warn('Tracker fetch failed:', err); });
 })();
