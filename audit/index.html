@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AIS Audit Sandbox · Aidan Aniciete</title>
-  <meta name="description" content="A practice audit: review a generated company’s transactions, check the supporting documents and flag the fraud.">
+  <meta name="description" content="A practice audit: review a made-up company’s purchase payments against its policy, people, vendor registry and documents, and flag what breaks the rules.">
   <meta name="theme-color" content="#f5f4ef">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230F2346'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23F5F4EF' font-family='Georgia,serif'>A</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,9 +31,13 @@
     .instructions h2 { font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem); }
     .instructions h2 + p { margin-top: 1rem; max-width: 70ch; }
     .instructions strong { font-weight: 600; }
-    .hint-btn { margin-top: 1rem; text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: .07em; font-weight: 500; }
+    .files { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
+    .file-btn { background: var(--bg); padding: .6rem 1rem; font-weight: 500; box-shadow: inset 0 0 0 1px var(--rule); transition: box-shadow var(--t-hover) ease; }
+    @media (hover: hover) and (pointer: fine) { .file-btn:hover { box-shadow: inset 0 0 0 1.5px var(--ink); } }
+    .hint-btn { margin-top: 1.25rem; text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: .07em; font-weight: 500; }
     @media (hover: hover) and (pointer: fine) { .hint-btn:hover { text-decoration-color: var(--accent); } }
     .hints-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .6rem; margin-top: 1rem; }
+    .hints-grid[hidden] { display: none; }
     .hint-card { background: var(--bg); padding: .8rem 1rem; }
     .hint-label { font-weight: 600; font-size: .95rem; margin-bottom: .25rem; }
     .hint-desc { color: var(--muted); font-size: var(--step-small); line-height: 1.45; }
@@ -44,7 +48,7 @@
     .filter-btn.active { background: var(--ink); color: var(--bg); }
 
     /* the ledger */
-    .table-header, .txn-row { display: grid; grid-template-columns: 7rem 4rem minmax(8rem, 1fr) 6rem 7rem 8rem minmax(13rem, 1.4fr); gap: .75rem; align-items: center; }
+    .table-header, .txn-row { display: grid; grid-template-columns: 7rem 4rem minmax(8rem, 1fr) 7rem 6.5rem 7rem minmax(15rem, 1.6fr); gap: .75rem; align-items: center; }
     .table-header { padding: .6rem .75rem; border-bottom: 2px solid var(--ink); font-size: var(--step-small); color: var(--muted); font-weight: 500; }
     .txn-list { margin-bottom: 1.75rem; }
     .txn-row { padding: .75rem; border-bottom: 1px solid var(--rule); font-size: .95rem; transition: background-color var(--t-hover) ease; }
@@ -54,9 +58,8 @@
     .txn-row.r-wrong { background: #f5e4e1; box-shadow: inset 4px 0 0 var(--loss); }
     .txn-row.r-missed { background: #f6ecd6; box-shadow: inset 4px 0 0 var(--warn); }
     .txn-id { font-weight: 600; font-variant-numeric: tabular-nums; }
-    .txn-date, .txn-cat, .txn-approver { color: var(--muted); font-size: var(--step-small); font-variant-numeric: tabular-nums; }
-    .txn-amount { font-variant-numeric: tabular-nums; }
-    .txn-amount.high { color: var(--warn); font-weight: 600; }
+    .txn-date, .txn-dept, .txn-approver { color: var(--muted); font-size: var(--step-small); font-variant-numeric: tabular-nums; }
+    .txn-amount { font-variant-numeric: tabular-nums; text-align: right; }
     .docs-btn { display: block; margin-top: .15rem; font-size: .8rem; font-weight: 500; color: var(--muted); text-decoration: underline; text-underline-offset: .18em; }
     @media (hover: hover) and (pointer: fine) { .docs-btn:hover { color: var(--ink); text-decoration-color: var(--accent); } }
     .flag-btns { display: flex; flex-wrap: wrap; gap: .3rem; }
@@ -66,15 +69,17 @@
     .result-text { font-size: var(--step-small); font-weight: 500; }
 
     .tool-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem 1rem; margin-bottom: 2rem; }
+    .tool-actions[hidden] { display: none; }
 
     /* report */
     .report { background: var(--dark); color: var(--dark-ink); padding: clamp(1.5rem, 4vw, 2.5rem); margin-bottom: 2rem; }
     .report-title { font-family: var(--font-display); font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem); line-height: 1.1; margin-bottom: 1.5rem; }
     .report-title::before { content: ''; display: block; width: 2.75rem; height: .3rem; background: var(--accent); margin-bottom: 1rem; }
-    .score-grid { display: flex; flex-wrap: wrap; gap: 1.25rem 3rem; margin-bottom: 1.5rem; }
+    .score-grid { display: flex; flex-wrap: wrap; gap: 1.25rem 3rem; margin-bottom: 1.25rem; }
     .score-n { font-family: var(--font-display); font-size: clamp(2rem, 1.5rem + 1.5vw, 2.8rem); line-height: 1; font-variant-numeric: tabular-nums; }
     .score-l { font-size: var(--step-small); color: var(--dark-muted); margin-top: .25rem; }
     .report { --green: #8fd3a8; --red: #f2a093; --yellow: var(--accent); --ink: var(--dark-ink); }
+    .report-pr { color: var(--dark-muted); font-size: var(--step-small); margin-bottom: 1rem; max-width: 70ch; }
     .report-msg { color: var(--dark-muted); border-top: 1px solid rgba(245, 244, 239, .18); padding-top: 1rem; max-width: 70ch; }
     .report .btn-submit { background: var(--accent); color: var(--accent-ink); }
     .report .btn-reset { color: var(--dark-ink); box-shadow: inset 0 0 0 1.5px var(--dark-ink); }
@@ -91,58 +96,65 @@
       .btn-reset:hover { background: var(--ink); color: var(--bg); }
     }
 
-    /* three-way match panel */
+    /* side panel: documents and company files */
     .panel-overlay { position: fixed; inset: 0; background: rgba(10, 20, 44, .5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
     .panel-overlay.open { opacity: 1; pointer-events: all; }
-    .panel { position: fixed; top: 0; right: 0; width: 30rem; max-width: 95vw; height: 100vh; height: 100dvh; background: var(--bg); z-index: 201; transform: translateX(100%); transition: transform .3s var(--ease-out); overflow-y: auto; padding: 1.75rem; }
-    .panel.open { transform: none; }
+    .panel { position: fixed; top: 0; right: 0; width: 34rem; max-width: 95vw; height: 100vh; height: 100dvh; background: var(--bg); z-index: 201; transform: translateX(100%); visibility: hidden; transition: transform .3s var(--ease-out), visibility 0s linear .3s; overflow-y: auto; padding: 1.75rem; }
+    .panel.open { transform: none; visibility: visible; transition: transform .3s var(--ease-out); }
     .panel-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
     .panel-title { font-family: var(--font-display); font-size: 1.8rem; line-height: 1.1; }
     .panel-title::before { content: ''; display: block; width: 2.25rem; height: .25rem; background: var(--accent); margin-bottom: .8rem; }
     .panel-sub { font-size: var(--step-small); color: var(--muted); margin-top: .35rem; }
     .panel-close { width: 2.75rem; height: 2.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
     @media (hover: hover) and (pointer: fine) { .panel-close:hover { background: var(--surface); } }
+    .panel-note { font-size: var(--step-small); color: var(--muted); margin-bottom: 1rem; }
     .doc-card { background: var(--surface); padding: 1.1rem 1.25rem; margin-bottom: .75rem; }
-    .doc-card.mismatch { box-shadow: inset 4px 0 0 var(--loss); }
     .doc-card.missing { box-shadow: inset 4px 0 0 var(--warn); }
-    .doc-label { font-weight: 600; margin-bottom: .6rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-    .doc-status { font-size: .75rem; font-weight: 500; padding: .1rem .5rem; background: #e3efe7; color: var(--gain); }
-    .doc-status.bad { background: #f5e4e1; color: var(--loss); }
-    .doc-status.warn { background: #f6ecd6; color: var(--warn); }
+    .doc-label { font-weight: 600; margin-bottom: .6rem; }
     .doc-row { display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; padding: .35rem 0; border-bottom: 1px solid var(--rule); }
     .doc-row:last-child { border-bottom: 0; }
-    .doc-key { color: var(--muted); }
+    .doc-key { color: var(--muted); flex-shrink: 0; }
     .doc-val { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
     .doc-val.flag { color: var(--loss); }
-    .doc-val.warn { color: var(--warn); }
-    .match-summary { margin-top: .5rem; padding: .8rem 1rem; text-align: center; font-weight: 500; background: #e3efe7; color: var(--gain); }
-    .match-summary.fail { background: #f5e4e1; color: var(--loss); }
+    .missing-note { color: var(--warn); font-size: .85rem; }
+    .match { margin-top: .5rem; padding: 1rem 1.25rem; background: #e3efe7; }
+    .match.fail { background: #f5e4e1; }
+    .match-title { font-weight: 600; margin-bottom: .4rem; }
+    .match li { display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; padding: .2rem 0; }
+    .match .ok { color: var(--gain); font-weight: 500; }
+    .match .no { color: var(--loss); font-weight: 500; }
+    .rules li + li { margin-top: 1rem; }
+    .rules strong { display: block; font-weight: 600; }
+    .people li, .vendors li { padding: .7rem 0; border-bottom: 1px solid var(--rule); font-size: .92rem; }
+    .people .who, .vendors .who { font-weight: 600; }
+    .people .meta, .vendors .meta { color: var(--muted); font-size: var(--step-small); }
+    .vendor-search { width: 100%; padding: .7rem .9rem; font: inherit; background: var(--surface); border: 0; box-shadow: inset 0 0 0 1px var(--rule); margin-bottom: .5rem; }
+    .vendor-search:focus { outline: 2px solid var(--ink); outline-offset: 0; }
 
-    @media (min-width: 1101px) { .table-scroll > * { min-width: 58rem; } }
+    @media (min-width: 1101px) { .table-scroll > * { min-width: 60rem; } }
     @media (max-width: 1100px) {
-      .table-header, .txn-row { grid-template-columns: 6.5rem 3.75rem minmax(0, 1fr) 6rem; }
-      .txn-cat, .txn-approver, .table-header > :nth-child(5), .table-header > :nth-child(6), .table-header > :nth-child(7) { display: none; }
+      .table-header, .txn-row { grid-template-columns: 6.5rem 3.75rem minmax(0, 1fr) 7rem; }
+      .txn-dept, .txn-approver, .table-header > :nth-child(5), .table-header > :nth-child(6), .table-header > :nth-child(7) { display: none; }
       .txn-row > .flag-btns, .txn-row > .result-text { grid-column: 1 / -1; }
     }
     @media (max-width: 640px) {
       .table-header, .txn-row { grid-template-columns: 5.75rem minmax(0, 1fr) auto; }
       .txn-date, .table-header > :nth-child(2) { display: none; }
-      .txn-amount, .table-header > :nth-child(4) { text-align: right; }
     }
   </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<!-- Three-Way Match Side Panel -->
-<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
-<div class="panel" id="docPanel" role="dialog" aria-label="Three-way match">
+<!-- Side panel: a transaction's documents, or one of the company files -->
+<div class="panel-overlay" id="panelOverlay"></div>
+<div class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle">
   <div class="panel-header">
     <div>
-      <div class="panel-title">Three-way match</div>
-      <div class="panel-sub" id="panelSub">Purchase Order · Invoice · Receiving Report</div>
+      <div class="panel-title" id="panelTitle"></div>
+      <div class="panel-sub" id="panelSub"></div>
     </div>
-    <button class="panel-close" onclick="closePanel()" aria-label="Close">✕</button>
+    <button class="panel-close" id="panelClose" aria-label="Close">✕</button>
   </div>
   <div id="panelBody"></div>
 </div>
@@ -161,600 +173,295 @@
 <main id="main">
 <div class="wide">
   <section class="tool-hero">
-    <p class="eyebrow">AIS Audit Sandbox v2 · Infinite practice mode</p>
+    <p class="eyebrow">AIS Audit Sandbox · Practice audit</p>
     <h1 id="companyName">Loading…</h1>
     <div class="mark" aria-hidden="true"></div>
     <p id="companySub"></p>
     <div class="tool-bar">
       <div class="stats">
         <div><strong id="flagCount">0</strong><span>Flagged</span></div>
-        <div><strong id="totalIssues" style="color:var(--warn)">—</strong><span>Total issues</span></div>
+        <div><strong id="totalIssues" style="color:var(--warn)">—</strong><span>Rows with a problem</span></div>
         <div><strong id="atRisk" style="color:var(--loss)">—</strong><span>At risk</span></div>
       </div>
-      <button class="btn-new" onclick="newAudit()">New audit</button>
+      <button class="btn-new" id="newAudit">New audit</button>
     </div>
-    <p class="streak-bar">Audits completed: <b id="streakCount">0</b> · Best score: <b id="bestScore">—</b> · Each new audit is randomly generated, so no two are the same.</p>
+    <p class="streak-bar">Audits completed: <b id="streakCount">0</b> · Best score: <b id="bestScore">—</b> · Each audit is a new made-up company.</p>
   </section>
 
   <div class="instructions">
-    <h2>Your mission</h2>
-    <p>You're auditing a randomly generated company's transactions. Review each one and flag anything suspicious. Select the fraud type for each flag. Hit <strong>Submit Audit</strong> when done. Every audit is unique — refresh or click New Audit for a fresh set. Heads up: some findings only show up in the supporting <strong>Docs</strong> — and not everything that looks suspicious on the ledger is a finding. Verify before you flag.</p>
-    <button class="hint-btn" onclick="toggleHints()">Show Fraud Types Reference ↓</button>
-    <div id="hintsGrid" class="hints-grid" style="display:none">
-      <div class="hint-card" style="box-shadow:inset 4px 0 0 #8A5A00">
-        <div class="hint-label" style="color:#8A5A00">Duplicate PO</div>
-        <div class="hint-desc">Same PO number on multiple transactions — potential double payment.</div>
-      </div>
-      <div class="hint-card" style="box-shadow:inset 4px 0 0 #B3372E">
-        <div class="hint-label" style="color:#B3372E">Threshold Splitting</div>
-        <div class="hint-desc">Amounts just below the $25,000 approval limit — structuring to avoid oversight.</div>
-      </div>
-      <div class="hint-card" style="box-shadow:inset 4px 0 0 #6B4FA0">
-        <div class="hint-label" style="color:#6B4FA0">Unregistered Vendor</div>
-        <div class="hint-desc">Vendor not in the approved master list — potential shell company.</div>
-      </div>
-      <div class="hint-card" style="box-shadow:inset 4px 0 0 #0E7490">
-        <div class="hint-label" style="color:#0E7490">Missing Documentation</div>
-        <div class="hint-desc">No supporting invoice or delivery confirmation on file.</div>
-      </div>
-      <div class="hint-card" style="box-shadow:inset 4px 0 0 #1E7A4E">
-        <div class="hint-label" style="color:#1E7A4E">Unauthorized Approver</div>
-        <div class="hint-desc">Transaction approved by someone without authority for that amount or category.</div>
-      </div>
-      <div class="hint-card" style="box-shadow:inset 4px 0 0 #4E5DA8">
-        <div class="hint-label" style="color:#4E5DA8">Qty Mismatch</div>
-        <div class="hint-desc">Invoice bills more units than the PO ordered and receiving confirmed. Only visible in the Docs — the ledger row looks clean.</div>
-      </div>
-      <div class="hint-card" style="box-shadow:inset 4px 0 0 #8A2E5E">
-        <div class="hint-label" style="color:#8A2E5E">Price Mismatch</div>
-        <div class="hint-desc">Invoice unit price exceeds the contracted PO rate. Only visible in the Docs — the ledger row looks clean.</div>
-      </div>
+    <h2>How it works</h2>
+    <p>You’re auditing a year of purchase payments at a made-up company. Each row is one payment. Open its <strong>Docs</strong>, check them against the company files below, and flag anything that breaks the policy, choosing the type of problem. Some problems only show up in the documents, and some rows that look suspicious are fine. Your score counts both the problems you miss and the flags you get wrong.</p>
+    <div class="files">
+      <button class="file-btn" data-file="policy">Procurement policy</button>
+      <button class="file-btn" data-file="people">People and approval limits</button>
+      <button class="file-btn" data-file="vendors">Approved vendors</button>
     </div>
+    <button class="hint-btn" id="hintBtn" aria-expanded="false" aria-controls="hintsGrid">Show the problem types</button>
+    <div id="hintsGrid" class="hints-grid" hidden></div>
   </div>
 
   <div class="filters" id="filters"></div>
   <div class="table-scroll">
     <div class="table-header">
-      <div>Transaction</div><div>Date</div><div>Vendor</div><div>Amount</div><div>Category</div><div>Approved by</div><div>Flag</div>
+      <div>Transaction</div><div>Date</div><div>Vendor paid</div><div style="text-align:right">Amount</div><div>Department</div><div>PO approved by</div><div>Flag</div>
     </div>
     <div class="txn-list" id="txnList"></div>
   </div>
   <div class="tool-actions" id="actions">
-    <button class="btn btn-reset" onclick="resetAudit()">Reset flags</button>
-    <button class="btn btn-submit" onclick="submitAudit()">Submit audit</button>
+    <button class="btn btn-reset" id="resetFlags">Reset flags</button>
+    <button class="btn btn-submit" id="submitAudit">Submit audit</button>
   </div>
-  <div id="report" style="display:none"></div>
+  <div id="report" hidden></div>
 </div>
 
 <section class="yellow" style="margin-top: 3rem">
   <div class="frame">
     <h2 class="out">How I built it</h2>
-    <p class="lead">Why I made it, how the fraud is generated, and the bug I found in my own risk math.</p>
+    <p class="lead">Why I made it, how the problems are generated and checked, and the bug I found in my own risk math.</p>
     <div class="actions">
       <a class="button" href="/audit/case-study">Read the case study</a>
       <a class="link" href="/">Back to the home page</a>
     </div>
-      <p class="to-top"><a class="link" href="#top">Back to top ↑</a></p>
+    <p class="to-top"><a class="link" href="#top">Back to top ↑</a></p>
   </div>
 </section>
 </main>
 
+<script src="/audit/engine.js"></script>
 <script>
-// ── Data Pools ────────────────────────────────────────────────
-var COMPANIES = [
-  {name:'Meridian Supplies Co.',industry:'Office Supplies Distribution',employees:847,revenue:'$12.4M'},
-  {name:'Harlow & Associates',industry:'Professional Services Firm',employees:312,revenue:'$8.7M'},
-  {name:'Crestview Manufacturing',industry:'Industrial Components',employees:1240,revenue:'$34.2M'},
-  {name:'Pinnacle Retail Group',industry:'Consumer Goods Retail',employees:623,revenue:'$19.1M'},
-  {name:'Atlas Logistics Inc.',industry:'Supply Chain & Freight',employees:489,revenue:'$22.8M'},
-  {name:'Nexus Tech Solutions',industry:'IT Services & Consulting',employees:156,revenue:'$6.3M'},
-  {name:'Beacon Healthcare Systems',industry:'Healthcare Administration',employees:2100,revenue:'$87.5M'},
-  {name:'Cobalt Energy Partners',industry:'Energy Distribution',employees:390,revenue:'$41.0M'},
-];
+(function () {
+  var E = window.AuditEngine, TYPES = E.TYPES, money = E.money;
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var round, people = {}, flagged = {}, activeFilter = 'ALL', submitted = false, auditsCompleted = 0, bestScore = null, lastFocus = null;
 
-var LEGIT_VENDORS = [
-  'OfficePro LLC','CleanSweep Janitorial','Apex Freight Co.','Premier Catering',
-  'Reliable Parts Co.','DataStream Inc.','SafeGuard Security','BlueLine Printing',
-  'Summit Staffing','Horizon Consulting Group','Pacific Maintenance','EverGreen Supplies',
-  'TechCore Systems','Alliance Shipping','Metro Cleaning Services','ProSource Materials',
-];
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function shortDate(iso) { return MONTHS[+iso.slice(5, 7) - 1] + ' ' + (+iso.slice(8)); }
+  function longDate(iso) { return shortDate(iso) + ', ' + iso.slice(0, 4); }
+  function compact(cents) { var d = cents / 100; return d >= 1000 ? '$' + Math.round(d / 1000) + 'k' : '$' + Math.round(d); }
+  function who(id) { var p = people[id]; return p ? p.name + ', ' + p.title : 'Unknown'; }
+  function limitText(p) { return p.limit === Infinity ? 'Any amount' : p.limit ? 'Up to ' + money(p.limit).replace('.00', '') : 'Doesn’t approve purchases'; }
+  function row(key, val, bad) { return '<div class="doc-row"><span class="doc-key">' + esc(key) + '</span><span class="doc-val' + (bad ? ' flag' : '') + '">' + esc(val) + '</span></div>'; }
 
-var SHELL_VENDORS = [
-  'Shell Corp Ltd.','Global Solutions LLC','Premier Advisory Group','Nexus Holdings',
-  'Apex Ventures Inc.','Meridian Partners','Horizon Group Ltd.','Pacific Consulting LLC',
-  'Summit Advisory Co.','Atlas Group Inc.','Beacon Solutions','Cobalt Services Ltd.',
-];
-
-var CATEGORIES = ['Supplies','Facilities','Logistics','IT Equipment','Consulting','Inventory','Entertainment','Marketing','HR Services','Legal'];
-
-var APPROVERS = [
-  {name:'K. Santos',level:'supervisor'},
-  {name:'M. Reyes',level:'supervisor'},
-  {name:'J. Williams',level:'manager'},
-  {name:'T. Chen',level:'manager'},
-  {name:'R. Patel',level:'supervisor'},
-  {name:'L. Morrison',level:'director'},
-];
-
-var FRAUD_TYPES = {
-  DUPLICATE_PO:{label:'Duplicate PO',color:'#8A5A00'},
-  BELOW_APPROVAL_THRESHOLD:{label:'Threshold Splitting',color:'#B3372E'},
-  VENDOR_NOT_REGISTERED:{label:'Unregistered Vendor',color:'#6B4FA0'},
-  MISSING_SUPPORTING_DOCS:{label:'Missing Docs',color:'#0E7490'},
-  UNAUTHORIZED_APPROVER:{label:'Unauthorized Approver',color:'#1E7A4E'},
-  QTY_MISMATCH:{label:'Qty Mismatch',color:'#4E5DA8'},
-  PRICE_MISMATCH:{label:'Price Mismatch',color:'#8A2E5E'},
-};
-
-// ── State ─────────────────────────────────────────────────────
-var transactions = [];
-var flagged = {};
-var activeFilter = 'ALL';
-var submitted = false;
-var auditsCompleted = 0;
-var bestScore = 0;
-var currentCompany = null;
-
-// ── RNG ───────────────────────────────────────────────────────
-function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
-function pick(arr){return arr[rand(0,arr.length-1)];}
-function shuffle(arr){
-  var a=arr.slice();
-  for(var i=a.length-1;i>0;i--){var j=rand(0,i);var t=a[i];a[i]=a[j];a[j]=t;}
-  return a;
-}
-
-// ── Transaction Generator ─────────────────────────────────────
-function generateAudit(){
-  currentCompany = pick(COMPANIES);
-  document.getElementById('companyName').textContent = currentCompany.name;
-  document.getElementById('companySub').textContent = currentCompany.industry+' · FY'+rand(2023,2025)+' · '+currentCompany.employees+' employees · '+currentCompany.revenue+' revenue';
-
-  var txns = [];
-  var poCounter = rand(2100,3500);
-  var txnCounter = rand(1000,5000);
-  var usedPOs = {};
-  var fraudApprover = pick(APPROVERS);
-
-  // Generate 18-22 transactions
-  var total = rand(18,22);
-
-  // Plan fraud slots — 6 to 10 fraud transactions
-  var fraudCount = rand(6,10);
-  var fraudSlots = shuffle([...Array(total).keys()]).slice(0,fraudCount);
-
-  // Pick fraud types to use this round (3-5 types)
-  var allFraudTypes = Object.keys(FRAUD_TYPES);
-  var activeFraudTypes = shuffle(allFraudTypes).slice(0,rand(3,5));
-  // Guarantee at least one doc-only finding per audit — these can't be caught from the ledger row alone
-  var docOnly = ['QTY_MISMATCH','PRICE_MISMATCH'];
-  if(activeFraudTypes.indexOf('QTY_MISMATCH')===-1 && activeFraudTypes.indexOf('PRICE_MISMATCH')===-1){
-    activeFraudTypes[activeFraudTypes.length-1] = pick(docOnly);
+  // ── A new round ──
+  function newAudit() {
+    round = E.generateRound();
+    people = {};
+    round.people.forEach(function (p) { people[p.id] = p; });
+    flagged = {}; submitted = false; activeFilter = 'ALL';
+    $('companyName').textContent = round.company.name;
+    $('companySub').textContent = round.company.industry + ' · FY' + round.year + ' (Jan to Dec) · ' + round.company.employees + ' employees · ' + round.company.revenue + ' revenue';
+    $('totalIssues').textContent = round.problemRows;
+    $('atRisk').textContent = compact(round.atRisk);
+    $('flagCount').textContent = 0;
+    $('actions').hidden = false;
+    $('report').hidden = true;
+    renderFilters();
+    renderTransactions();
   }
 
-  // Red herrings — clean transactions engineered to look suspicious from the ledger row.
-  // Flagging these is a false positive; the docs prove them clean.
-  var cleanSlots = [...Array(total).keys()].filter(function(i){return fraudSlots.indexOf(i)===-1;});
-  var decoySlots = shuffle(cleanSlots).slice(0,2);
-  var director = APPROVERS.filter(function(a){return a.level==='director';})[0];
+  function renderHints() {
+    $('hintsGrid').innerHTML = E.TYPE_KEYS.map(function (k) {
+      var t = TYPES[k];
+      return '<div class="hint-card" style="box-shadow:inset 4px 0 0 ' + t.color + '"><div class="hint-label" style="color:' + t.color + '">' + esc(t.label) + '</div><div class="hint-desc">' + esc(t.hint) + '</div></div>';
+    }).join('');
+  }
 
-  // Assign fraud types to slots
-  var fraudAssignments = {};
-  fraudSlots.forEach(function(slot,i){
-    fraudAssignments[slot] = activeFraudTypes[i % activeFraudTypes.length];
-  });
+  function renderFilters() {
+    $('filters').innerHTML = ['ALL'].concat(E.DEPTS).map(function (d) {
+      return '<button class="filter-btn' + (activeFilter === d ? ' active' : '') + '" data-filter="' + d + '">' + (d === 'ALL' ? 'All departments' : d) + '</button>';
+    }).join('');
+  }
 
-  // Track duplicate PO targets
-  var dupePOSource = null;
-  var dupePOSlot = null;
-
-  for(var i=0;i<total;i++){
-    var isFraud = fraudSlots.indexOf(i) !== -1;
-    var fraudType = isFraud ? fraudAssignments[i] : null;
-
-    var vendor, amount, category, approver, po, flag;
-    po = 'PO-'+(poCounter++);
-    category = pick(CATEGORIES);
-    flag = null;
-
-    if(!isFraud){
-      vendor = pick(LEGIT_VENDORS);
-      amount = rand(500,15000);
-      approver = pick(APPROVERS);
-      // Red herrings: look suspicious on the surface, but fully documented and properly approved
-      if(i===decoySlots[0]){
-        // Near the $25k threshold — but approved at director level, docs clean
-        amount = rand(24500,24999);
-        approver = director;
-      } else if(i===decoySlots[1]){
-        // Large amount — but authorized and fully supported
-        amount = rand(40000,85000);
-        approver = director;
+  function renderTransactions() {
+    var rows = activeFilter === 'ALL' ? round.txns : round.txns.filter(function (t) { return t.dept === activeFilter; });
+    $('txnList').innerHTML = rows.map(function (t, i) {
+      var mine = flagged[t.id], truth = round.key[t.id], cls = 'txn-row', cell;
+      if (submitted) {
+        if (mine && mine === truth) { cls += ' r-correct'; cell = '<span class="result-text" style="color:var(--green)">✓ Correct: ' + esc(TYPES[truth].label) + '</span>'; }
+        else if (mine && truth) { cls += ' r-wrong'; cell = '<span class="result-text" style="color:var(--red)">✗ You flagged ' + esc(TYPES[mine].label) + '. It was ' + esc(TYPES[truth].label) + '.</span>'; }
+        else if (mine) { cls += ' r-wrong'; cell = '<span class="result-text" style="color:var(--red)">✗ Clean. Not ' + esc(TYPES[mine].label) + '.</span>'; }
+        else if (truth) { cls += ' r-missed'; cell = '<span class="result-text" style="color:var(--yellow)">Missed: ' + esc(TYPES[truth].label) + '</span>'; }
+        else { cls += i % 2 ? ' odd' : ''; cell = '<span class="result-text" style="color:var(--muted)">Clean</span>'; }
+      } else {
+        cls += mine ? ' flagged' : (i % 2 ? ' odd' : '');
+        cell = '<div class="flag-btns" role="group" aria-label="Flag ' + t.id + '">' + E.TYPE_KEYS.map(function (k) {
+          var sel = mine === k;
+          return '<button class="flag-btn' + (sel ? ' selected' : '') + '" aria-pressed="' + sel + '" data-txn="' + t.id + '" data-type="' + k + '"' + (sel ? ' style="background:' + TYPES[k].color + '"' : '') + '>' + esc(TYPES[k].label) + '</button>';
+        }).join('') + '</div>';
       }
-    } else {
-      if(fraudType === 'DUPLICATE_PO'){
-        vendor = pick(LEGIT_VENDORS);
-        amount = rand(1000,12000);
-        approver = pick(APPROVERS);
-        if(!dupePOSource){
-          // First duplicate — set up the pair
-          dupePOSource = po;
-          dupePOSlot = i;
-          flag = null; // first occurrence is clean, second will be the fraud
-          fraudType = null; // don't flag this one
-        } else {
-          // Second occurrence — use the same PO
-          po = dupePOSource;
-          flag = 'DUPLICATE_PO';
-          dupePOSource = null;
-        }
-      } else if(fraudType === 'BELOW_APPROVAL_THRESHOLD'){
-        vendor = pick(LEGIT_VENDORS);
-        amount = rand(24500,24999);
-        // structured to stay under the approver's own limit — always supervisor level
-        approver = APPROVERS.filter(function(a){return a.level==='supervisor';})[rand(0,2)];
-        flag = 'BELOW_APPROVAL_THRESHOLD';
-      } else if(fraudType === 'VENDOR_NOT_REGISTERED'){
-        vendor = pick(SHELL_VENDORS);
-        amount = rand(8000,25000);
-        approver = fraudApprover;
-        flag = 'VENDOR_NOT_REGISTERED';
-      } else if(fraudType === 'MISSING_SUPPORTING_DOCS'){
-        vendor = pick(LEGIT_VENDORS);
-        amount = rand(40000,90000);
-        approver = fraudApprover;
-        flag = 'MISSING_SUPPORTING_DOCS';
-      } else if(fraudType === 'UNAUTHORIZED_APPROVER'){
-        vendor = pick(LEGIT_VENDORS);
-        amount = rand(28000,60000);
-        // supervisor approving something that needs manager level
-        approver = APPROVERS.filter(function(a){return a.level==='supervisor';})[rand(0,2)];
-        flag = 'UNAUTHORIZED_APPROVER';
-      } else if(fraudType === 'QTY_MISMATCH'){
-        // Looks completely normal on the ledger — the tell is only in the docs
-        vendor = pick(LEGIT_VENDORS);
-        amount = rand(3000,18000);
-        approver = pick(APPROVERS);
-        flag = 'QTY_MISMATCH';
-      } else if(fraudType === 'PRICE_MISMATCH'){
-        // Looks completely normal on the ledger — the tell is only in the docs
-        vendor = pick(LEGIT_VENDORS);
-        amount = rand(4000,20000);
-        approver = pick(APPROVERS);
-        flag = 'PRICE_MISMATCH';
-      }
-    }
+      return '<div class="' + cls + '">' +
+        '<div class="txn-id">' + t.id + '<button class="docs-btn" data-docs="' + t.id + '">Docs</button></div>' +
+        '<div class="txn-date">' + shortDate(t.date) + '</div>' +
+        '<div>' + esc(t.vendor) + '</div>' +
+        '<div class="txn-amount">' + money(t.amount) + '</div>' +
+        '<div class="txn-dept">' + t.dept + '</div>' +
+        '<div class="txn-approver">' + esc(people[t.po.approver].name) + '</div>' +
+        cell + '</div>';
+    }).join('');
+  }
 
-    // Generate date
-    var month = rand(1,6);
-    var day = rand(1,28);
-    var year = 2025;
-    var dateStr = year+'-'+(month<10?'0'+month:month)+'-'+(day<10?'0'+day:day);
+  function toggleFlag(id, type) {
+    if (submitted) return;
+    if (flagged[id] === type) delete flagged[id]; else flagged[id] = type;
+    $('flagCount').textContent = Object.keys(flagged).length;
+    renderTransactions();
+  }
 
-    // Generate Three-Way Match docs
-    var finalVendor = vendor || pick(LEGIT_VENDORS);
-    var finalAmount = amount || rand(500,8000);
-    var finalApproverObj = (approver || pick(APPROVERS));
-    var finalApprover = finalApproverObj.name + ' (' + ({supervisor:'Sup',manager:'Mgr',director:'Dir'})[finalApproverObj.level] + ')';
-    var qty = rand(5,80);
-    var unitPrice = parseFloat((finalAmount / qty).toFixed(2));
+  // ── Side panel ──
+  function openPanel(title, sub, html) {
+    lastFocus = document.activeElement;
+    $('panelTitle').textContent = title;
+    $('panelSub').textContent = sub;
+    $('panelBody').innerHTML = html;
+    $('panel').classList.add('open');
+    $('panelOverlay').classList.add('open');
+    $('panel').scrollTop = 0;
+    $('panelClose').focus();
+  }
+  function closePanel() {
+    if (!$('panel').classList.contains('open')) return;
+    $('panel').classList.remove('open');
+    $('panelOverlay').classList.remove('open');
+    if (lastFocus) lastFocus.focus();
+  }
 
-    var threeWayDocs;
-    if(flag === 'DUPLICATE_PO'){
-      // Invoice qty matches, but PO is already fulfilled — this payment already went through
-      threeWayDocs = {
-        po:    { vendor:finalVendor, qty:qty, unitPrice:unitPrice, total:finalAmount, status:'FULFILLED — Prior Payment Issued', approvedBy:finalApprover },
-        recv:  { vendor:finalVendor, qty:qty, receivedDate:dateStr, condition:'Accepted', inspector:pick(['W. Cruz','D. Park','A. Muñoz','B. Singh']) },
-        inv:   { vendor:finalVendor, qty:qty, unitPrice:unitPrice, total:finalAmount, invNum:'INV-'+rand(8000,9999), discrepancy:'PO already settled — duplicate billing' }
-      };
-    } else if(flag === 'MISSING_SUPPORTING_DOCS'){
-      // Invoice exists, Receiving Report is missing entirely
-      threeWayDocs = {
-        po:    { vendor:finalVendor, qty:qty, unitPrice:unitPrice, total:finalAmount, status:'Open', approvedBy:finalApprover },
-        recv:  null, // missing
-        inv:   { vendor:finalVendor, qty:qty, unitPrice:unitPrice, total:finalAmount, invNum:'INV-'+rand(8000,9999), discrepancy:null }
-      };
-    } else if(flag === 'VENDOR_NOT_REGISTERED'){
-      // Vendor on invoice differs from PO — shell vendor substitution
-      var approvedVendor = pick(LEGIT_VENDORS);
-      threeWayDocs = {
-        po:    { vendor:approvedVendor, qty:qty, unitPrice:unitPrice, total:finalAmount, status:'Open', approvedBy:finalApprover },
-        recv:  { vendor:finalVendor, qty:qty, receivedDate:dateStr, condition:'Accepted', inspector:pick(['W. Cruz','D. Park','A. Muñoz','B. Singh']) },
-        inv:   { vendor:finalVendor, qty:qty, unitPrice:unitPrice, total:finalAmount, invNum:'INV-'+rand(8000,9999), discrepancy:'Vendor on invoice does not match approved PO vendor' }
-      };
-    } else if(flag === 'QTY_MISMATCH'){
-      // Invoice bills more units than were ordered and received — overbilling
-      var invQty = qty + rand(6,25);
-      var unitP = parseFloat((finalAmount / invQty).toFixed(2));
-      var poTotal = parseFloat((unitP * qty).toFixed(2));
-      threeWayDocs = {
-        po:    { vendor:finalVendor, qty:qty, unitPrice:unitP, total:poTotal, status:'Open', approvedBy:finalApprover },
-        recv:  { vendor:finalVendor, qty:qty, receivedDate:dateStr, condition:'Accepted', inspector:pick(['W. Cruz','D. Park','A. Muñoz','B. Singh']) },
-        inv:   { vendor:finalVendor, qty:invQty, unitPrice:unitP, total:finalAmount, invNum:'INV-'+rand(8000,9999), discrepancy:'Invoice bills '+invQty+' units — PO and receiving show '+qty }
-      };
-    } else if(flag === 'PRICE_MISMATCH'){
-      // Invoice unit price exceeds the contracted PO price — same qty, inflated rate
-      var invUnit = parseFloat((finalAmount / qty).toFixed(2));
-      var poUnit = parseFloat((invUnit * (0.70 + Math.random()*0.15)).toFixed(2));
-      var poTotal2 = parseFloat((poUnit * qty).toFixed(2));
-      threeWayDocs = {
-        po:    { vendor:finalVendor, qty:qty, unitPrice:poUnit, total:poTotal2, status:'Open', approvedBy:finalApprover },
-        recv:  { vendor:finalVendor, qty:qty, receivedDate:dateStr, condition:'Accepted', inspector:pick(['W. Cruz','D. Park','A. Muñoz','B. Singh']) },
-        inv:   { vendor:finalVendor, qty:qty, unitPrice:invUnit, total:finalAmount, invNum:'INV-'+rand(8000,9999), discrepancy:'Unit price exceeds PO contract rate ($'+invUnit+' vs $'+poUnit+')' }
-      };
-    } else {
-      // Clean transaction — all three docs match
-      threeWayDocs = {
-        po:    { vendor:finalVendor, qty:qty, unitPrice:unitPrice, total:finalAmount, status:'Open', approvedBy:finalApprover },
-        recv:  { vendor:finalVendor, qty:qty, receivedDate:dateStr, condition:'Accepted', inspector:pick(['W. Cruz','D. Park','A. Muñoz','B. Singh']) },
-        inv:   { vendor:finalVendor, qty:qty, unitPrice:unitPrice, total:finalAmount, invNum:'INV-'+rand(8000,9999), discrepancy:null }
-      };
-    }
-
-    txns.push({
-      id:'TXN-'+(txnCounter++),
-      date:dateStr,
-      vendor:finalVendor,
-      amount:finalAmount,
-      category:category,
-      approved_by:finalApprover,
-      po:po,
-      flag:flag,
-      docs:threeWayDocs
+  function openDocs(id) {
+    var t = round.txns.filter(function (x) { return x.id === id; })[0];
+    var po = t.po, rr = t.rr, inv = t.inv;
+    var payments = round.txns.filter(function (x) { return x.po.num === po.num; });
+    var related = [], seen = {};
+    round.txns.forEach(function (x) {
+      if (x.po.num === po.num || seen[x.po.num] || x.po.project !== po.project || x.po.vendor !== po.vendor) return;
+      if (Math.abs(x.po.day - po.day) > E.SPLIT_WINDOW_DAYS) return;
+      seen[x.po.num] = true; related.push(x);
     });
+    var html = '<div class="doc-card"><div class="doc-label">Purchase order ' + po.num + '</div>' +
+      row('Requisition', po.req) + row('Project', po.project) + row('Department', po.dept) + row('Vendor', po.vendor) +
+      row('Item', po.item) + row('Quantity ordered', po.qty) + row('Unit price', money(po.unit)) + row('PO total', money(po.total)) +
+      row('Requested by', who(po.requester)) + row('Approved by', who(po.approver)) + row('PO date', longDate(po.date)) +
+      row('Paid by', payments.map(function (x) { return x.id + ' (' + shortDate(x.date) + ')'; }).join(', ')) +
+      row('Same project and vendor', related.length ? related.map(function (x) { return x.po.num + ' (' + money(x.po.total) + ')'; }).join(', ') : 'None within ' + E.SPLIT_WINDOW_DAYS + ' days') +
+      '</div>';
+    if (rr) {
+      html += '<div class="doc-card"><div class="doc-label">Receiving report ' + rr.num + '</div>' +
+        row('Received from', rr.vendor, rr.vendor !== po.vendor) + row('Quantity received', rr.qty, rr.qty !== po.qty) +
+        row('Date received', longDate(rr.date)) + row('Received by', who(rr.clerk)) + '</div>';
+    } else {
+      html += '<div class="doc-card missing"><div class="doc-label">Receiving report</div><p class="missing-note">No receiving report is on file for this PO.</p></div>';
+    }
+    html += '<div class="doc-card"><div class="doc-label">Vendor invoice ' + inv.num + '</div>' +
+      row('Vendor', inv.vendor, inv.vendor !== po.vendor) + row('Quantity billed', inv.qty, inv.qty !== po.qty) +
+      row('Unit price', money(inv.unit), inv.unit !== po.unit) + row('Invoice total', money(inv.total), inv.total !== inv.qty * inv.unit) +
+      row('Invoice date', longDate(inv.date)) + '</div>';
+    var m = E.threeWayMatch(t);
+    html += '<div class="match' + (m.ok ? '' : ' fail') + '"><div class="match-title">' + (m.ok ? 'Three-way match passed' : 'Three-way match failed') + '</div><ul>' +
+      m.checks.map(function (c) { return '<li><span>' + esc(c.label) + '</span><span class="' + (c.ok ? 'ok">✓ Agrees' : 'no">✗ Doesn’t agree') + '</span></li>'; }).join('') +
+      '</ul></div>';
+    openPanel('Documents', t.id + ' · paid ' + longDate(t.date) + ' · ' + money(t.amount), html);
   }
 
-  // Sort by date
-  txns.sort(function(a,b){return a.date.localeCompare(b.date);});
-
-  transactions = txns;
-
-  // Update header stats
-  // GAAP fix: for Duplicate PO, only the second (fraudulent) transaction is the loss.
-  // The first occurrence is a legitimate payment — counting both would overstate exposure.
-  // atRiskAmt therefore sums only flagged transactions (the duplicate, not the original).
-  var flaggedTxns = transactions.filter(function(t){return t.flag;});
-  var atRiskAmt = flaggedTxns.reduce(function(s,t){return s+t.amount;},0);
-
-  // Auditor precision: count a duplicate PO event as ONE issue (not two separate line items).
-  // Dedup by PO number so the pair registers as a single finding.
-  var seenDupePOs = {};
-  var uniqueIssues = 0;
-  flaggedTxns.forEach(function(t){
-    if(t.flag === 'DUPLICATE_PO'){
-      if(!seenDupePOs[t.po]){ seenDupePOs[t.po] = true; uniqueIssues++; }
-    } else {
-      uniqueIssues++;
-    }
-  });
-
-  document.getElementById('totalIssues').textContent = uniqueIssues;
-  document.getElementById('atRisk').textContent = atRiskAmt>=1000?'$'+Math.round(atRiskAmt/1000)+'k':'$'+atRiskAmt;
-}
-
-// ── Render ────────────────────────────────────────────────────
-function renderFilters(){
-  var cats = ['ALL'];
-  transactions.forEach(function(t){if(cats.indexOf(t.category)===-1) cats.push(t.category);});
-  var html='';
-  cats.forEach(function(c){
-    html+='<button class="filter-btn'+(activeFilter===c?' active':'')+'" onclick="setFilter(\''+c+'\')">'+c+'</button>';
-  });
-  document.getElementById('filters').innerHTML=html;
-}
-
-function renderTransactions(){
-  var list=document.getElementById('txnList');
-  var filtered=activeFilter==='ALL'?transactions:transactions.filter(function(t){return t.category===activeFilter;});
-  var html='';
-  filtered.forEach(function(t,i){
-    var isFlagged=!!flagged[t.id];
-    var rowClass='txn-row';
-    if(submitted){
-      var uf=flagged[t.id];
-      if(uf&&uf===t.flag) rowClass+=' r-correct';
-      else if(uf&&uf!==t.flag) rowClass+=' r-wrong';
-      else if(!uf&&t.flag) rowClass+=' r-missed';
-      else rowClass+=(i%2===0?' even':' odd');
-    } else {
-      rowClass+=isFlagged?' flagged':(i%2===0?' even':' odd');
-    }
-
-    var flagCell='';
-    if(!submitted){
-      flagCell='<div class="flag-btns">';
-      Object.keys(FRAUD_TYPES).forEach(function(key){
-        var ft=FRAUD_TYPES[key];
-        var sel=flagged[t.id]===key;
-        flagCell+='<button class="flag-btn'+(sel?' selected':'')+'" style="'+(sel?'background:'+ft.color+';border-color:'+ft.color:'')+';" onclick="toggleFlag(\''+t.id+'\',\''+key+'\')">'+ft.label+'</button>';
-      });
-      flagCell+='</div>';
-    } else {
-      var uf=flagged[t.id];
-      if(uf&&uf===t.flag) flagCell='<span class="result-text" style="color:var(--green)">✓ Correct — '+FRAUD_TYPES[t.flag].label+'</span>';
-      else if(uf&&uf!==t.flag) flagCell='<span class="result-text" style="color:var(--red)">✗ Wrong — was '+(t.flag?FRAUD_TYPES[t.flag].label:'Clean')+'</span>';
-      else if(!uf&&t.flag) flagCell='<span class="result-text" style="color:var(--yellow)">⚠ Missed — '+FRAUD_TYPES[t.flag].label+'</span>';
-      else if(!uf&&!t.flag) flagCell='<span class="result-text" style="color:var(--muted)">— Clean</span>';
-      else flagCell='<span class="result-text" style="color:var(--red)">✗ False positive</span>';
-    }
-
-    html+='<div class="'+rowClass+'">'+
-      '<div class="txn-id">'+t.id+'<br><button class="docs-btn" onclick="openPanel(this)" data-id="'+t.id+'">Docs</button></div>'+
-      '<div class="txn-date">'+t.date.slice(5)+'</div>'+
-      '<div>'+t.vendor+'</div>'+
-      '<div class="txn-amount'+(t.amount>=25000?' high':'')+'">$'+t.amount.toLocaleString()+'</div>'+
-      '<div class="txn-cat">'+t.category+'</div>'+
-      '<div class="txn-approver">'+t.approved_by+'</div>'+
-      flagCell+
-      '</div>';
-  });
-  list.innerHTML=html;
-}
-
-function toggleFlag(id,fraudType){
-  if(submitted) return;
-  if(flagged[id]===fraudType) delete flagged[id];
-  else flagged[id]=fraudType;
-  document.getElementById('flagCount').textContent=Object.keys(flagged).length;
-  renderTransactions();
-}
-
-function setFilter(cat){
-  activeFilter=cat;
-  renderFilters();
-  renderTransactions();
-}
-
-function toggleHints(){
-  var g=document.getElementById('hintsGrid');
-  var btn=document.querySelector('.hint-btn');
-  if(g.style.display==='none'){g.style.display='grid';btn.textContent='Hide Hints ↑';}
-  else{g.style.display='none';btn.textContent='Show Fraud Types Reference ↓';}
-}
-
-function submitAudit(){
-  submitted=true;
-  var totalFlags=transactions.filter(function(t){return t.flag;}).length;
-  var correct=0,incorrect=0,missed=0;
-  transactions.forEach(function(t){
-    var uf=flagged[t.id];
-    if(uf){if(t.flag&&uf===t.flag) correct++; else incorrect++;}
-    if(t.flag&&!uf) missed++;
-  });
-  var pct=Math.round((correct/totalFlags)*100);
-  auditsCompleted++;
-  if(pct>bestScore) bestScore=pct;
-  document.getElementById('streakCount').textContent=auditsCompleted;
-  document.getElementById('bestScore').textContent=bestScore+'%';
-  document.getElementById('actions').style.display='none';
-  renderTransactions();
-
-  var msg='';
-  if(correct===totalFlags&&incorrect===0) msg='🎉 Perfect audit. Zero false positives, caught everything. You\'re built for this 👀';
-  else if(pct>=80) msg='✅ Strong audit. You caught most issues. Review what you missed and look for the patterns.';
-  else if(pct>=60) msg='📋 Decent start. Focus on the patterns — threshold splitting shows up as amounts just under $25k, shell companies have vague names, duplicate POs share the same number.';
-  else msg='📚 Keep going. Every audit trains your eye. Review the fraud types reference and try again — the patterns become obvious with practice.';
-
-  var reportHTML='<div class="report">'+
-    '<div class="report-title">Audit Report — '+currentCompany.name+'</div>'+
-    '<div class="score-grid">'+
-    '<div class="score-card"><div class="score-n" style="color:var(--green)">'+correct+'</div><div class="score-l">Correct</div></div>'+
-    '<div class="score-card"><div class="score-n" style="color:var(--red)">'+incorrect+'</div><div class="score-l">Wrong</div></div>'+
-    '<div class="score-card"><div class="score-n" style="color:var(--yellow)">'+missed+'</div><div class="score-l">Missed</div></div>'+
-    '<div class="score-card"><div class="score-n" style="color:var(--accent)">'+pct+'%</div><div class="score-l">Score</div></div>'+
-    '</div>'+
-    '<div class="report-msg">'+msg+'</div>'+
-    '<div style="display:flex;gap:0.75rem;margin-top:1rem;flex-wrap:wrap">'+
-    '<button class="btn btn-submit" onclick="newAudit()">New Audit</button>'+
-    '<button class="btn btn-reset" onclick="resetAudit()">Try Again</button>'+
-    '</div>'+
-    '</div>';
-
-  var r=document.getElementById('report');
-  r.innerHTML=reportHTML;
-  r.style.display='block';
-}
-
-function resetAudit(){
-  flagged={};
-  submitted=false;
-  document.getElementById('flagCount').textContent=0;
-  document.getElementById('actions').style.display='flex';
-  document.getElementById('report').style.display='none';
-  renderTransactions();
-}
-
-function newAudit(){
-  flagged={};
-  submitted=false;
-  activeFilter='ALL';
-  document.getElementById('flagCount').textContent=0;
-  document.getElementById('actions').style.display='flex';
-  document.getElementById('report').style.display='none';
-  generateAudit();
-  renderFilters();
-  renderTransactions();
-}
-
-// ── Three-Way Match Panel ─────────────────────────────────────
-function openPanel(el){
-  var txnId = el.getAttribute('data-id');
-  var t = transactions.find(function(x){return x.id===txnId;});
-  if(!t||!t.docs) return;
-  var d = t.docs;
-  var fmt = function(n){return '$'+parseFloat(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});};
-
-  document.getElementById('panelSub').textContent = t.id+' · '+t.vendor+' · '+t.date;
-
-  var html='';
-
-  // ── Purchase Order ──
-  var poMismatch = t.flag==='VENDOR_NOT_REGISTERED';
-  html+='<div class="doc-card'+(poMismatch?' mismatch':'')+'">'+
-    '<div class="doc-label">Purchase Order — '+t.po+
-    '<span class="doc-status'+(poMismatch?' bad':'')+'">'+(poMismatch?'⚠ Vendor Mismatch':'✓ On File')+'</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Approved Vendor</span><span class="doc-val'+(poMismatch?' flag':'')+'">'+d.po.vendor+'</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Qty Ordered</span><span class="doc-val">'+d.po.qty+' units</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Unit Price</span><span class="doc-val">'+fmt(d.po.unitPrice)+'</span></div>'+
-    '<div class="doc-row"><span class="doc-key">PO Total</span><span class="doc-val">'+fmt(d.po.total)+'</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Approved By</span><span class="doc-val">'+d.po.approvedBy+'</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Status</span><span class="doc-val'+(t.flag==='DUPLICATE_PO'?' warn':'')+'">'+d.po.status+'</span></div>'+
-    '</div>';
-
-  // ── Receiving Report ──
-  if(d.recv){
-    var recvMismatch = t.flag==='VENDOR_NOT_REGISTERED';
-    html+='<div class="doc-card'+(recvMismatch?' mismatch':'')+'">'+
-      '<div class="doc-label">Receiving Report'+
-      '<span class="doc-status'+(recvMismatch?' bad':'')+'">'+( recvMismatch?'⚠ Vendor Conflict':'✓ On File')+'</span></div>'+
-      '<div class="doc-row"><span class="doc-key">Received From</span><span class="doc-val'+(recvMismatch?' flag':'')+'">'+d.recv.vendor+'</span></div>'+
-      '<div class="doc-row"><span class="doc-key">Qty Received</span><span class="doc-val">'+d.recv.qty+' units</span></div>'+
-      '<div class="doc-row"><span class="doc-key">Date Received</span><span class="doc-val">'+d.recv.receivedDate+'</span></div>'+
-      '<div class="doc-row"><span class="doc-key">Condition</span><span class="doc-val">'+d.recv.condition+'</span></div>'+
-      '<div class="doc-row"><span class="doc-key">Inspector</span><span class="doc-val">'+d.recv.inspector+'</span></div>'+
-      '</div>';
-  } else {
-    html+='<div class="doc-card missing">'+
-      '<div class="doc-label">Receiving Report<span class="doc-status warn">⚠ Not on File</span></div>'+
-      '<div style="color:var(--yellow);font-size:0.78rem;padding:0.5rem 0;">No receiving report found for this transaction. Payment cannot be verified against goods receipt.</div>'+
-      '</div>';
+  function openPolicy() {
+    var html = '<ul class="rules">' + E.POLICY.map(function (r, i) { return '<li><strong>' + (i + 1) + '. ' + esc(r.title) + '</strong>' + esc(r.text) + '</li>'; }).join('') + '</ul>';
+    openPanel('Procurement policy', round.company.name + ' · FY' + round.year, html);
   }
 
-  // ── Vendor Invoice ──
-  var invMismatch = t.flag==='VENDOR_NOT_REGISTERED';
-  var invDupe = t.flag==='DUPLICATE_PO';
-  var invQtyMis = t.flag==='QTY_MISMATCH';
-  var invPriceMis = t.flag==='PRICE_MISMATCH';
-  var invBad = invMismatch||invDupe||invQtyMis||invPriceMis;
-  html+='<div class="doc-card'+(invBad?' mismatch':'')+'">'+
-    '<div class="doc-label">Vendor Invoice — '+d.inv.invNum+
-    '<span class="doc-status'+(invBad?' bad':'')+'">'+(invBad?'⚠ Discrepancy':'✓ On File')+'</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Invoice Vendor</span><span class="doc-val'+(invMismatch?' flag':'')+'">'+d.inv.vendor+'</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Qty Billed</span><span class="doc-val'+(invQtyMis?' flag':'')+'">'+d.inv.qty+' units</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Unit Price</span><span class="doc-val'+(invPriceMis?' flag':'')+'">'+fmt(d.inv.unitPrice)+'</span></div>'+
-    '<div class="doc-row"><span class="doc-key">Invoice Total</span><span class="doc-val'+((invQtyMis||invPriceMis)?' flag':'')+'">'+fmt(d.inv.total)+'</span></div>'+
-    (d.inv.discrepancy?'<div class="doc-row"><span class="doc-key">⚠ Note</span><span class="doc-val flag">'+d.inv.discrepancy+'</span></div>':'')+
-    '</div>';
+  function openPeople() {
+    var html = '<p class="panel-note">Approval limits and departments come from the procurement policy.</p><ul class="people">' + round.people.map(function (p) {
+      var boss = p.reportsTo ? people[p.reportsTo].name : 'Board of directors';
+      return '<li><div class="who">' + esc(p.name) + '</div><div>' + esc(p.title) + ' · ' + esc(p.dept) + '</div>' +
+        '<div class="meta">Reports to ' + esc(boss) + ' · ' + limitText(p) + (p.depts.length ? ' · Approves for ' + p.depts.join(', ') : '') + '</div></li>';
+    }).join('') + '</ul>';
+    openPanel('People and approval limits', round.company.name, html);
+  }
 
-  // ── Match Summary ──
-  var failFlags = ['DUPLICATE_PO','MISSING_SUPPORTING_DOCS','VENDOR_NOT_REGISTERED','QTY_MISMATCH','PRICE_MISMATCH'];
-  var isClean = !t.flag || failFlags.indexOf(t.flag)===-1;
-  html+='<div class="match-summary'+(isClean?'':' fail')+'">'+(isClean?'✓ Three-Way Match Passed — All documents reconcile':'✗ Three-Way Match Failed — Review discrepancies above')+'</div>';
+  function openVendors() {
+    var html = '<p class="panel-note">Payments may only go to these vendors, under their exact registered name.</p>' +
+      '<label class="panel-note" for="vendorSearch">Search the registry</label>' +
+      '<input class="vendor-search" id="vendorSearch" type="search" autocomplete="off" placeholder="Vendor name">' +
+      '<ul class="vendors" id="vendorList"></ul>';
+    openPanel('Approved vendors', round.company.name + ' · ' + round.registry.length + ' vendors', html);
+    var input = $('vendorSearch');
+    function draw() {
+      var q = input.value.trim().toLowerCase();
+      var list = round.registry.filter(function (v) { return v.name.toLowerCase().indexOf(q) !== -1 || v.id.toLowerCase().indexOf(q) !== -1; })
+        .sort(function (a, b) { return a.name.localeCompare(b.name); });
+      $('vendorList').innerHTML = list.length ? list.map(function (v) {
+        return '<li><div class="who">' + esc(v.name) + '</div><div class="meta">' + v.id + ' · Supplies ' + v.dept + ' · Approved ' + longDate(v.since) + '</div></li>';
+      }).join('') : '<li class="meta">No registered vendor matches “' + esc(input.value) + '”.</li>';
+    }
+    input.addEventListener('input', draw);
+    draw();
+  }
 
-  document.getElementById('panelBody').innerHTML = html;
-  document.getElementById('docPanel').classList.add('open');
-  document.getElementById('panelOverlay').classList.add('open');
-}
+  // ── Submitting ──
+  function submitAudit() {
+    var s = E.score(round.key, flagged), pct = Math.round(s.f1 * 100);
+    submitted = true;
+    auditsCompleted++;
+    if (bestScore === null || pct > bestScore) bestScore = pct;
+    $('streakCount').textContent = auditsCompleted;
+    $('bestScore').textContent = bestScore + '%';
+    $('actions').hidden = true;
+    renderTransactions();
 
-function closePanel(){
-  document.getElementById('docPanel').classList.remove('open');
-  document.getElementById('panelOverlay').classList.remove('open');
-}
+    var msg;
+    if (s.correct === s.problems && s.wrong === 0) msg = 'Every problem found, with no wrong flags.';
+    else if (s.precision < 0.5 && s.recall >= 0.6) msg = 'You found most of the problems, but more than half your flags were wrong. Flag only what the documents and company files show.';
+    else if (pct >= 80) msg = 'Strong audit. Look at the rows marked wrong or missed, then try a new company.';
+    else if (pct >= 60) msg = 'A solid start. Open the documents on every row before you flag, and check vendors and approvers against the company files.';
+    else msg = 'Keep going. Read the procurement policy first, then work through the documents row by row.';
 
-// ── Init ──────────────────────────────────────────────────────
-generateAudit();
-renderFilters();
-renderTransactions();
+    var r = $('report');
+    r.innerHTML = '<div class="report"><div class="report-title">Audit report: ' + esc(round.company.name) + '</div>' +
+      '<div class="score-grid">' +
+      '<div><div class="score-n" style="color:var(--green)">' + s.correct + '</div><div class="score-l">Correct</div></div>' +
+      '<div><div class="score-n" style="color:var(--red)">' + s.wrong + '</div><div class="score-l">Wrong flags</div></div>' +
+      '<div><div class="score-n" style="color:var(--yellow)">' + s.missed + '</div><div class="score-l">Missed</div></div>' +
+      '<div><div class="score-n" style="color:var(--accent)">' + pct + '%</div><div class="score-l">Score</div></div>' +
+      '</div>' +
+      '<p class="report-pr">Precision ' + Math.round(s.precision * 100) + '%: how many of your flags were right. Recall ' + Math.round(s.recall * 100) + '%: how many of the problems you found. The score balances the two (F1), so flagging everything doesn’t pay.</p>' +
+      '<p class="report-msg">' + msg + '</p>' +
+      '<div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap"><button class="btn btn-submit" data-action="new">New audit</button><button class="btn btn-reset" data-action="retry">Try again</button></div>' +
+      '</div>';
+    r.hidden = false;
+  }
+
+  function resetFlags() {
+    flagged = {}; submitted = false;
+    $('flagCount').textContent = 0;
+    $('actions').hidden = false;
+    $('report').hidden = true;
+    renderTransactions();
+  }
+
+  // ── Wiring ──
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('button');
+    if (!el) return;
+    if (el.dataset.txn) toggleFlag(el.dataset.txn, el.dataset.type);
+    else if (el.dataset.docs) openDocs(el.dataset.docs);
+    else if (el.dataset.filter) { activeFilter = el.dataset.filter; renderFilters(); renderTransactions(); }
+    else if (el.dataset.file) ({ policy: openPolicy, people: openPeople, vendors: openVendors })[el.dataset.file]();
+    else if (el.dataset.action === 'new') newAudit();
+    else if (el.dataset.action === 'retry') resetFlags();
+  });
+  $('newAudit').addEventListener('click', newAudit);
+  $('resetFlags').addEventListener('click', resetFlags);
+  $('submitAudit').addEventListener('click', submitAudit);
+  $('panelClose').addEventListener('click', closePanel);
+  $('panelOverlay').addEventListener('click', closePanel);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePanel(); });
+  $('hintBtn').addEventListener('click', function () {
+    var g = $('hintsGrid'), open = g.hidden;
+    g.hidden = !open;
+    this.setAttribute('aria-expanded', open);
+    this.textContent = open ? 'Hide the problem types' : 'Show the problem types';
+  });
+
+  renderHints();
+  newAudit();
+})();
 </script>
 
 </body>
