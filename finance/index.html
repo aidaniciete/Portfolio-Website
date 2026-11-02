@@ -407,6 +407,8 @@ const THESIS    = {
 };
 
 function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+// A single-cell read from the sheet, or null if the cell is empty or holds an error like #REF!.
+function cell(d) { const v = d && d.values ? parseFloat(d.values[0][0]) : NaN; return Number.isFinite(v) ? v : null; }
 
 async function fetchSheets() {
   const liveTag = document.getElementById('liveTag');
@@ -452,8 +454,9 @@ async function fetchSheets() {
 
       const g       = gainPct >= 0;
       const tbl     = ETF_LIST.includes(ticker) ? etfsTable : stocksTable;
+      const priceTxt = Number.isFinite(price) ? `<span class="price">$${price.toFixed(2)}</span>` : '';
       tbl.innerHTML += `<tr>
-        <td><span class="ticker">${ticker}</span><span class="price">$${price.toFixed(2)}</span></td>
+        <td><span class="ticker">${ticker}</span>${priceTxt}</td>
         <td class="company">${name}</td>
         <td><div class="thesis">${THESIS[ticker] || '—'}</div></td>
         <td class="${g ? 'gain-pos' : 'gain-neg'}">${g ? '+' : ''}${gainPct.toFixed(2)}%</td>
@@ -461,11 +464,10 @@ async function fetchSheets() {
     });
 
     // ── Update summary cards ──
-    const DEPOSITS = depositsData.values ? parseFloat(depositsData.values[0][0]) : 13560;
     const unrealGain = totalValue - totalCost;
     // Pull CAGR directly from Dashboard!H4 (=RRI(3.5, D4, B4) returns a decimal)
-    const cagrRaw = cagrData.values ? parseFloat(cagrData.values[0][0]) : null;
-    const cagr = cagrRaw !== null ? cagrRaw * 100 : (Math.pow(totalValue / DEPOSITS, 1 / 3.5) - 1) * 100;
+    const cagrRaw = cell(cagrData);
+    const cagr = cagrRaw !== null ? cagrRaw * 100 : null;   // no guessing if the sheet's figure is missing
 
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     const setColor = (id, pos) => { const el = document.getElementById(id); if (el) el.className = pos ? 'is-gain' : 'is-loss'; };
@@ -481,30 +483,33 @@ async function fetchSheets() {
     const etfBadge = document.getElementById('etfBadge');
     if (stockBadge) stockBadge.textContent = stockCount + ' positions';
     if (etfBadge) etfBadge.textContent = etfCount + ' positions · quant systematic';
-    set('cagrVal',    cagr.toFixed(1) + '%');
+    if (cagr !== null) set('cagrVal', cagr.toFixed(1) + '%');
     set('rothTriple', fmt(totalValue));
-    set('chartVal',   fmt(totalValue));
 
     // ── 401k ──
-    const val401k = k401Data.values ? parseFloat(k401Data.values[0][0]) : null;
+    const val401k = cell(k401Data);
     if (val401k) set('stack401k', fmt(val401k));
 
     // ── HSA ──
-    const valHSA = hsaData.values ? parseFloat(hsaData.values[0][0]) : null;
+    const valHSA = cell(hsaData);
     if (valHSA) set('hsaTriple', fmt(valHSA));
 
     // ── Update chart with total net worth from Dashboard M4 ──
-    const totalNetWorth = netWorthData.values ? parseFloat(netWorthData.values[0][0]) : (totalValue + (val401k || 0) + (valHSA || 0));
-    NET_WORTH_DATA[NET_WORTH_DATA.length - 1].val = Math.round(totalNetWorth);
-    set('chartVal', fmt(totalNetWorth));
-    drawChart();
+    // If the sheet's total is broken, keep the last saved figure rather than show a wrong one.
+    const totalNetWorth = cell(netWorthData);
+    if (totalNetWorth !== null) {
+      NET_WORTH_DATA[NET_WORTH_DATA.length - 1].val = Math.round(totalNetWorth);
+      set('chartVal', fmt(totalNetWorth));
+      drawChart();
+    }
 
     // ── Sector Allocation from sheet ──
-    if (allocData.values) {
+    const allocRows = (allocData.values || []).filter(r => Number.isFinite(parseFloat(r[2])));
+    if (allocRows.length) {
       const allocBarsEl = document.getElementById('allocBars');
       allocBarsEl.innerHTML = '';
-      const maxPct = Math.max(...allocData.values.map(r => parseFloat(r[2]) * 100));
-      allocData.values.forEach(r => {
+      const maxPct = Math.max(...allocRows.map(r => parseFloat(r[2]) * 100));
+      allocRows.forEach(r => {
         const sector  = r[0];
         const pct     = (parseFloat(r[2]) * 100).toFixed(1);
         const tickers = r[3] || '';

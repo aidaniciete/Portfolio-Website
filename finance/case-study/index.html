@@ -225,7 +225,7 @@
         var fmt = nw>=1000 ? '$'+(nw/1000).toFixed(1).replace(/\.0$/,'')+'k+' : '$'+Math.round(nw);
         document.getElementById('liveNW').textContent = fmt;
       }
-      if(cagr!==null) document.getElementById('liveCAGR').textContent = (cagr*100).toFixed(1)+'%';
+      if(cagr!==null && !isNaN(cagr)) document.getElementById('liveCAGR').textContent = (cagr*100).toFixed(1)+'%';
     }).catch(function(){});
   })();
 </script>
