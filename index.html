@@ -514,14 +514,14 @@
       <div class="entry hang">
         <h3>Investing</h3>
         <div class="flow">
-          <p>I opened a Roth IRA at 19 with $500. At 23 it’s <span id="descNetWorth">$42k+</span> across a Roth IRA, a 401(k) and an HSA, in <span id="liveBadge">31 positions</span>, each with a written thesis: a few high-conviction stocks, quant factor ETFs, some REITs and international exposure. The figures and the chart’s latest point read from the tracker, so they’re live.</p>
+          <p>I opened a Roth IRA at 19 with $500. At 23 it’s <span id="descNetWorth">$48k+</span> across a Roth IRA, a 401(k) and an HSA, with <span id="liveBadge">18 positions</span> in the Roth, each with a written thesis: a few high-conviction stocks, plus quant factor ETFs for value, momentum and international exposure. The figures and the chart’s latest point read from the tracker, so they’re live.</p>
           <div class="chart">
-            <canvas id="nwChart" width="640" height="180" role="img" aria-label="Net worth from August 2023 to March 2026, rising from $1,600 to about $42,000"></canvas>
+            <canvas id="nwChart" width="640" height="180" role="img" aria-label="Combined Roth IRA, 401(k) and HSA value from August 2023 to March 2026, rising from $1,600 to about $42,000"></canvas>
             <div class="labels"><span>Aug ’23</span><span>Feb ’24</span><span>Aug ’24</span><span>Mar ’25</span><span>Sep ’25</span><span>Mar ’26</span></div>
             <div class="stats">
-              <div><strong id="liveNetWorth">$42k+</strong><span>Net worth now</span></div>
-              <div id="cagrStat" hidden><strong id="liveCAGR"></strong><span>Annual growth since the first deposit</span></div>
-              <div><strong>3½ years</strong><span>Invested so far</span></div>
+              <div><strong id="liveNetWorth">$48k+</strong><span>Across all three accounts now</span></div>
+              <div id="cagrStat" hidden><strong id="liveCAGR"></strong><span>Roth IRA annual return since the first deposit</span></div>
+              <div><strong id="yearsInvested">3.9 years</strong><span>Invested so far</span></div>
             </div>
           </div>
           <p><a class="link" href="/finance">The full tracker</a></p>
@@ -664,17 +664,17 @@
     if (e.key === 'ArrowRight') { idx = (idx + 1) % group.length; show(); }
   });
 
-  // Net worth chart: drawn once when it scrolls into view. Colours come from CSS so it fits the navy section.
+  // Account value chart: drawn once when it scrolls into view. Colours come from CSS so it fits the navy section.
   var points = [1600, 3000, 19900, 20900, 34700, 42300];
   var canvas = document.getElementById('nwChart');
   var drawn = false;
-  // The tracker script below swaps the last point for today's net worth, so the line ends at the live figure.
+  // The tracker script below swaps the last point for today's combined value, so the line ends at the live figure.
   window.setLatestNetWorth = function (v) {
     if (!canvas) return;
     points[points.length - 1] = Math.round(v);
     var last = document.querySelector('.chart .labels span:last-child');
     if (last) last.textContent = 'Now';
-    canvas.setAttribute('aria-label', 'Net worth from August 2023 to now, rising from $1,600 to $' + Math.round(v).toLocaleString());
+    canvas.setAttribute('aria-label', 'Combined Roth IRA, 401(k) and HSA value from August 2023 to now, rising from $1,600 to $' + Math.round(v).toLocaleString());
     if (drawn) drawChart(1);
   };
   function drawChart(progress) {
@@ -741,6 +741,11 @@
     if (rows.length) set('liveBadge', rows.length + ' positions');
   }).catch(function (err) { console.warn('Tracker fetch failed:', err); });
 })();
+</script>
+<script>
+  // Years since the first deposit (Dec 12, 2022), so this never goes stale.
+  (function () { var el = document.getElementById('yearsInvested'); if (!el) return;
+    var y = (Date.now() - Date.UTC(2022, 11, 12)) / (365.25 * 864e5); el.textContent = y.toFixed(1) + ' years'; })();
 </script>
 </body>
 </html>

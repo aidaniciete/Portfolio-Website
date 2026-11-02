@@ -48,9 +48,9 @@
       <p>Case study</p>
       <div class="flow">
         <div class="stats">
-          <div><strong id="liveNW">$42k+</strong><span>Current net worth</span></div>
-          <div><strong id="liveCAGR">16.7%</strong><span>CAGR since inception</span></div>
-          <div><strong>~3.5 yr</strong><span>Time invested</span></div>
+          <div><strong id="liveNW">$48k+</strong><span>Across all three accounts</span></div>
+          <div><strong id="liveCAGR">13.2%</strong><span>Roth IRA annual return</span></div>
+          <div><strong id="yearsInvested">3.9 years</strong><span>Time invested</span></div>
         </div>
         <p class="tags">Google Sheets API · live GOOGLEFINANCE prices · canvas chart · Roth IRA + 401(k) + HSA</p>
       </div>
@@ -105,7 +105,7 @@
     <div class="flow">
       <p class="lead">Honestly? I just loved seeing the number go up.</p>
       <p>I wanted a live dashboard that showed me exactly where I stood — not a brokerage app with ads and upsells, but something I built myself that reflected how I actually think about my money. The spreadsheet came first, then the website to surface it.</p>
-      <p>It’s a personal project. The most personal kind — it’s literally my net worth on the screen, updating in real time.</p>
+      <p>It’s a personal project. The most personal kind — it’s literally my account balances on the screen, updating in real time.</p>
     </div>
   </section>
 
@@ -116,9 +116,9 @@
 
       <div class="plate out" style="margin-top: 2rem">
         <div class="flowchart">
-          <div class="node"><b>M1 Raw</b><span>31 positions, cost + live price</span></div>
+          <div class="node"><b>M1 Raw</b><span>18 positions, cost + live price</span></div>
           <div class="arrow" aria-hidden="true">→</div>
-          <div class="node"><b>Dashboard</b><span>live totals, =SUM + =RRI</span></div>
+          <div class="node"><b>Dashboard</b><span>live totals, =SUM + =XIRR</span></div>
           <div class="arrow" aria-hidden="true">→</div>
           <div class="node"><b>Allocation</b><span>sector weights, auto-recalc</span></div>
           <div class="arrow" aria-hidden="true">→</div>
@@ -137,31 +137,31 @@
         <article class="entry hang">
           <p class="when">Growth rate</p>
           <div class="body">
-            <h3>Live CAGR via RRI</h3>
-            <p>CAGR is calculated in the sheet using <code>=RRI(3.5, D4, B4)</code> — lifetime deposits vs current net worth over 3.5 years. The website fetches <code>Dashboard!H4</code> directly and renders the decimal as a percentage.</p>
+            <h3>Annual return via XIRR</h3>
+            <p>The annual return is calculated in the sheet with <code>XIRR</code>, which counts each deposit from the date it went in and compares them with today’s Roth IRA value. An earlier version used <code>=RRI(3.5, D4, B4)</code>, which treated every deposit as if it had been made on day one and understated the return. The website fetches <code>Dashboard!H4</code> directly and renders the decimal as a percentage.</p>
           </div>
         </article>
         <article class="entry hang">
           <p class="when">Architecture</p>
           <div class="body">
             <h3>Single source of truth</h3>
-            <p>Update one position in Holdings and the Dashboard total, sector allocation, and net worth snapshot all recalculate instantly. The website is a read-only view — the spreadsheet is the source, the site is the display.</p>
+            <p>Update one position in Holdings and the Dashboard total, sector allocation, and account total all recalculate instantly. The website is a read-only view — the spreadsheet is the source, the site is the display.</p>
           </div>
         </article>
         <article class="entry hang">
           <p class="when">Visualization</p>
           <div class="body">
-            <h3>Net worth chart</h3>
-            <p>Historical net worth plotted on a canvas — hand-plotted data points from Dec 2022 to present with the final value updating live from the sheet on every page load.</p>
+            <h3>Account value chart</h3>
+            <p>The combined Roth IRA, 401(k) and HSA value plotted on a canvas — hand-plotted data points from Dec 2022 to present with the final value updating live from the sheet on every page load.</p>
           </div>
         </article>
       </div>
 
       <div class="code out" style="margin-top: 3.5rem">
         <div class="code-head"><span>Dashboard!H4 → Website</span><span>Google Sheets → Sheets API → live</span></div>
-        <pre><span class="cm">// In Google Sheets — RRI returns annualized growth as a decimal</span>
-<span class="cm">// 3.5 = years · D4 = lifetime deposits · B4 = current net worth</span>
-<span class="fn">=RRI</span>(<span class="nm">3.5</span>, D4, B4)              <span class="cm">→  0.167</span>
+        <pre><span class="cm">// In Google Sheets: XIRR counts every deposit from the day it went in</span>
+<span class="cm">// amounts = deposits (as money in) + today's Roth value · dates = when each happened</span>
+<span class="fn">=XIRR</span>(amounts, dates)              <span class="cm">→  0.132</span>
 
 <span class="cm">// Sheets API fetch — 7 ranges pulled in a single Promise.all()</span>
 <span class="kw">const</span> [m1, k401, hsa, deposits, netWorth, alloc, cagr] =
@@ -170,12 +170,12 @@
     <span class="fn">fetch</span>(<span class="st">`401k!C4`</span>),              <span class="cm">// T. Rowe Price balance</span>
     <span class="fn">fetch</span>(<span class="st">`HSA Holdings!F7`</span>),      <span class="cm">// Fidelity HSA balance</span>
     <span class="fn">fetch</span>(<span class="st">`Dashboard!D4`</span>),         <span class="cm">// lifetime deposits</span>
-    <span class="fn">fetch</span>(<span class="st">`Dashboard!L4`</span>),         <span class="cm">// total net worth</span>
+    <span class="fn">fetch</span>(<span class="st">`Dashboard!L4`</span>),         <span class="cm">// combined account value</span>
     <span class="fn">fetch</span>(<span class="st">`Allocation!B3:E11`</span>),    <span class="cm">// sector weights</span>
-    <span class="fn">fetch</span>(<span class="st">`Dashboard!H4`</span>),         <span class="cm">// live CAGR decimal</span>
+    <span class="fn">fetch</span>(<span class="st">`Dashboard!H4`</span>),         <span class="cm">// Roth IRA annual return</span>
   ]);
 
-<span class="fn">display</span>(cagr * <span class="nm">100</span> + <span class="st">"%"</span>);        <span class="cm">→  "16.7%"</span></pre>
+<span class="fn">display</span>(cagr * <span class="nm">100</span> + <span class="st">"%"</span>);        <span class="cm">→  "13.2%"</span></pre>
       </div>
 
       <div class="table-scroll out" style="margin-top: 3.5rem">
@@ -183,8 +183,8 @@
           <caption>Spreadsheet architecture</caption>
           <thead><tr><th>Tab</th><th>What it does</th><th>Used for</th></tr></thead>
           <tbody>
-            <tr><td>M1 Raw</td><td>31 positions — ticker, cost basis, live price via GOOGLEFINANCE, unrealized gain</td><td>Holdings table, total IRA value</td></tr>
-            <tr><td>Dashboard</td><td>Aggregates all accounts, calculates CAGR via RRI, tracks lifetime deposits</td><td>Net worth, CAGR, deposits</td></tr>
+            <tr><td>M1 Raw</td><td>18 positions — ticker, cost basis, live price via GOOGLEFINANCE, unrealized gain</td><td>Holdings table, total IRA value</td></tr>
+            <tr><td>Dashboard</td><td>Aggregates all accounts, calculates the annual return via XIRR, tracks lifetime deposits</td><td>Account total, annual return, deposits</td></tr>
             <tr><td>Allocation</td><td>Sector weights auto-calculated from Holdings — Technology, Financials, REITs etc.</td><td>Sector allocation chart</td></tr>
             <tr><td>401k</td><td>T. Rowe Price balance — single cell, manually updated</td><td>Account stack display</td></tr>
             <tr><td>HSA Holdings</td><td>Fidelity HSA — 3 funds, formula-driven total</td><td>Account stack display</td></tr>
@@ -228,6 +228,11 @@
       if(cagr!==null && !isNaN(cagr)) document.getElementById('liveCAGR').textContent = (cagr*100).toFixed(1)+'%';
     }).catch(function(){});
   })();
+</script>
+<script>
+  // Years since the first deposit (Dec 12, 2022), so this never goes stale.
+  (function () { var el = document.getElementById('yearsInvested'); if (!el) return;
+    var y = (Date.now() - Date.UTC(2022, 11, 12)) / (365.25 * 864e5); el.textContent = y.toFixed(1) + ' years'; })();
 </script>
 </body>
 </html>
