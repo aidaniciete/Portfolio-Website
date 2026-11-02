@@ -420,7 +420,7 @@ async function fetchSheets() {
     const [m1Res, k401Res, hsaRes, depositsRes, netWorthRes, allocRes, cagrRes] = await Promise.all([
       fetch(`${BASE}/M1%20Raw!A1:H50?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/401k!C4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
-      fetch(`${BASE}/HSA%20Holdings!F8?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
+      fetch(`${BASE}/HSA%20Holdings!F7?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Dashboard!D4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Dashboard!M4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
       fetch(`${BASE}/Allocation!B3:E11?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`),
@@ -540,7 +540,7 @@ async function fetchSheets() {
     const tests = [
       ['M1 Raw', `${BASE}/M1%20Raw!A1:H50?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
       ['401k',   `${BASE}/401k!C4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
-      ['HSA',    `${BASE}/HSA%20Holdings!F8?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
+      ['HSA',    `${BASE}/HSA%20Holdings!F7?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
       ['Dashboard D4', `${BASE}/Dashboard!D4?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE`],
     ];
     for (const [name, url] of tests) {
