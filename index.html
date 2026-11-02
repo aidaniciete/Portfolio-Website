@@ -182,13 +182,6 @@
     .entries > .entry + .entry { margin-top: clamp(3.5rem, 6vw, 5rem); }
     .entry video { width: 100%; aspect-ratio: 16 / 9; max-height: 28rem; background: #0a1834; object-fit: cover; }
 
-    .chart { background: var(--dark-surface); padding: 1.25rem 1.25rem 1.5rem; }
-    .chart canvas { width: 100%; height: 180px; color: var(--dark-ink); --chart-fill: rgba(243, 204, 87, 0.3); }
-    .chart .labels { display: flex; justify-content: space-between; margin-top: .4rem; font-size: var(--step-small); color: var(--dark-muted); }
-    .chart .stats { display: flex; flex-wrap: wrap; gap: 1rem 2.5rem; margin-top: 1.25rem; }
-    .chart .stats strong { display: block; font-family: var(--font-display); font-weight: 400; font-size: var(--step-lead); line-height: 1.1; font-variant-numeric: tabular-nums; }
-    .chart .stats span { font-size: var(--step-small); color: var(--dark-muted); }
-
     /* ---------- act three: contact, in yellow ---------- */
     .contact { background: var(--accent); color: var(--accent-ink); padding-block: clamp(4.5rem, 9vw, 7.5rem); }
     .contact h2 + .lead { margin-top: 1.4rem; }
@@ -515,17 +508,7 @@
       <div class="entry hang">
         <h3>Investing</h3>
         <div class="flow">
-          <p>I opened a Roth IRA at 19 with $500. At 23 it’s <span id="descNetWorth">$48k+</span> across a Roth IRA, a 401(k) and an HSA, with <span id="liveBadge">18 positions</span> in the Roth, each with a written thesis: a few high-conviction stocks, plus quant factor ETFs for value, momentum and international exposure. The figures and the chart’s latest point read from the tracker, so they’re live.</p>
-          <div class="chart">
-            <canvas id="nwChart" width="640" height="180" role="img" aria-label="Combined Roth IRA, 401(k) and HSA value from December 2022 to November 2026, rising from $500 to about $48,000"></canvas>
-            <div class="labels"><span>Dec ’22</span><span>Dec ’23</span><span>Dec ’24</span><span>Dec ’25</span><span>Nov ’26</span></div>
-            <div class="stats">
-              <div><strong id="liveNetWorth">$48k+</strong><span>Across all three accounts now</span></div>
-              <div id="cagrStat" hidden><strong id="liveCAGR"></strong><span>Roth IRA annual return since the first deposit</span></div>
-              <div><strong id="yearsInvested">3.9 years</strong><span>Invested so far</span></div>
-            </div>
-          </div>
-          <p><a class="link" href="/finance">The full tracker</a></p>
+          <p>I opened a Roth IRA at 19 and have kept contributing since. Every position has a written thesis, and I track the account in a spreadsheet I built for it: live prices, cost basis, sector weights and an annual return. My first version calculated that return with RRI, which treats every deposit as if it went in on day one, so it understated the result. Switching to XIRR, which dates each deposit, fixed it.</p>
         </div>
       </div>
 
@@ -664,90 +647,8 @@
     if (e.key === 'ArrowLeft') { idx = (idx - 1 + group.length) % group.length; show(); }
     if (e.key === 'ArrowRight') { idx = (idx + 1) % group.length; show(); }
   });
-
-  // Account value chart: drawn once when it scrolls into view. Colours come from CSS so it fits the navy section.
-  // Same history as /finance (Dec '22 to Nov '26); the last point is replaced by the live total.
-  var points = [500, 1600, 5200, 12800, 32800, 37200, 41800, 39905, 48455];
-  var canvas = document.getElementById('nwChart');
-  var drawn = false;
-  // The tracker script below swaps the last point for today's combined value, so the line ends at the live figure.
-  window.setLatestNetWorth = function (v) {
-    if (!canvas) return;
-    points[points.length - 1] = Math.round(v);
-    var last = document.querySelector('.chart .labels span:last-child');
-    if (last) last.textContent = 'Now';
-    canvas.setAttribute('aria-label', 'Combined Roth IRA, 401(k) and HSA value from December 2022 to now, rising from $500 to $' + Math.round(v).toLocaleString());
-    if (drawn) drawChart(1);
-  };
-  function drawChart(progress) {
-    var W = canvas.clientWidth || 640, H = 180, dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    var ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
-    var pad = { t: 12, r: 8, b: 8, l: 8 }, cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
-    var max = Math.max.apply(null, points);
-    var n = points.length, xs = [], ys = [];
-    for (var i = 0; i < n; i++) { xs.push(pad.l + (i / (n - 1)) * cw); ys.push(pad.t + ch - (points[i] / max) * ch); }
-    var cs = getComputedStyle(canvas);
-    var line = cs.color || '#0f2346';
-    var fill = cs.getPropertyValue('--chart-fill').trim() || 'rgba(243, 204, 87, 0.55)';
-    ctx.clearRect(0, 0, W, H);
-    ctx.save();
-    ctx.beginPath(); ctx.rect(0, 0, pad.l + cw * progress + 2, H); ctx.clip();
-    ctx.beginPath(); ctx.moveTo(xs[0], ys[0]);
-    for (i = 1; i < n; i++) { var cx = (xs[i - 1] + xs[i]) / 2; ctx.bezierCurveTo(cx, ys[i - 1], cx, ys[i], xs[i], ys[i]); }
-    ctx.lineTo(xs[n - 1], pad.t + ch); ctx.lineTo(xs[0], pad.t + ch); ctx.closePath();
-    ctx.fillStyle = fill; ctx.fill();
-    ctx.beginPath(); ctx.moveTo(xs[0], ys[0]);
-    for (i = 1; i < n; i++) { cx = (xs[i - 1] + xs[i]) / 2; ctx.bezierCurveTo(cx, ys[i - 1], cx, ys[i], xs[i], ys[i]); }
-    ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.stroke();
-    for (i = 0; i < n - 1; i++) { ctx.beginPath(); ctx.arc(xs[i], ys[i], 2.5, 0, Math.PI * 2); ctx.fillStyle = line; ctx.fill(); }
-    if (progress > 0.98) { ctx.beginPath(); ctx.arc(xs[n - 1], ys[n - 1], 6, 0, Math.PI * 2); ctx.fillStyle = '#f3cc57'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = line; ctx.stroke(); }
-    ctx.restore();
-  }
-  function animateChart() {
-    if (drawn || !canvas) return; drawn = true;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { drawChart(1); return; }
-    var start = null;
-    function step(t) { if (!start) start = t; var p = Math.min(1, (t - start) / 1400); var e = 1 - Math.pow(1 - p, 3); drawChart(e); if (p < 1) requestAnimationFrame(step); }
-    requestAnimationFrame(step);
-  }
-  if (canvas) {
-    if ('IntersectionObserver' in window) {
-      var chio = new IntersectionObserver(function (entries) { entries.forEach(function (e) { if (e.isIntersecting) { animateChart(); chio.disconnect(); } }); }, { threshold: 0.3 });
-      chio.observe(canvas);
-    } else animateChart();
-    var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (drawn) drawChart(1); }, 150); });
-  }
 })();
 </script>
 
-<script>
-// Live figures from the portfolio tracker (a read-only Google Sheet).
-(function () {
-  var SHEET_ID = '1i72mgTMMFTpGmc8QUOXwtdkiaA8Jold9qb8fK9nECOM';
-  var API_KEY  = 'AIzaSyDe-nqy7Pz2svs3IIHvcJS_2HU-GAS3wbg';
-  var BASE     = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + '/values';
-  function fmtMoney(n) { return n >= 1000 ? '$' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : '$' + Math.round(n); }
-  function set(id, text) { var el = document.getElementById(id); if (el && text) el.textContent = text; }
-  if (!window.fetch) return;
-  function get(range) { return fetch(BASE + '/' + range + '?key=' + API_KEY + '&valueRenderOption=UNFORMATTED_VALUE').then(function (r) { return r.json(); }); }
-  function cell(d) { var v = d && d.values ? parseFloat(d.values[0][0]) : NaN; return isFinite(v) ? v : null; }
-  Promise.all([get('Holdings!F2'), get('401k!C4'), get('HSA%20Holdings!F7'), get('Dashboard!H4'), get('M1%20Raw!A1:H50')]).then(function (res) {
-    // The combined figure is the three accounts added up here (same as /finance), so it always foots.
-    var roth = cell(res[0]), k401 = cell(res[1]), hsa = cell(res[2]);
-    var nw = roth !== null && k401 !== null && hsa !== null ? Math.round(roth) + Math.round(k401) + Math.round(hsa) : null;
-    var cagr = cell(res[3]);
-    var rows = (res[4].values || []).slice(1).filter(function (r) { return r[0] && r[7]; });
-    if (nw) { set('liveNetWorth', '$' + Math.round(nw).toLocaleString()); set('descNetWorth', fmtMoney(nw) + '+'); if (window.setLatestNetWorth) window.setLatestNetWorth(nw); }
-    if (cagr !== null) { set('liveCAGR', (cagr * 100).toFixed(1) + '%'); var cs = document.getElementById('cagrStat'); if (cs) cs.hidden = false; }
-    if (rows.length) set('liveBadge', rows.length + ' positions');
-  }).catch(function (err) { console.warn('Tracker fetch failed:', err); });
-})();
-</script>
-<script>
-  // Years since the first deposit (Dec 12, 2022), so this never goes stale.
-  (function () { var el = document.getElementById('yearsInvested'); if (!el) return;
-    var y = (Date.now() - Date.UTC(2022, 11, 12)) / (365.25 * 864e5); el.textContent = y.toFixed(1) + ' years'; })();
-</script>
 </body>
 </html>
