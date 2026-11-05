@@ -58,7 +58,7 @@
       <p>Case study</p>
       <div class="flow">
         <p class="lead">A practice audit of a made-up company’s purchase payments, checked against its own policy, people and vendor list.</p>
-        <p class="tags">JavaScript · a new random company every round · three-way match · tested across 3,000 rounds · built with a lot of help from AI</p>
+        <p class="tags">JavaScript · a new random company every round · three-way match · built with a lot of help from AI</p>
       </div>
     </div>
   </section>
@@ -67,7 +67,7 @@
   <section class="frame section">
     <h2 class="out">Why I built it</h2>
     <div class="flow">
-      <p>In March 2026, a mock recruiter review of my résumé made a fair point: nothing on it showed any accounting skill yet. I hadn’t started my accounting classes, and I didn’t want to wait for them to start learning how fraud shows up in a company’s records.</p>
+      <p>I hadn’t started my accounting classes yet, and I didn’t want to wait for them to start learning how fraud shows up in a company’s records.</p>
       <p>So I built something to practice on. I leaned on AI to write most of the code. I decided what it should do and checked what came out, which is how the two fixes further down this page happened.</p>
       <p>I expected the rounds to be easy, since I’d made them. They weren’t, which was the point.</p>
     </div>
@@ -137,7 +137,7 @@
   <section class="frame section">
     <h2 class="out">Fix two: an answer key the evidence has to support</h2>
     <div class="flow">
-      <p>A later review of the sandbox found a bigger problem. The answer key came from whatever the generator had planted, not from the evidence. A single $24,700 payment was marked as threshold splitting, though one purchase under a limit doesn’t show splitting. An “unregistered” vendor was really a name that differed between the PO and the invoice, and there was no vendor list to check it against. The three-way match was decided by the answer key instead of the documents, some totals were a few cents off from rounding, and wrong flags didn’t lower the score.</p>
+      <p>The bigger problem came later. The answer key came from whatever the generator had planted, not from the evidence. A single $24,700 payment was marked as threshold splitting, though one purchase under a limit doesn’t show splitting. An “unregistered” vendor was really a name that differed between the PO and the invoice, and there was no vendor list to check it against. The three-way match was decided by the answer key instead of the documents, some totals were a few cents off from rounding, and wrong flags didn’t lower the score.</p>
       <p>So I rebuilt it:</p>
     </div>
     <ul class="ticks">
@@ -145,9 +145,7 @@
       <li>Money is kept in whole cents, and every total is quantity × unit price.</li>
       <li>Split purchases are real groups of POs that share a project, vendor and approver.</li>
       <li>A duplicate payment is a second invoice tied to a PO and receiving report that were already paid.</li>
-      <li>A separate check reads every payment’s documents against the policy and decides what’s wrong with it. That result is the answer key, and a round is only used when it finds exactly what was planted, one problem per row.</li>
-      <li>Automated tests build 3,000 rounds and recheck every row against the rules.</li>
-    </ul>
+      <li>A separate check reads every payment’s documents against the policy and decides what’s wrong with it. That result is the answer key, and a round is only used when it finds exactly what was planted, one problem per row.</li>    </ul>
   </section>
 
   <!-- ============ what it leaves out ============ -->
